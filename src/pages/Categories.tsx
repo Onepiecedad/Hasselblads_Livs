@@ -1,50 +1,54 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Apple, Carrot, Cookie, Milk, Beef, Flower2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import fruktGront from "@/assets/category-frukt-gront.jpg";
+import mejeriAgg from "@/assets/category-mejeri-agg.png";
+import skafferi from "@/assets/category-skafferi.jpg";
+import sottGott from "@/assets/category-sott-gott.jpg";
+import ostChark from "@/assets/category-ost-chark.jpg";
+import brod from "@/assets/category-brod.jpg";
+import notterTorkad from "@/assets/category-notter-torkad.jpg";
+import snacksDryck from "@/assets/category-snacks-dryck.jpg";
 
 const Categories = () => {
   const categories = [
     {
-      name: "Frukt",
-      icon: Apple,
-      description: "Färsk frukt från världens hörn",
+      name: "Frukt & Grönt",
+      image: fruktGront,
       count: "45+ produkter",
-      color: "bg-accent",
     },
     {
-      name: "Grönsaker",
-      icon: Carrot,
-      description: "Ekologiska och lokala grönsaker",
-      count: "60+ produkter",
-      color: "bg-primary",
-    },
-    {
-      name: "Mejeri",
-      icon: Milk,
-      description: "Mjölk, ost och mejeriprodukter",
+      name: "Mejeri & Ägg",
+      image: mejeriAgg,
       count: "30+ produkter",
-      color: "bg-secondary",
     },
     {
-      name: "Bröd & Bakverk",
-      icon: Cookie,
-      description: "Nybakat varje dag",
+      name: "Skafferi",
+      image: skafferi,
+      count: "50+ produkter",
+    },
+    {
+      name: "Sött & Gott",
+      image: sottGott,
       count: "25+ produkter",
-      color: "bg-peach",
     },
     {
-      name: "Kött & Fisk",
-      icon: Beef,
-      description: "Kvalitetskött och färsk fisk",
+      name: "Ost & Chark",
+      image: ostChark,
       count: "35+ produkter",
-      color: "bg-yellow",
     },
     {
-      name: "Blommor",
-      icon: Flower2,
-      description: "Färska snittblommor",
+      name: "Bröd",
+      image: brod,
       count: "20+ produkter",
-      color: "bg-accent",
+    },
+    {
+      name: "Nötter & Torkad frukt",
+      image: notterTorkad,
+      count: "15+ produkter",
+    },
+    {
+      name: "Snacks & Dryck",
+      image: snacksDryck,
+      count: "40+ produkter",
     },
   ];
 
@@ -58,21 +62,22 @@ const Categories = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {categories.map((category, index) => (
             <Link key={index} to="/webbutik">
-              <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer h-full border-2 hover:border-primary">
-                <CardContent className="p-8">
-                  <div
-                    className={`w-16 h-16 ${category.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <category.icon className="h-8 w-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">{category.name}</h3>
-                  <p className="text-muted-foreground mb-4">{category.description}</p>
-                  <span className="text-sm font-medium text-primary">{category.count}</span>
-                </CardContent>
-              </Card>
+              <div className="group cursor-pointer h-full">
+                <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <div className="mt-3 text-center">
+                  <h3 className="text-lg font-semibold mb-1">{category.name}</h3>
+                  <span className="text-sm text-muted-foreground">{category.count}</span>
+                </div>
+              </div>
             </Link>
           ))}
         </div>

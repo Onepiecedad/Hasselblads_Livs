@@ -1,34 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Apple, Leaf, Sparkles, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-produce.jpg";
+import fruktGront from "@/assets/category-frukt-gront.jpg";
+import mejeriAgg from "@/assets/category-mejeri-agg.png";
+import skafferi from "@/assets/category-skafferi.jpg";
+import sottGott from "@/assets/category-sott-gott.jpg";
 
 const Home = () => {
   const categories = [
     {
-      title: "Godast just nu",
-      icon: Apple,
-      color: "bg-accent",
-      description: "Säsongens bästa",
-    },
-    {
-      title: "Säsongspremiärer & Nyheter",
-      icon: Sparkles,
-      color: "bg-secondary",
-      description: "Nytt i sortimentet",
-    },
-    {
-      title: "Varor i säsong",
-      icon: Leaf,
-      color: "bg-peach",
+      title: "Frukt & Grönt",
+      image: fruktGront,
       description: "Färskt från säsongen",
     },
     {
-      title: "Erbjudanden",
-      icon: Package,
-      color: "bg-yellow",
-      description: "Bästa priserna",
+      title: "Mejeri & Ägg",
+      image: mejeriAgg,
+      description: "Kvalitet varje dag",
+    },
+    {
+      title: "Skafferi",
+      image: skafferi,
+      description: "Allt du behöver",
+    },
+    {
+      title: "Sött & Gott",
+      image: sottGott,
+      description: "Njut av livet",
     },
   ];
 
@@ -64,24 +63,25 @@ const Home = () => {
       </section>
 
       {/* Categories Grid */}
-      <section className="py-16 bg-muted/50">
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((category, index) => (
-              <Card
-                key={index}
-                className="group hover:shadow-lg transition-all duration-300 cursor-pointer border-2 hover:border-primary"
-              >
-                <CardContent className="p-8 text-center">
-                  <div
-                    className={`w-20 h-20 ${category.color} rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`}
-                  >
-                    <category.icon className="h-10 w-10 text-white" />
+              <Link key={index} to="/kategorier">
+                <div className="group cursor-pointer h-full">
+                  <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <img
+                      src={category.image}
+                      alt={category.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">{category.title}</h3>
-                  <p className="text-muted-foreground">{category.description}</p>
-                </CardContent>
-              </Card>
+                  <div className="mt-3 text-center">
+                    <h3 className="text-lg font-semibold mb-1">{category.title}</h3>
+                    <p className="text-sm text-muted-foreground">{category.description}</p>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

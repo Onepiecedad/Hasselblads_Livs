@@ -40,7 +40,10 @@ export default {
           foreground: "hsl(var(--accent-foreground))",
         },
         peach: "hsl(var(--peach))",
-        yellow: "hsl(var(--yellow))",
+        cream: "hsl(var(--cream))",
+        pink: "hsl(var(--pink))",
+        sky: "hsl(var(--sky))",
+        teal: "hsl(var(--teal))",
         popover: {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
