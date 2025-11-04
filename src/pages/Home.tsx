@@ -2,32 +2,32 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-produce.jpg";
-import fruktGront from "@/assets/category-frukt-gront.jpg";
-import mejeriAgg from "@/assets/category-mejeri-agg.png";
-import skafferi from "@/assets/category-skafferi.jpg";
-import sottGott from "@/assets/category-sott-gott.jpg";
+import godastJustNu from "@/assets/godast-just-nu.png";
+import sasongspremiar from "@/assets/sasongspremiar.png";
+import varoriSasong from "@/assets/varor-i-sasong.png";
+import erbjudanden from "@/assets/erbjudanden.png";
 
 const Home = () => {
   const categories = [
     {
-      title: "Frukt & Grönt",
-      image: fruktGront,
+      title: "Godast just nu",
+      image: godastJustNu,
+      description: "Säsongens bästa",
+    },
+    {
+      title: "Säsongspremiärer & Nyheter",
+      image: sasongspremiar,
+      description: "Nytt i sortimentet",
+    },
+    {
+      title: "Varor i säsong",
+      image: varoriSasong,
       description: "Färskt från säsongen",
     },
     {
-      title: "Mejeri & Ägg",
-      image: mejeriAgg,
-      description: "Kvalitet varje dag",
-    },
-    {
-      title: "Skafferi",
-      image: skafferi,
-      description: "Allt du behöver",
-    },
-    {
-      title: "Sött & Gott",
-      image: sottGott,
-      description: "Njut av livet",
+      title: "Erbjudanden",
+      image: erbjudanden,
+      description: "Bästa priserna",
     },
   ];
 
