@@ -54,19 +54,24 @@ const About = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Vår historia</h2>
             <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
               <p>
-                Hasselblads Livs grundades med en enkel men kraftfull vision: att erbjuda
-                Göteborgs invånare tillgång till färska, kvalitetsgranskade frukt och grönsaker
-                med enkel och snabb leverans.
+                Hasselblads historia i Göteborg börjar redan 1878, när Davida Hasselblad grundade 
+                AB D. Hasselblads Charkuteri. Hon var en pionjär. I en tid då få kvinnor drev företag 
+                byggde hon ett uppskattat namn för kvalitet, noggrannhet och omtanke om råvaran.
               </p>
               <p>
-                Genom åren har vi vuxit från en liten lokal butik till en modern webbutik som
-                betjänar hela regionen. Men våra värderingar förblir desamma – kvalitet,
-                fräschhet och kundnöjdhet kommer alltid först.
+                Över hundra år senare lever samma anda vidare i Hasselblads Frukt & Grönt i Mölndal. 
+                Butiken öppnade 2003 och drivs i dag av Axel Hasselblad – en ättling till den 
+                ursprungliga Hasselblad-familjen.
               </p>
               <p>
-                Idag arbetar vi med noggrant utvalda leverantörer både lokalt och internationellt
-                för att kunna erbjuda ett brett sortiment året runt, samtidigt som vi alltid
-                prioriterar säsongens produkter och ekologiska alternativ.
+                Vi har bytt kött mot grönsaker, men värderingarna är desamma: kvalitet framför 
+                kvantitet, personligt bemötande och respekt för maten. Hos oss hittar du frukt, 
+                grönsaker och delikatesser av högsta klass, handplockade med samma omsorg som en 
+                gång i charkuteriet på 1800-talet.
+              </p>
+              <p>
+                Från Davidas charkdisk till dagens fruktstånd har det alltid handlat om en sak – 
+                att ge människor god mat med hjärta.
               </p>
             </div>
           </div>
