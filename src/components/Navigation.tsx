@@ -11,6 +11,7 @@ const Navigation = () => {
     { name: "Hem", path: "/" },
     { name: "Webbutik", path: "/webbutik" },
     { name: "Kategorier", path: "/kategorier" },
+    { name: "Vår butik", path: "/var-butik" },
     { name: "Kontakt", path: "/kontakt" },
     { name: "Om oss", path: "/om-oss" },
   ];
