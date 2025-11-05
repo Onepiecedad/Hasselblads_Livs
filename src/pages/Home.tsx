@@ -76,10 +76,6 @@ const Home = () => {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <div className="mt-3 text-center">
-                    <h3 className="text-lg font-semibold mb-1">{category.title}</h3>
-                    <p className="text-sm text-muted-foreground">{category.description}</p>
-                  </div>
                 </div>
               </Link>
             ))}
