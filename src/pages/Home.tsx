@@ -1,14 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-produce.jpg";
 import godastJustNu from "@/assets/godast-just-nu.png";
 import sasongspremiar from "@/assets/sasongspremiar.png";
 import varoriSasong from "@/assets/varor-i-sasong.png";
 import erbjudanden from "@/assets/erbjudanden.png";
+import fruktGront from "@/assets/category-frukt-gront.jpg";
+import mejeriAgg from "@/assets/category-mejeri-agg.png";
+import skafferi from "@/assets/category-skafferi.jpg";
+import sottGott from "@/assets/category-sott-gott.jpg";
+import ostChark from "@/assets/category-ost-chark.jpg";
+import brod from "@/assets/category-brod.jpg";
+import notterTorkad from "@/assets/category-notter-torkad.jpg";
+import snacksDryck from "@/assets/category-snacks-dryck.jpg";
 
 const Home = () => {
-  const categories = [
+  const heroCategories = [
     {
       title: "Godast just nu",
       image: godastJustNu,
@@ -28,6 +35,49 @@ const Home = () => {
       title: "Erbjudanden",
       image: erbjudanden,
       description: "Bästa priserna",
+    },
+  ];
+
+  const productCategories = [
+    {
+      name: "Frukt & Grönt",
+      image: fruktGront,
+      count: "45+ produkter",
+    },
+    {
+      name: "Mejeri & Ägg",
+      image: mejeriAgg,
+      count: "30+ produkter",
+    },
+    {
+      name: "Skafferi",
+      image: skafferi,
+      count: "50+ produkter",
+    },
+    {
+      name: "Sött & Gott",
+      image: sottGott,
+      count: "25+ produkter",
+    },
+    {
+      name: "Ost & Chark",
+      image: ostChark,
+      count: "35+ produkter",
+    },
+    {
+      name: "Bröd",
+      image: brod,
+      count: "20+ produkter",
+    },
+    {
+      name: "Nötter & Torkad frukt",
+      image: notterTorkad,
+      count: "15+ produkter",
+    },
+    {
+      name: "Snacks & Dryck",
+      image: snacksDryck,
+      count: "40+ produkter",
     },
   ];
 
@@ -66,7 +116,7 @@ const Home = () => {
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
+            {heroCategories.map((category, index) => (
               <Link key={index} to="/kategorier">
                 <div className="group cursor-pointer h-full">
                   <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
@@ -107,25 +157,27 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
+      {/* Product Categories */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Populära produkter</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((item) => (
-              <Card key={item} className="overflow-hidden group hover:shadow-xl transition-shadow">
-                <div className="aspect-square bg-muted relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-secondary/20 group-hover:scale-110 transition-transform duration-500" />
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">Produkt {item}</h3>
-                  <p className="text-muted-foreground mb-4">Färsk och kvalitetsgranskad</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-primary">49 kr</span>
-                    <Button size="sm">Lägg till</Button>
+          <h2 className="text-4xl font-bold text-center mb-12">Kategorier</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {productCategories.map((category, index) => (
+              <Link key={index} to="/webbutik">
+                <div className="group cursor-pointer h-full">
+                  <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="mt-3 text-center">
+                    <h3 className="text-lg font-semibold mb-1">{category.name}</h3>
+                    <span className="text-sm text-muted-foreground">{category.count}</span>
+                  </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
