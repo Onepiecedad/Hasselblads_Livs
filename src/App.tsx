@@ -7,6 +7,7 @@ import Home from "./pages/Home";
 import Webshop from "./pages/Webshop";
 import Categories from "./pages/Categories";
 import Store from "./pages/Store";
+import Delivery from "./pages/Delivery";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/webbutik" element={<Webshop />} />
               <Route path="/kategorier" element={<Categories />} />
+              <Route path="/leverans" element={<Delivery />} />
               <Route path="/var-butik" element={<Store />} />
               <Route path="/kontakt" element={<Contact />} />
               <Route path="/om-oss" element={<About />} />

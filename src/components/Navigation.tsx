@@ -8,9 +8,8 @@ const Navigation = () => {
   const location = useLocation();
 
   const navItems = [
-    { name: "Hem", path: "/" },
     { name: "Webbutik", path: "/webbutik" },
-    { name: "Kategorier", path: "/kategorier" },
+    { name: "Leverans", path: "/leverans" },
     { name: "Vår butik", path: "/var-butik" },
     { name: "Kontakt", path: "/kontakt" },
     { name: "Om oss", path: "/om-oss" },
