@@ -19,18 +19,33 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Snabblänkar</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/webbutik" className="hover:opacity-80 transition-opacity">
-                  Webbutik
-                </Link>
-              </li>
-              <li>
-                <Link to="/kategorier" className="hover:opacity-80 transition-opacity">
-                  Kategorier
-                </Link>
-              </li>
-              <li>
                 <Link to="/om-oss" className="hover:opacity-80 transition-opacity">
                   Om oss
+                </Link>
+              </li>
+              <li>
+                <Link to="/kundservice" className="hover:opacity-80 transition-opacity">
+                  Frågor & Svar
+                </Link>
+              </li>
+              <li>
+                <Link to="/kopvillkor" className="hover:opacity-80 transition-opacity">
+                  Köpvillkor
+                </Link>
+              </li>
+              <li>
+                <Link to="/hemleverans" className="hover:opacity-80 transition-opacity">
+                  Leverans
+                </Link>
+              </li>
+              <li>
+                <Link to="/hallbarhet" className="hover:opacity-80 transition-opacity">
+                  Hållbarhet
+                </Link>
+              </li>
+              <li>
+                <Link to="/kontakt" className="hover:opacity-80 transition-opacity">
+                  Kontakt
                 </Link>
               </li>
             </ul>
@@ -48,11 +63,17 @@ const Footer = () => {
                 <Mail className="h-4 w-4" />
                 <span>info@hasselbladslivs.se</span>
               </li>
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                <span>Göteborg, Sverige</span>
+              <li className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 mt-0.5" />
+                <span>Frejagatan 12<br />Mölndal, Sverige</span>
               </li>
             </ul>
+            <div className="mt-4">
+              <h4 className="font-semibold mb-2">Öppettider</h4>
+              <p className="text-sm opacity-90">Mån-Fre: 08:00-18:00</p>
+              <p className="text-sm opacity-90">Lör: 09:00-15:00</p>
+              <p className="text-sm opacity-90">Sön: Stängt</p>
+            </div>
           </div>
 
           {/* Social */}

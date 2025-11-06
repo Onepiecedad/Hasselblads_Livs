@@ -9,17 +9,24 @@ const Navigation = () => {
 
   const navItems = [
     { name: "Webbutik", path: "/webbutik" },
-    { name: "Leverans", path: "/leverans" },
-    { name: "Vår butik", path: "/var-butik" },
-    { name: "Kontakt", path: "/kontakt" },
+    { name: "Säsong & Erbjudanden", path: "/sasong" },
+    { name: "Hemleverans", path: "/hemleverans" },
+    { name: "Butiken", path: "/butiken" },
     { name: "Om oss", path: "/om-oss" },
+    { name: "Kontakt", path: "/kontakt" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="sticky top-0 z-50 bg-card border-b border-border">
-      <div className="container mx-auto px-4">
+    <>
+      {/* Notice Bar */}
+      <div className="bg-primary text-primary-foreground py-2 text-center text-sm">
+        <p>Fri hemleverans i Mölndal vid order över 400 kr.</p>
+      </div>
+      
+      <nav className="sticky top-0 z-50 bg-card border-b border-border">
+        <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
@@ -89,6 +96,7 @@ const Navigation = () => {
         )}
       </div>
     </nav>
+    </>
   );
 };
 

@@ -29,10 +29,15 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/webbutik" element={<Webshop />} />
               <Route path="/kategorier" element={<Categories />} />
-              <Route path="/leverans" element={<Delivery />} />
-              <Route path="/var-butik" element={<Store />} />
+              <Route path="/hemleverans" element={<Delivery />} />
+              <Route path="/butiken" element={<Store />} />
               <Route path="/kontakt" element={<Contact />} />
               <Route path="/om-oss" element={<About />} />
+              {/* Placeholder routes for new pages */}
+              <Route path="/sasong" element={<Categories />} />
+              <Route path="/kundservice" element={<Contact />} />
+              <Route path="/kopvillkor" element={<About />} />
+              <Route path="/hallbarhet" element={<About />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
