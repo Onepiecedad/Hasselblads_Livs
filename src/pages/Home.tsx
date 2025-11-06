@@ -1,84 +1,41 @@
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { Truck, Instagram } from "lucide-react";
 import heroImage from "@/assets/hero-produce.jpg";
-import godastJustNu from "@/assets/godast-just-nu.png";
-import sasongspremiar from "@/assets/sasongspremiar.png";
-import varoriSasong from "@/assets/varor-i-sasong.png";
-import erbjudanden from "@/assets/erbjudanden.png";
-import fruktGront from "@/assets/category-frukt-gront.jpg";
-import mejeriAgg from "@/assets/category-mejeri-agg.png";
-import skafferi from "@/assets/category-skafferi.jpg";
-import sottGott from "@/assets/category-sott-gott.jpg";
-import ostChark from "@/assets/category-ost-chark.jpg";
-import brod from "@/assets/category-brod.jpg";
-import notterTorkad from "@/assets/category-notter-torkad.jpg";
-import snacksDryck from "@/assets/category-snacks-dryck.jpg";
+import storeInterior from "@/assets/store-interior.png";
+import storeProducts from "@/assets/store-products.png";
 
 const Home = () => {
-  const heroCategories = [
-    {
-      title: "Godast just nu",
-      image: godastJustNu,
-      description: "Säsongens bästa",
-    },
-    {
-      title: "Säsongspremiärer & Nyheter",
-      image: sasongspremiar,
-      description: "Nytt i sortimentet",
-    },
-    {
-      title: "Varor i säsong",
-      image: varoriSasong,
-      description: "Färskt från säsongen",
-    },
-    {
-      title: "Erbjudanden",
-      image: erbjudanden,
-      description: "Bästa priserna",
-    },
+  // Mock products for "Säsongens bästa" - 2x4 grid
+  const seasonalProducts = [
+    { id: 1, name: "Svenska jordgubbar", price: "45 kr", image: "/placeholder.svg" },
+    { id: 2, name: "Ekologiska tomater", price: "35 kr", image: "/placeholder.svg" },
+    { id: 3, name: "Färsk basilika", price: "25 kr", image: "/placeholder.svg" },
+    { id: 4, name: "Sparris", price: "55 kr", image: "/placeholder.svg" },
+    { id: 5, name: "Blåbär", price: "40 kr", image: "/placeholder.svg" },
+    { id: 6, name: "Rädisor", price: "20 kr", image: "/placeholder.svg" },
+    { id: 7, name: "Färsk dill", price: "15 kr", image: "/placeholder.svg" },
+    { id: 8, name: "Spenat", price: "30 kr", image: "/placeholder.svg" },
   ];
 
-  const productCategories = [
-    {
-      name: "Frukt & Grönt",
-      image: fruktGront,
-      count: "45+ produkter",
-    },
-    {
-      name: "Mejeri & Ägg",
-      image: mejeriAgg,
-      count: "30+ produkter",
-    },
-    {
-      name: "Skafferi",
-      image: skafferi,
-      count: "50+ produkter",
-    },
-    {
-      name: "Sött & Gott",
-      image: sottGott,
-      count: "25+ produkter",
-    },
-    {
-      name: "Ost & Chark",
-      image: ostChark,
-      count: "35+ produkter",
-    },
-    {
-      name: "Bröd",
-      image: brod,
-      count: "20+ produkter",
-    },
-    {
-      name: "Nötter & Torkad frukt",
-      image: notterTorkad,
-      count: "15+ produkter",
-    },
-    {
-      name: "Snacks & Dryck",
-      image: snacksDryck,
-      count: "40+ produkter",
-    },
+  // Mock products for "Erbjudanden" - 2x2 grid
+  const offers = [
+    { id: 1, name: "Avokado 3-pack", price: "39 kr", oldPrice: "55 kr", image: "/placeholder.svg" },
+    { id: 2, name: "Ekologiska morötter", price: "25 kr", oldPrice: "35 kr", image: "/placeholder.svg" },
+    { id: 3, name: "Gula lökar 1kg", price: "18 kr", oldPrice: "28 kr", image: "/placeholder.svg" },
+    { id: 4, name: "Persikor", price: "45 kr", oldPrice: "60 kr", image: "/placeholder.svg" },
+  ];
+
+  // Mock Instagram posts
+  const instagramPosts = [
+    { id: 1, image: "/placeholder.svg", alt: "Instagram post 1" },
+    { id: 2, image: "/placeholder.svg", alt: "Instagram post 2" },
+    { id: 3, image: "/placeholder.svg", alt: "Instagram post 3" },
+    { id: 4, image: "/placeholder.svg", alt: "Instagram post 4" },
+    { id: 5, image: "/placeholder.svg", alt: "Instagram post 5" },
+    { id: 6, image: "/placeholder.svg", alt: "Instagram post 6" },
   ];
 
   return (
@@ -88,7 +45,7 @@ const Home = () => {
         <div className="absolute inset-0 z-0">
           <img
             src={heroImage}
-            alt="Fresh produce"
+            alt="Färska råvaror från Hasselblads Livs"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40" />
@@ -112,69 +69,194 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Categories Grid */}
-      <section className="py-16 bg-muted/30">
+      {/* Säsongens bästa - 2x4 grid */}
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {heroCategories.map((category, index) => (
-              <Link key={index} to="/kategorier">
-                <div className="group cursor-pointer h-full">
-                  <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Säsongens bästa</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Handplockade favoriter som är extra goda just nu
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {seasonalProducts.map((product) => (
+              <Link key={product.id} to="/webbutik">
+                <Card className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-square bg-muted relative overflow-hidden">
                     <img
-                      src={category.image}
-                      alt={category.title}
+                      src={product.image}
+                      alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <h3 className="text-2xl md:text-3xl font-bold text-foreground text-center px-4">
-                        {category.title}
-                      </h3>
-                    </div>
                   </div>
-                </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
+                    <p className="text-lg font-bold text-primary">{product.price}</p>
+                  </div>
+                </Card>
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Delivery Section */}
-      <section className="py-20">
+      {/* Erbjudanden - 2x2 grid */}
+      <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6">Hemleverans</h2>
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-              Upplev en smidig och snabb leverans direkt till din dörr! Med vår enkla bokning
-              genom kassan väljer du det leveransalternativ som passar just dina behov. Ange din
-              specifika adress för en personlig och exakt leveransupplevelse.
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Erbjudanden</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Bästa priserna på utvalda produkter
             </p>
-            <Link to="/kontakt">
-              <Button size="lg" className="px-8">
-                Mer information
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
+            {offers.map((product) => (
+              <Link key={product.id} to="/webbutik">
+                <Card className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-square bg-muted relative overflow-hidden">
+                    <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded-md text-xs font-bold z-10">
+                      REA
+                    </div>
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <p className="text-lg font-bold text-primary">{product.price}</p>
+                      <p className="text-sm text-muted-foreground line-through">{product.oldPrice}</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link to="/sasong">
+              <Button variant="outline" size="lg">
+                Se alla erbjudanden
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Product Categories */}
+      {/* Hemleverans-teaser */}
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <Truck className="h-16 w-16 mx-auto mb-6" />
+            <h2 className="text-4xl font-bold mb-6">Hemleverans i Mölndal</h2>
+            <p className="text-xl mb-4 opacity-95 leading-relaxed">
+              Färska råvaror direkt till din dörr – packade samma morgon i vår butik på Frejagatan.
+            </p>
+            <p className="text-lg mb-8 opacity-90">
+              Fri frakt vid order över 400 kr
+            </p>
+            <Link to="/hemleverans">
+              <Button size="lg" variant="secondary" className="px-8">
+                Läs mer om hemleverans
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Butikbilder med CTA */}
+      <section className="py-16 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold mb-4">Välkommen till vår butik</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Upplev vårt noga utvalda sortiment i vår butik på Frejagatan i Mölndal
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
+              <img
+                src={storeInterior}
+                alt="Hasselblads Livs butiksmiljö"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
+              <img
+                src={storeProducts}
+                alt="Produkter i butiken"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+          <div className="text-center">
+            <Link to="/butiken">
+              <Button size="lg" variant="outline" className="px-8">
+                Hitta hit
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Instagram-feed */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Kategorier</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {productCategories.map((category, index) => (
-              <Link key={index} to="/webbutik">
-                <div className="group cursor-pointer h-full">
-                  <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
+          <div className="text-center mb-12">
+            <Instagram className="h-12 w-12 mx-auto mb-4 text-primary" />
+            <h2 className="text-4xl font-bold mb-4">Följ oss på Instagram</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              @hasselbladslivs
+            </p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {instagramPosts.map((post) => (
+              <a
+                key={post.id}
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group"
+              >
+                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative">
+                  <img
+                    src={post.image}
+                    alt={post.alt}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Instagram className="h-8 w-8 text-white" />
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter-prenumeration */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-4">Håll dig uppdaterad</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Prenumerera på vårt nyhetsbrev och få de senaste erbjudandena och säsongstipsen
+            </p>
+            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <Input
+                type="email"
+                placeholder="Din e-postadress"
+                className="flex-1"
+                required
+              />
+              <Button type="submit" size="lg" className="sm:w-auto">
+                Prenumerera
+              </Button>
+            </form>
+            <p className="text-sm text-muted-foreground mt-4">
+              Vi skickar inga spam-mejl och du kan avsluta prenumerationen när som helst
+            </p>
           </div>
         </div>
       </section>
