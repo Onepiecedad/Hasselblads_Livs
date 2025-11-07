@@ -1,10 +1,44 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import usePageMetadata from "@/hooks/usePageMetadata";
 
 const Contact = () => {
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
+
+  const structuredData = useMemo(
+    () => [
+      {
+        id: "schema-contact-page",
+        data: {
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Kontakt - Hasselblads Livs",
+          url: `${origin}/kontakt`,
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: "+46-31-123-45-67",
+            contactType: "customer service",
+            areaServed: "SE",
+            availableLanguage: ["sv"],
+          },
+        },
+      },
+    ],
+    [origin],
+  );
+
+  usePageMetadata({
+    title: "Kontakta oss | Hasselblads Livs",
+    description: "Kontakta Hasselblads Livs i Mölndal för frågor om beställningar, leverans och samarbeten.",
+    canonicalPath: "/kontakt",
+    ogImage: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80&fm=webp",
+    structuredData,
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission
@@ -67,7 +101,8 @@ const Contact = () => {
                   <p className="text-muted-foreground">
                     Hasselblads Livs
                     <br />
-                    Göteborg, Sverige
+                    Frejagatan 9<br />
+                    431 45 Mölndal
                   </p>
                 </div>
               </CardContent>

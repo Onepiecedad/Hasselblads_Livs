@@ -2,7 +2,22 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+  ],
+  safelist: [
+    { pattern: /grid-cols-(1|2|3|4)/ },
+    { pattern: /col-span-(1|2|3|4|6|12)/ },
+    { pattern: /gap-(2|3|4|6|8)/ },
+    { pattern: /badge-(new|sale|season)/ },
+    { pattern: /bg-(red|green|amber|blue|emerald)-(100|200|500)/ },
+    { pattern: /z-(0|10|20|30|40|50)/ },
+    { pattern: /(hidden|block|flex|inline-flex)/ },
+  ],
   prefix: "",
   theme: {
     container: {

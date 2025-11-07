@@ -10,9 +10,15 @@ import Store from "./pages/Store";
 import Delivery from "./pages/Delivery";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
+import Season from "./pages/Season";
+import CustomerService from "./pages/CustomerService";
 import NotFound from "./pages/NotFound";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
+import MiniCartDrawer from "./components/shop/MiniCartDrawer";
+import { CartProvider } from "./context/CartContext";
+import BreadcrumbSchema from "./components/seo/BreadcrumbSchema";
+import Checkout from "./pages/Checkout";
+import LegacyRedirects from "./components/seo/LegacyRedirects";
+import RootLayout from "./layouts/RootLayout";
 
 const queryClient = new QueryClient();
 
@@ -21,30 +27,30 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <div className="flex flex-col min-h-screen">
-          <Navigation />
-          <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/webbutik" element={<Webshop />} />
-              <Route path="/kategorier" element={<Categories />} />
-              <Route path="/hemleverans" element={<Delivery />} />
-              <Route path="/butiken" element={<Store />} />
-              <Route path="/kontakt" element={<Contact />} />
-              <Route path="/om-oss" element={<About />} />
-              {/* Placeholder routes for new pages */}
-              <Route path="/sasong" element={<Categories />} />
-              <Route path="/kundservice" element={<Contact />} />
-              <Route path="/kopvillkor" element={<About />} />
-              <Route path="/hallbarhet" element={<About />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <CartProvider>
+        <BrowserRouter>
+          <LegacyRedirects />
+          <BreadcrumbSchema />
+          <Routes>
+            <Route path="/" element={<RootLayout />}>
+              <Route index element={<Home />} />
+              <Route path="webbutik" element={<Webshop />} />
+              <Route path="kategorier" element={<Categories />} />
+              <Route path="hemleverans" element={<Delivery />} />
+              <Route path="butiken" element={<Store />} />
+              <Route path="kontakt" element={<Contact />} />
+              <Route path="om-oss" element={<About />} />
+              <Route path="säsong" element={<Season />} />
+              <Route path="kundservice" element={<CustomerService />} />
+              <Route path="kassa" element={<Checkout />} />
+              <Route path="kopvillkor" element={<About />} />
+              <Route path="hallbarhet" element={<About />} />
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </BrowserRouter>
+            </Route>
+          </Routes>
+          <MiniCartDrawer />
+        </BrowserRouter>
+      </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

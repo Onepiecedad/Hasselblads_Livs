@@ -1,56 +1,14 @@
 import { Link } from "react-router-dom";
-import fruktGront from "@/assets/category-frukt-gront.jpg";
-import mejeriAgg from "@/assets/category-mejeri-agg.png";
-import skafferi from "@/assets/category-skafferi.jpg";
-import sottGott from "@/assets/category-sott-gott.jpg";
-import ostChark from "@/assets/category-ost-chark.jpg";
-import brod from "@/assets/category-brod.jpg";
-import notterTorkad from "@/assets/category-notter-torkad.jpg";
-import snacksDryck from "@/assets/category-snacks-dryck.jpg";
+import usePageMetadata from "@/hooks/usePageMetadata";
+import { categoryCards } from "@/lib/categoryCards";
 
 const Categories = () => {
-  const categories = [
-    {
-      name: "Frukt & Grönt",
-      image: fruktGront,
-      count: "45+ produkter",
-    },
-    {
-      name: "Mejeri & Ägg",
-      image: mejeriAgg,
-      count: "30+ produkter",
-    },
-    {
-      name: "Skafferi",
-      image: skafferi,
-      count: "50+ produkter",
-    },
-    {
-      name: "Sött & Gott",
-      image: sottGott,
-      count: "25+ produkter",
-    },
-    {
-      name: "Ost & Chark",
-      image: ostChark,
-      count: "35+ produkter",
-    },
-    {
-      name: "Bröd",
-      image: brod,
-      count: "20+ produkter",
-    },
-    {
-      name: "Nötter & Torkad frukt",
-      image: notterTorkad,
-      count: "15+ produkter",
-    },
-    {
-      name: "Snacks & Dryck",
-      image: snacksDryck,
-      count: "40+ produkter",
-    },
-  ];
+  usePageMetadata({
+    title: "Kategorier | Hasselblads Livs",
+    description: "Utforska kategorierna i Hasselblads Livs webbutik: frukt, grönt, mejeri, skafferi och mer.",
+    canonicalPath: "/kategorier",
+    ogImage: "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=1200&q=80&fm=webp",
+  });
 
   return (
     <div className="min-h-screen py-12">
@@ -62,17 +20,25 @@ const Categories = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => (
-            <Link key={index} to="/webbutik">
-              <div className="group cursor-pointer h-full">
-                <div className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {categoryCards.map((category, index) => (
+            <Link
+              key={index}
+              to={category.href}
+              className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-[24px]"
+              aria-label={category.name}
+              title={category.name}
+            >
+              <div className="relative overflow-hidden rounded-[24px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                <img
+                  src={category.image}
+                  alt={category.name}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+                <span className="sr-only">
+                  {category.name}. {category.description}. Utforska kategorin.
+                </span>
               </div>
             </Link>
           ))}

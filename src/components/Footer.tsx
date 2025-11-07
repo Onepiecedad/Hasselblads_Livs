@@ -1,7 +1,42 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Mail, Phone, MapPin } from "lucide-react";
 
 const Footer = () => {
+  useEffect(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
+    const scriptId = "schema-localbusiness-footer";
+    let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.id = scriptId;
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      name: "Hasselblads Livs",
+      url: `${origin}/butiken`,
+      telephone: "+46-31-123-45-67",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Frejagatan 9",
+        postalCode: "43145",
+        addressLocality: "Mölndal",
+        addressCountry: "SE",
+      },
+      openingHours: ["Mo-Fr 08:00-18:00", "Sa 09:00-15:00"],
+      sameAs: ["https://www.facebook.com/", "https://www.instagram.com/"],
+    });
+
+    return () => {
+      if (script) {
+        script.remove();
+      }
+    };
+  }, []);
+
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4 py-12">
@@ -65,7 +100,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5" />
-                <span>Frejagatan 12<br />Mölndal, Sverige</span>
+                <span>Frejagatan 9<br />Mölndal, Sverige</span>
               </li>
             </ul>
             <div className="mt-4">
@@ -80,10 +115,20 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Följ oss</h3>
             <div className="flex gap-4">
-              <a href="#" className="hover:opacity-80 transition-opacity">
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+              >
                 <Facebook className="h-6 w-6" />
               </a>
-              <a href="#" className="hover:opacity-80 transition-opacity">
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-80 transition-opacity"
+              >
                 <Instagram className="h-6 w-6" />
               </a>
             </div>

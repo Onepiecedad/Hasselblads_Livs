@@ -1,31 +1,28 @@
+import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Truck, Instagram } from "lucide-react";
 import heroImage from "@/assets/hero-produce.jpg";
-import storeInterior from "@/assets/store-interior.png";
-import storeProducts from "@/assets/store-products.png";
+import homeCardGodast from "@/assets/home-card-godast.png";
+import homeCardSasong from "@/assets/home-card-sasong.png";
+import homeCardVaror from "@/assets/home-card-varor.png";
+import homeCardErbjudanden from "@/assets/home-card-erbjudanden.png";
+import { categoryCards } from "@/lib/categoryCards";
+import usePageMetadata from "@/hooks/usePageMetadata";
 
 const Home = () => {
   // Mock products for "Säsongens bästa" - 2x4 grid
   const seasonalProducts = [
-    { id: 1, name: "Svenska jordgubbar", price: "45 kr", image: "/placeholder.svg" },
-    { id: 2, name: "Ekologiska tomater", price: "35 kr", image: "/placeholder.svg" },
-    { id: 3, name: "Färsk basilika", price: "25 kr", image: "/placeholder.svg" },
-    { id: 4, name: "Sparris", price: "55 kr", image: "/placeholder.svg" },
-    { id: 5, name: "Blåbär", price: "40 kr", image: "/placeholder.svg" },
-    { id: 6, name: "Rädisor", price: "20 kr", image: "/placeholder.svg" },
-    { id: 7, name: "Färsk dill", price: "15 kr", image: "/placeholder.svg" },
-    { id: 8, name: "Spenat", price: "30 kr", image: "/placeholder.svg" },
-  ];
-
-  // Mock products for "Erbjudanden" - 2x2 grid
-  const offers = [
-    { id: 1, name: "Avokado 3-pack", price: "39 kr", oldPrice: "55 kr", image: "/placeholder.svg" },
-    { id: 2, name: "Ekologiska morötter", price: "25 kr", oldPrice: "35 kr", image: "/placeholder.svg" },
-    { id: 3, name: "Gula lökar 1kg", price: "18 kr", oldPrice: "28 kr", image: "/placeholder.svg" },
-    { id: 4, name: "Persikor", price: "45 kr", oldPrice: "60 kr", image: "/placeholder.svg" },
+    { id: 1, name: "Svenska jordgubbar", price: "45 kr", image: "/produkter-frukt/svenska-jordgubbar.jpeg" },
+    { id: 2, name: "Ekologiska tomater", price: "35 kr", image: "/produkter-frukt/ekologiska-tomater.jpeg" },
+    { id: 3, name: "Färsk basilika", price: "25 kr", image: "/produkter-frukt/färsk-basilika.jpeg" },
+    { id: 4, name: "Sparris", price: "55 kr", image: "/produkter-frukt/sparris.jpeg" },
+    { id: 5, name: "Blåbär", price: "40 kr", image: "/produkter-frukt/blåbär.jpeg" },
+    { id: 6, name: "Rädisor", price: "20 kr", image: "/produkter-frukt/rädisor.jpeg" },
+    { id: 7, name: "Färsk dill", price: "15 kr", image: "/produkter-frukt/dill.jpeg" },
+    { id: 8, name: "Spenat", price: "30 kr", image: "/produkter-frukt/spenat.jpeg" },
   ];
 
   // Mock Instagram posts
@@ -37,6 +34,33 @@ const Home = () => {
     { id: 5, image: "/placeholder.svg", alt: "Instagram post 5" },
     { id: 6, image: "/placeholder.svg", alt: "Instagram post 6" },
   ];
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
+  const structuredData = useMemo(
+    () => [
+      {
+        id: "schema-organization",
+        data: {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Hasselblads Livs",
+          url: `${origin}/`,
+          logo: `${origin}/favicon.ico`,
+          sameAs: ["https://www.facebook.com/", "https://www.instagram.com/"],
+        },
+      },
+    ],
+    [origin],
+  );
+
+  usePageMetadata({
+    title: "Hasselblads Livs | Frukt & Grönt i Mölndal",
+    description:
+      "Handla färska frukter, grönsaker och delikatesser från Hasselblads Livs i Mölndal. Hemleverans, säsongens favoriter och aktuella erbjudanden.",
+    canonicalPath: "/",
+    ogImage: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=1200&q=80&fm=webp",
+    structuredData,
+  });
 
   return (
     <div className="min-h-screen">
@@ -69,6 +93,62 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Legacy highlight cards */}
+      <section className="py-16 bg-muted/20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto max-w-6xl">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  title: "Godast just nu",
+                  href: "/säsong?tab=godast-just-nu",
+                  image: homeCardGodast,
+                },
+                {
+                  title: "Säsongs­premiärer & Nyheter",
+                  href: "/säsong?tab=nyheter",
+                  image: homeCardSasong,
+                },
+                {
+                  title: "Varor i säsong",
+                  href: "/säsong?tab=i-sasong",
+                  image: homeCardVaror,
+                },
+                {
+                  title: "Erbjudanden",
+                  href: "/säsong?tab=erbjudanden",
+                  image: homeCardErbjudanden,
+                },
+              ].map((card) => (
+                <Link
+                  key={card.title}
+                  to={card.href}
+                  className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-[32px]"
+                >
+                  <div className="overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                    <div className="aspect-[4/3]">
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link to="/kategorier">
+                <Button size="lg" variant="outline">
+                  Utforska alla kategorier
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Säsongens bästa - 2x4 grid */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
@@ -80,13 +160,14 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {seasonalProducts.map((product) => (
-              <Link key={product.id} to="/webbutik">
+              <Link key={product.id} to="/säsong?tab=godast-just-nu">
                 <Card className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow">
                   <div className="aspect-square bg-muted relative overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
                     />
                   </div>
                   <div className="p-4">
@@ -100,44 +181,37 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Erbjudanden - 2x2 grid */}
+      {/* Kategorier */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Erbjudanden</h2>
+            <h2 className="text-4xl font-bold mb-4">Kategorier</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Bästa priserna på utvalda produkter
+              Utforska våra mest uppskattade kategorier och gå direkt till rätt sortiment
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
-            {offers.map((product) => (
-              <Link key={product.id} to="/webbutik">
-                <Card className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-square bg-muted relative overflow-hidden">
-                    <div className="absolute top-2 right-2 bg-destructive text-destructive-foreground px-2 py-1 rounded-md text-xs font-bold z-10">
-                      REA
-                    </div>
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
-                    <div className="flex items-center gap-2">
-                      <p className="text-lg font-bold text-primary">{product.price}</p>
-                      <p className="text-sm text-muted-foreground line-through">{product.oldPrice}</p>
-                    </div>
-                  </div>
-                </Card>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6 max-w-5xl mx-auto">
+            {categoryCards.slice(0, 8).map((category) => (
+              <Link
+                key={category.name}
+                to={category.href}
+                className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-[32px]"
+              >
+                <div className="overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </Link>
             ))}
           </div>
-          <div className="text-center mt-8">
-            <Link to="/sasong">
-              <Button variant="outline" size="lg">
-                Se alla erbjudanden
+          <div className="text-center mt-10">
+            <Link to="/kategorier">
+              <Button size="lg" variant="outline">
+                Se alla kategorier
               </Button>
             </Link>
           </div>
@@ -159,41 +233,6 @@ const Home = () => {
             <Link to="/hemleverans">
               <Button size="lg" variant="secondary" className="px-8">
                 Läs mer om hemleverans
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Butikbilder med CTA */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Välkommen till vår butik</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Upplev vårt noga utvalda sortiment i vår butik på Frejagatan i Mölndal
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
-              <img
-                src={storeInterior}
-                alt="Hasselblads Livs butiksmiljö"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
-              <img
-                src={storeProducts}
-                alt="Produkter i butiken"
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-          <div className="text-center">
-            <Link to="/butiken">
-              <Button size="lg" variant="outline" className="px-8">
-                Hitta hit
               </Button>
             </Link>
           </div>
@@ -224,6 +263,7 @@ const Home = () => {
                     src={post.image}
                     alt={post.alt}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Instagram className="h-8 w-8 text-white" />
