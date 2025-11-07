@@ -14,7 +14,6 @@ const Navigation = () => {
 
   const navItems = [
     { name: "Webbutik", path: "/webbutik" },
-    { name: "Kategorier", path: "/kategorier" },
     { name: "Säsong & Erbjudanden", path: "/säsong" },
     { name: "Hemleverans", path: "/hemleverans" },
     { name: "Butiken", path: "/butiken" },

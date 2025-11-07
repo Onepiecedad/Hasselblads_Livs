@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import FilterChips from "@/components/shop/FilterChips";
 import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import QuickViewModal from "@/components/shop/QuickViewModal";
-import { products as productCatalog, sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
-import { categoryCards } from "@/lib/categoryCards";
+import { categories, products as productCatalog, sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { useCart } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
@@ -37,7 +36,6 @@ const Webshop = () => {
   const returnFocusRef = useRef<HTMLButtonElement | null>(null);
   const quickViewTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
-  const featuredCategoryCards = useMemo(() => categoryCards.filter((card) => Boolean(card.filterValue)), []);
 
   // Initialise from sessionStorage once
   useEffect(() => {
@@ -100,11 +98,6 @@ const Webshop = () => {
 
   const handleCategoryChange = (value: string | null) => {
     updateFilters({ category: value ?? DEFAULT_FILTERS.category });
-  };
-
-  const handleCategoryCardSelect = (value: string) => {
-    const nextValue = activeCategory === value ? DEFAULT_FILTERS.category : value;
-    handleCategoryChange(nextValue);
   };
 
   const handleTagChange = (value: string | null) => {
@@ -232,7 +225,7 @@ const Webshop = () => {
           <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
         </div>
 
-        <div className="mt-8 space-y-10">
+        <div className="mt-8 space-y-6">
           <div className="relative max-w-xl">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -245,61 +238,25 @@ const Webshop = () => {
             />
           </div>
 
-          {featuredCategoryCards.length > 0 && (
-            <section>
-              <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Handla efter kategori</p>
-                  <h2 className="text-2xl font-semibold">Välj smakspår</h2>
-                </div>
-                <Link
-                  to="/kategorier"
-                  className="text-sm font-semibold text-primary hover:text-primary/80"
-                >
-                  Se alla kategorier
-                </Link>
-              </div>
-              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {featuredCategoryCards.map((card) => {
-                  const value = card.filterValue!;
-                  const isActive = activeCategory === value;
-                  return (
-                    <button
-                      key={card.name}
-                      type="button"
-                      onClick={() => handleCategoryCardSelect(value)}
-                      aria-pressed={isActive}
-                      className={`group relative overflow-hidden rounded-[28px] text-left shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background ${
-                        isActive ? "ring-2 ring-primary/70" : "hover:-translate-y-1"
-                      }`}
-                    >
-                      <div className="aspect-[4/3]">
-                        <img src={card.image} alt={card.name} className="h-full w-full object-cover" loading="lazy" />
-                      </div>
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-5 text-white">
-                        <p className="text-sm uppercase tracking-[0.3em] text-white/70">{card.name}</p>
-                        <p className="mt-1 text-base font-semibold">{card.description}</p>
-                        <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold">
-                          {isActive ? "Aktiv kategori" : "Utforska kategorin"}
-                          <span aria-hidden="true">→</span>
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          <div>
-            <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Fokus</p>
-            <FilterChips
-              chips={tagFilters.map((filter) => ({ label: filter.label, value: filter.tag }))}
-              activeValue={activeTag || null}
-              onChange={handleTagChange}
-              ariaLabel="Filtrera på säsongserbjudanden"
-            />
+          <div className="space-y-4">
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Kategori</p>
+              <FilterChips
+                chips={categories}
+                activeValue={activeCategory}
+                onChange={handleCategoryChange}
+                ariaLabel="Filtrera på kategori"
+              />
+            </div>
+            <div>
+              <p className="mb-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">Fokus</p>
+              <FilterChips
+                chips={tagFilters.map((filter) => ({ label: filter.label, value: filter.tag }))}
+                activeValue={activeTag || null}
+                onChange={handleTagChange}
+                ariaLabel="Filtrera på säsongserbjudanden"
+              />
+            </div>
           </div>
         </div>
 

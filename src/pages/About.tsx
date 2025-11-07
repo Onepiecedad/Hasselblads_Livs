@@ -6,6 +6,7 @@ import TwoColumnTextImage from "@/components/sections/TwoColumnTextImage";
 import TextBlock from "@/components/sections/TextBlock";
 import CTASection from "@/components/sections/CTASection";
 import usePageMetadata from "@/hooks/usePageMetadata";
+import aboutHeroImage from "@/assets/about-hero.jpg";
 
 const sustainabilityPrinciples = [
   {
@@ -78,8 +79,8 @@ const About = () => {
         eyebrow="Hasselblads Livs"
         title="Om oss"
         description="Från Davida Hasselblads charkuteri 1878 till dagens frukt- och gröntoas i Mölndal."
-        backgroundImage="https://images.unsplash.com/photo-1531181662980-64d09b8ba187?auto=format&fit=crop&w=1600&q=80&fm=webp"
-        imageAlt="Historisk bild av grönsaksmarknad"
+        backgroundImage={aboutHeroImage}
+        imageAlt="Leverans från Hasselblads Livs"
         overlayClassName="from-black/70 via-black/60 to-black/30"
       />
 

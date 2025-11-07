@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { Truck, Instagram } from "lucide-react";
-import heroImage from "@/assets/hero-produce.jpg";
+import heroImage from "@/assets/hero-frukt.jpg";
 import homeCardGodast from "@/assets/home-card-godast.png";
 import homeCardSasong from "@/assets/home-card-sasong.png";
 import homeCardVaror from "@/assets/home-card-varor.png";
@@ -70,7 +70,7 @@ const Home = () => {
           <img
             src={heroImage}
             alt="Färska råvaror från Hasselblads Livs"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_12%] md:object-[center_25%]"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40" />
         </div>
