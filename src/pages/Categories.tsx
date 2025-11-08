@@ -36,6 +36,11 @@ const Categories = () => {
                   className="h-full w-full object-cover"
                   loading="lazy"
                 />
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#0E4F43] text-2xl font-semibold uppercase tracking-[0.15em] leading-tight text-center pointer-events-none drop-shadow">
+                  {category.titleLines.map((line, idx) => (
+                    <span key={`${category.name}-${idx}`}>{line}</span>
+                  ))}
+                </div>
                 <span className="sr-only">
                   {category.name}. {category.description}. Utforska kategorin.
                 </span>

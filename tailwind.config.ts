@@ -69,7 +69,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ["Inter", "system-ui", "sans-serif"],
+        lato: ["Lato", "system-ui", "sans-serif"],
       },
       transitionProperty: {
         'smooth': 'var(--transition)',

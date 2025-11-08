@@ -197,7 +197,7 @@ const Home = () => {
                 to={category.href}
                 className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-[32px]"
               >
-                <div className="overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
                   <img
                     src={category.image}
                     alt={category.name}
