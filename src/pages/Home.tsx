@@ -85,11 +85,6 @@ const Home = () => {
             Vi erbjuder snabb leverans av frukt och grönt av högsta kvalité – alltid färskt och
             noggrant utvalt!
           </p>
-          <Link to="/webbutik">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-6">
-              Utforska vårt sortiment
-            </Button>
-          </Link>
         </div>
       </section>
 
@@ -137,13 +132,6 @@ const Home = () => {
                   </div>
                 </Link>
               ))}
-            </div>
-            <div className="mt-10 text-center">
-              <Link to="/kategorier">
-                <Button size="lg" variant="outline">
-                  Utforska alla kategorier
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
@@ -197,7 +185,7 @@ const Home = () => {
                 to={category.href}
                 className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-[32px]"
               >
-                <div className="relative overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+                <div className="relative aspect-square overflow-hidden rounded-[32px] shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
                   <img
                     src={category.image}
                     alt={category.name}
@@ -207,13 +195,6 @@ const Home = () => {
                 </div>
               </Link>
             ))}
-          </div>
-          <div className="text-center mt-10">
-            <Link to="/kategorier">
-              <Button size="lg" variant="outline">
-                Se alla kategorier
-              </Button>
-            </Link>
           </div>
         </div>
       </section>

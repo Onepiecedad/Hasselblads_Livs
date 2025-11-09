@@ -170,7 +170,7 @@ const Store = () => {
           <CTASection
             title="Planerar du ett större event eller vill boka personlig guidning?"
             description="Kontakta oss så skräddarsyr vi en provsmakning eller plockar ihop allt du behöver för middagen."
-            primaryAction={{ label: "Kontakta oss", href: "/kontakt" }}
+            primaryAction={{ label: "Kontakta oss", href: "/kundservice#kontakt" }}
             secondaryAction={{ label: "Se hemleverans", href: "/hemleverans" }}
           />
         </div>

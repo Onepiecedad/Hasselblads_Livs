@@ -149,7 +149,7 @@ const About = () => {
             title="Vill du lära känna våra leverantörer?"
             description="Vi uppdaterar kontinuerligt information om gårdar, bagerier och producenter som levererar till Hasselblads Livs."
             primaryAction={{ label: "Läs mer om våra leverantörer", href: "/webbutik" }}
-            secondaryAction={{ label: "Kontakta oss", href: "/kontakt" }}
+            secondaryAction={{ label: "Kontakta oss", href: "/kundservice#kontakt" }}
           />
         </div>
       </section>

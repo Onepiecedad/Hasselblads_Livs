@@ -18,7 +18,7 @@ const Navigation = () => {
     { name: "Hemleverans", path: "/hemleverans" },
     { name: "Butiken", path: "/butiken" },
     { name: "Om oss", path: "/om-oss" },
-    { name: "Kontakt", path: "/kontakt" },
+    { name: "Kundservice", path: "/kundservice" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

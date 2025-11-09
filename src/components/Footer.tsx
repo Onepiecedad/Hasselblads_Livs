@@ -60,7 +60,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/kundservice" className="hover:opacity-80 transition-opacity">
-                  Frågor & Svar
+                  Kundservice
                 </Link>
               </li>
               <li>
@@ -76,11 +76,6 @@ const Footer = () => {
               <li>
                 <Link to="/hallbarhet" className="hover:opacity-80 transition-opacity">
                   Hållbarhet
-                </Link>
-              </li>
-              <li>
-                <Link to="/kontakt" className="hover:opacity-80 transition-opacity">
-                  Kontakt
                 </Link>
               </li>
             </ul>

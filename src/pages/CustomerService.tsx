@@ -1,9 +1,10 @@
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Mail, MessageCircle, Phone } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
 const faqItems = [
@@ -53,7 +54,7 @@ const faqItems = [
     id: "contact",
     question: "Hur når jag kundservice snabbast?",
     answer:
-      "Ring oss på 031-123 45 67 eller skicka ett meddelande via formuläret på kontaktsidan. Vi svarar inom 24 timmar på vardagar.",
+      "Ring oss på 031-123 45 67 eller skicka ett meddelande via formuläret längre ned på den här sidan. Vi svarar inom 24 timmar på vardagar.",
   },
   {
     id: "delivery-area",
@@ -70,7 +71,9 @@ const faqItems = [
 ];
 
 const CustomerService = () => {
-  const faqStructuredData = useMemo(
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
+
+  const structuredData = useMemo(
     () => [
       {
         id: "schema-faq-kundservice",
@@ -87,9 +90,30 @@ const CustomerService = () => {
           })),
         },
       },
+      {
+        id: "schema-contact-kundservice",
+        data: {
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          name: "Kundservice - Hasselblads Livs",
+          url: `${origin}/kundservice`,
+          contactPoint: {
+            "@type": "ContactPoint",
+            telephone: "+46-31-123-45-67",
+            contactType: "customer service",
+            areaServed: "SE",
+            availableLanguage: ["sv"],
+          },
+        },
+      },
     ],
-    [],
+    [origin],
   );
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    // send to backend / form service
+  };
 
   usePageMetadata({
     title: "Kundservice | Hasselblads Livs",
@@ -97,7 +121,7 @@ const CustomerService = () => {
       "Vanliga frågor och svar om Hasselblads Livs. Hitta information om leverans, beställning och kundsupport i Mölndal.",
     canonicalPath: "/kundservice",
     ogImage: "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1200&q=80&fm=webp",
-    structuredData: faqStructuredData,
+    structuredData,
   });
 
   return (
@@ -163,32 +187,117 @@ const CustomerService = () => {
         </div>
       </section>
 
-      <section className="pb-20">
-        <div className="container mx-auto px-4 max-w-3xl">
-          <div className="rounded-3xl bg-primary text-primary-foreground p-10 text-center space-y-6">
-            <h2 className="text-3xl font-semibold">Hittar du inte svaret? Kontakta oss.</h2>
-            <p className="text-primary-foreground/90 text-lg">
-              Vårt team finns här för dig – ring, mejla eller använd formuläret så återkommer vi inom ett dygn.
+      <section className="pb-20" id="kontakt">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <h2 className="text-3xl md:text-4xl font-semibold mb-4">Hittar du inte svaret?</h2>
+            <p className="text-lg text-muted-foreground">
+              Hör av dig så återkommer vi inom 24 timmar på vardagar. Telefonen är bemannad 08.00–18.00 och du kan alltid lämna ett meddelande via formuläret.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="secondary" className="gap-2" asChild>
-                <a href="tel:0311234567">
-                  <Phone className="h-4 w-4" />
-                  031-123 45 67
-                </a>
-              </Button>
-              <Button variant="secondary" className="gap-2" asChild>
-                <a href="mailto:info@hasselbladslivs.se">
-                  <Mail className="h-4 w-4" />
-                  info@hasselbladslivs.se
-                </a>
-              </Button>
-              <Button variant="outline" className="gap-2 text-primary" asChild>
-                <Link to="/kontakt">
-                  <MessageCircle className="h-4 w-4" />
-                  Kontakta oss
-                </Link>
-              </Button>
+          </div>
+          <div className="grid gap-10 lg:grid-cols-2">
+            <Card className="border border-border/60 shadow-lg">
+              <CardContent className="p-8">
+                <h3 className="text-2xl font-semibold mb-6">Skicka ett meddelande</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="contact-name">
+                      Namn
+                    </label>
+                    <Input id="contact-name" type="text" placeholder="Ditt namn" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="contact-email">
+                      E-post
+                    </label>
+                    <Input id="contact-email" type="email" placeholder="din@email.se" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="contact-phone">
+                      Telefon
+                    </label>
+                    <Input id="contact-phone" type="tel" placeholder="070-123 45 67" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" htmlFor="contact-message">
+                      Meddelande
+                    </label>
+                    <Textarea
+                      id="contact-message"
+                      placeholder="Beskriv hur vi kan hjälpa dig..."
+                      rows={5}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" size="lg" className="w-full">
+                    Skicka meddelande
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <div className="space-y-6">
+              <Card className="border border-border/60">
+                <CardContent className="p-6 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <MapPin className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Hitta oss</h3>
+                    <p className="text-muted-foreground">
+                      Frejagatan 9
+                      <br />
+                      431 45 Mölndal
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border border-border/60">
+                <CardContent className="p-6 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Phone className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Ring oss</h3>
+                    <a href="tel:0311234567" className="text-lg font-semibold text-primary hover:underline">
+                      031-123 45 67
+                    </a>
+                    <p className="text-muted-foreground text-sm mt-1">Vardagar 08.00–18.00</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border border-border/60">
+                <CardContent className="p-6 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mail className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">E-post</h3>
+                    <a href="mailto:info@hasselbladslivs.se" className="text-lg font-semibold text-primary hover:underline">
+                      info@hasselbladslivs.se
+                    </a>
+                    <p className="text-muted-foreground text-sm mt-1">Vi svarar alltid inom 24 timmar.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border border-border/60">
+                <CardContent className="p-6 flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg mb-1">Öppettider i butiken</h3>
+                    <div className="text-muted-foreground space-y-1">
+                      <p>Måndag – Fredag: 08.00–18.00</p>
+                      <p>Lördag: 09.00–15.00</p>
+                      <p>Söndag: Stängt</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
