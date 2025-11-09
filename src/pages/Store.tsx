@@ -11,34 +11,50 @@ import usePageMetadata from "@/hooks/usePageMetadata";
 
 const galleryImages: GalleryImage[] = [
   {
-    src: "https://images.unsplash.com/photo-1457530378978-8bac673b8062?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Butikshyllor fyllda med färsk frukt",
-    caption: "Färska leveranser varje morgon",
+    src: "/Bilder%20frukt/Butik3-frukt.jpg",
+    alt: "Tomater, squash och avokado i träbackar",
+    caption: "Handskrivna skyltar och säsongens primörer",
   },
   {
-    src: "https://images.unsplash.com/photo-1472145246862-b24cf25c4a36?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Kryddor och örter på rad",
-    caption: "Örter och specialiteter i lösvikt",
+    src: "/Bilder%20frukt/Butik4-frukt.jpg",
+    alt: "Kund som handlar bland frukt och grönt",
+    caption: "Butiken badar i dagsljus från glaspartierna",
   },
   {
-    src: "https://images.unsplash.com/photo-1514516401255-232c9531e1d2?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Personal som packar frukt",
-    caption: "Teamet packar dagens hemleveranser",
+    src: "/Bilder%20frukt/Butik5-frukt.jpg",
+    alt: "Hyllor med marmelader och must",
+    caption: "Småskaliga producenters varor i löpmeter",
   },
   {
-    src: "https://images.unsplash.com/photo-1504309250225-0f60034a9d9e?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Stenugnsbakat bröd i butik",
-    caption: "Levainbröd från lokala bagerier",
+    src: "/Bilder%20frukt/Butik7-frukt.jpg",
+    alt: "Lakrits och konfektyr på rad",
+    caption: "Sött & gott för presentkorgen",
   },
   {
-    src: "https://images.unsplash.com/photo-1576866209830-5d2c6ea0c318?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Delikatessdisk med ostar",
-    caption: "Ost- och delikatessdisken",
+    src: "/Bilder%20frukt/Butik8-frukt.jpg",
+    alt: "Entrén med leveransbil och kryddbord",
+    caption: "Vår fasad på Frejagatan en solig dag",
   },
   {
-    src: "https://images.unsplash.com/photo-1619474264134-632d852559b6?auto=format&fit=crop&w=900&q=80&fm=webp",
-    alt: "Säsongens citrusfrukter",
-    caption: "Säsongens citrussortiment",
+    src: "/Bilder%20frukt/Fasad-by-night-1536x1152.jpg",
+    alt: "Hasselblads Livs på kvällen",
+    caption: "Upplyst kvällsöppet med utsikt mot torget",
+  },
+];
+
+const visitDetails = [
+  {
+    title: "Direktleveranser varje morgon",
+    description:
+      "Vi packar upp frukt, grönt och delikatesser innan öppning – frågar du så delar vi gärna smakprover och recept.",
+  },
+  {
+    title: "Parkering & cykelställ",
+    description: "Gratis parkering precis utanför och gott om plats för cyklar och lastcyklar.",
+  },
+  {
+    title: "Hjälp med bärhjälp eller leverans",
+    description: "Lämna kassan med färdiga kassar eller boka hemleverans direkt från disken.",
   },
 ];
 
@@ -75,8 +91,8 @@ const Store = () => {
           "@type": "LocalBusiness",
           name: "Hasselblads Livs",
           image: [
-            "https://images.unsplash.com/photo-1457530378978-8bac673b8062?auto=format&fit=crop&w=900&q=80&fm=webp",
-            "https://images.unsplash.com/photo-1472145246862-b24cf25c4a36?auto=format&fit=crop&w=900&q=80&fm=webp",
+            `${origin}/Bilder%20frukt/Butik1-frukt.jpg`,
+            `${origin}/Bilder%20frukt/Butik3-frukt.jpg`,
           ],
           url: `${origin}/butiken`,
           telephone: "+46-31-123-45-67",
@@ -100,7 +116,7 @@ const Store = () => {
     description:
       "Besök Hasselblads Livs på Frejagatan 9 i Mölndal. Upptäck vår butik, träffa teamet och hitta hit med karta och kontaktuppgifter.",
     canonicalPath: "/butiken",
-    ogImage: "https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=1200&q=80&fm=webp",
+    ogImage: `${origin}/Bilder%20frukt/Butik1-frukt.jpg`,
     structuredData,
   });
 
@@ -110,9 +126,8 @@ const Store = () => {
         eyebrow="Hasselblads Livs"
         title="Butiken på Frejagatan"
         description="Sedan 2003 har vi förvandlat Frejagatan 9 till Mölndals gröna vardagsrum. Titta in, provsmaka och få hjälp av vårt team."
-        backgroundImage="https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&w=1600&q=80&fm=webp"
+        backgroundImage="/Bilder%20frukt/Butik1-frukt.jpg"
         imageAlt="Butiksmiljö med frukt och grönsaker"
-        overlayClassName="from-black/70 via-black/60 to-black/30"
       />
 
       <section className="py-16">
@@ -126,15 +141,36 @@ const Store = () => {
 
           <TextBlock>
             <p>
-              Varje morgon packar vi upp säsongens frukter, grönsaker och delikatesser. Många av våra leverantörer är små familjeföretag i Västsverige – andra har vi besökt på plats runtom i Europa.
+              Varje morgon fyller vi diskarna med frukt, grönsaker och handplockade delikatesser. Vi jobbar nära odlare i Västsverige och kompletterar med specialiteter från odlare vi känner personligen ute i Europa.
             </p>
             <p>
-              Vi hjälper gärna till med menyer, fruktkorgar till kontoret eller tips inför helgens middag. Berätta vad du är sugen på så guidar vi dig rätt.
+              I butiken hittar du både vardagsfavoriter och udda råvaror – fråga oss så guidar vi dig till rätt smak, lagring eller tillagning. Vi låter dig gärna provsmaka och tipsar om hur du får ut det mesta av säsongen.
             </p>
             <p>
-              I butiken hittar du också ett noga kuraterat sortiment av ost, bröd, skafferivaror och drycker. Allt vi tar in ska smaka gott och ha en tydlig berättelse.
+              Sortimentet på hyllorna speglar huset: ost och chark, stenugnsbakat bröd, must, kryddor och presenter. Allt ska smaka gott och ha en tydlig berättelse.
             </p>
           </TextBlock>
+
+          <div>
+            <SectionHeader
+              align="left"
+              eyebrow="Inför besöket"
+              title="När du kliver in genom dörren"
+              description="Gör ett ärende, handla för veckan eller kom in för att snacka råvaror med oss."
+              className="mb-8"
+            />
+            <div className="grid gap-6 md:grid-cols-3">
+              {visitDetails.map((detail) => (
+                <div
+                  key={detail.title}
+                  className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-sm"
+                >
+                  <h3 className="text-xl font-semibold">{detail.title}</h3>
+                  <p className="mt-3 text-muted-foreground">{detail.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div>
             <SectionHeader

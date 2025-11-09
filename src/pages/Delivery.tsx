@@ -150,7 +150,6 @@ const Delivery = () => {
         description="Beställ innan lunch och få färska råvaror levererade till din dörr samma kväll. Vi packar direkt från vår butik på Frejagatan."
         backgroundImage="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1600&q=80&fm=webp"
         imageAlt="Färska grönsaker packas för hemleverans"
-        overlayClassName="from-black/70 via-black/60 to-black/40"
         className="mb-12"
       />
 

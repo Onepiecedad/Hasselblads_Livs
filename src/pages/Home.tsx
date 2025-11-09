@@ -72,7 +72,7 @@ const Home = () => {
             alt="Färska råvaror från Hasselblads Livs"
             className="w-full h-full object-cover object-[center_12%] md:object-[center_25%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/60" />
         </div>
 
         <div className="relative z-10 container mx-auto px-4 text-center text-primary-foreground">

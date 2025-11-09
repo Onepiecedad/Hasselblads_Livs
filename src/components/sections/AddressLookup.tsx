@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -22,14 +22,6 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
   const [status, setStatus] = useState<DeliveryStatus>("idle");
   const [selectedArea, setSelectedArea] = useState<DeliveryArea | null>(null);
 
-  const suggestions = useMemo(() => {
-    if (!inputValue) return areas.slice(0, 5);
-    const query = inputValue.toLowerCase();
-    return areas
-      .filter((area) => area.label.toLowerCase().includes(query) || area.value.toLowerCase().includes(query) || area.postalCode?.includes(query))
-      .slice(0, 5);
-  }, [areas, inputValue]);
-
   const updateStatus = (next: DeliveryStatus, area: DeliveryArea | null) => {
     setStatus(next);
     setSelectedArea(area);
@@ -39,6 +31,11 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const query = inputValue.trim().toLowerCase();
+    if (!query) {
+      updateStatus("idle", null);
+      return;
+    }
+
     const match = areas.find((area) => {
       const haystack = `${area.label} ${area.value} ${area.postalCode ?? ""}`.toLowerCase();
       return haystack.includes(query);
@@ -49,11 +46,6 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
     } else {
       updateStatus("out-of-area", null);
     }
-  };
-
-  const handleSuggestionClick = (area: DeliveryArea) => {
-    setInputValue(area.label);
-    updateStatus("available", area);
   };
 
   return (
@@ -87,31 +79,18 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
       </form>
 
       <div className="mt-4 space-y-2" aria-live="polite">
-        {suggestions.length > 0 && (
-          <ul className="grid gap-1">
-            {suggestions.map((area) => (
-              <li key={area.value}>
-                <button
-                  type="button"
-                  onClick={() => handleSuggestionClick(area)}
-                  className="w-full rounded-xl border border-border/60 bg-muted/40 px-4 py-2 text-left text-sm transition-colors hover:border-primary/50 hover:bg-primary/5"
-                >
-                  <div className="font-medium text-foreground">{area.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {area.postalCode ? `${area.postalCode} · ${area.value}` : area.value}
-                  </div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
         {status === "available" && selectedArea && (
           <div className="rounded-xl border border-primary/50 bg-primary/10 px-4 py-3 text-sm">
             <p className="font-semibold text-primary">Leverans möjlig!</p>
             <p className="text-muted-foreground">
               Vi levererar till {selectedArea.label}. Välj leveransdag och tid nedan.
             </p>
+          </div>
+        )}
+        {status === "available" && !selectedArea && (
+          <div className="rounded-xl border border-primary/50 bg-primary/10 px-4 py-3 text-sm">
+            <p className="font-semibold text-primary">Leverans möjlig!</p>
+            <p className="text-muted-foreground">Vi levererar till din adress. Välj leveransdag och tid nedan.</p>
           </div>
         )}
 
