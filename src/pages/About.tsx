@@ -8,6 +8,7 @@ import CTASection from "@/components/sections/CTASection";
 import ImageGrid, { GalleryImage } from "@/components/sections/ImageGrid";
 import usePageMetadata from "@/hooks/usePageMetadata";
 import aboutHeroImage from "@/assets/about-hero.jpg";
+import { History, Sparkles, Leaf } from "lucide-react";
 
 const sustainabilityPrinciples = [
   {
@@ -134,6 +135,7 @@ const About = () => {
         <div className="container mx-auto px-4 space-y-16">
           <SectionHeader
             eyebrow="Historia"
+            eyebrowIcon={<History className="h-4 w-4" aria-hidden="true" />}
             title="Fyra generationer Hasselblad i Mölndal"
             description="Från Davida Hasselblads charkuteri 1878 till dagens frukt- och gröntoas på Frejagatan – alltid med egna leveranser och nära relationer till kunderna."
             align="left"
@@ -153,6 +155,7 @@ const About = () => {
 
           <SectionHeader
             eyebrow="Vårt löfte"
+            eyebrowIcon={<Sparkles className="h-4 w-4" aria-hidden="true" />}
             title="God mat med hjärta – från Mölndal till ditt bord"
             description="Vi kombinerar familjens historia med framtidstro. Allt vi säljer ska vara spårbart, omsorgsfullt odlat och utvalt för att smaka bättre hemma hos dig."
             align="left"
@@ -190,6 +193,7 @@ const About = () => {
           <div id="hallbarhet" className="scroll-mt-32 md:scroll-mt-40">
             <SectionHeader
               eyebrow="Hållbarhet"
+              eyebrowIcon={<Leaf className="h-4 w-4" aria-hidden="true" />}
               title="Våra hållbarhetsprinciper"
               description="Allt vi gör ska hålla över tid – för råvarorna, för vår personal och för Mölndal."
               align="left"

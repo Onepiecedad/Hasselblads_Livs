@@ -15,7 +15,12 @@ interface ContactBlockProps {
 }
 
 const ContactBlock = ({ addressLines, phone, email, openingHours, className }: ContactBlockProps) => (
-  <div className={cn("rounded-3xl border border-border/70 bg-card p-8 shadow-sm", className)}>
+  <div
+    className={cn(
+      "rounded-3xl border border-white/60 bg-white/85 p-8 shadow-[0_30px_70px_rgba(15,23,42,0.12)] backdrop-blur supports-[backdrop-filter]:bg-white/75",
+      className,
+    )}
+  >
     <h2 className="text-3xl font-bold mb-6">Kontakt</h2>
     <div className="space-y-4 text-muted-foreground">
       <div className="flex items-start gap-3">

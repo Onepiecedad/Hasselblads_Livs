@@ -8,13 +8,15 @@ interface CTAButtonsProps {
   className?: string;
 }
 
+const hoverMotionClass = "transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0";
+
 const CTAButtons = ({ primary, secondary, className }: CTAButtonsProps) => (
   <div className={cn("flex flex-wrap gap-4", className)}>
-    <Button asChild size="lg">
+    <Button asChild size="lg" className={hoverMotionClass}>
       <Link to={primary.href}>{primary.label}</Link>
     </Button>
     {secondary && (
-      <Button asChild size="lg" variant="outline">
+      <Button asChild size="lg" variant="outline" className={hoverMotionClass}>
         <Link to={secondary.href}>{secondary.label}</Link>
       </Button>
     )}

@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { Truck, Instagram } from "lucide-react";
+import { Truck, Instagram, Sparkles, LayoutGrid, Leaf } from "lucide-react";
+import SectionHeader from "@/components/sections/SectionHeader";
 import heroImage from "@/assets/hero-frukt.jpg";
 import homeCardGodast from "@/assets/home-card-godast.png";
 import homeCardSasong from "@/assets/home-card-sasong.png";
@@ -140,27 +141,33 @@ const Home = () => {
       {/* Säsongens bästa - 2x4 grid */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Säsongens bästa</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Handplockade favoriter som är extra goda just nu
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Kuraterat"
+            eyebrowIcon={<Sparkles className="h-3.5 w-3.5" aria-hidden="true" />}
+            title="Säsongens bästa"
+            description="Handplockade favoriter som är extra goda just nu"
+          />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {seasonalProducts.map((product) => (
               <Link key={product.id} to="/säsong?tab=godast-just-nu">
-                <Card className="group cursor-pointer overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-square bg-muted relative overflow-hidden">
+                <Card className="group cursor-pointer overflow-hidden rounded-3xl border border-white/50 bg-white/80 shadow-[0_25px_60px_rgba(15,23,42,0.12)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_35px_80px_rgba(15,23,42,0.18)]">
+                  <div className="aspect-square relative overflow-hidden">
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
+                    <div className="absolute inset-x-4 bottom-4 hidden rounded-2xl bg-black/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white shadow-lg backdrop-blur group-hover:flex">
+                      Favorit
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-2 line-clamp-2">{product.name}</h3>
-                    <p className="text-lg font-bold text-primary">{product.price}</p>
+                  <div className="p-5 space-y-3">
+                    <h3 className="font-semibold text-lg leading-tight text-foreground line-clamp-2">{product.name}</h3>
+                    <div className="flex items-center gap-2 text-primary">
+                      <Leaf className="h-4 w-4" aria-hidden="true" />
+                      <p className="text-lg font-bold">{product.price}</p>
+                    </div>
                   </div>
                 </Card>
               </Link>
@@ -172,12 +179,12 @@ const Home = () => {
       {/* Kategorier */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Kategorier</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Utforska våra mest uppskattade kategorier och gå direkt till rätt sortiment
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Utforska sortimentet"
+            eyebrowIcon={<LayoutGrid className="h-4 w-4" aria-hidden="true" />}
+            title="Kategorier"
+            description="Utforska våra mest uppskattade kategorier och gå direkt till rätt sortiment"
+          />
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6 max-w-5xl mx-auto">
             {categoryCards.slice(0, 8).map((category) => (
               <Link

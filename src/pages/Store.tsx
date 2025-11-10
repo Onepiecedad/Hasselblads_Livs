@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Camera, MapPin, Store as StoreIcon } from "lucide-react";
 import HeroSection from "@/components/sections/HeroSection";
 import SectionHeader from "@/components/sections/SectionHeader";
 import TextBlock from "@/components/sections/TextBlock";
@@ -135,6 +136,7 @@ const Store = () => {
           <SectionHeader
             align="left"
             eyebrow="Sedan 2003"
+            eyebrowIcon={<StoreIcon className="h-4 w-4" aria-hidden="true" />}
             title="Din lokala frukt- och gröntoas"
             description="Butiken är hjärtat i Hasselblads Livs. Här möter du oss, smakar på nyheter och tar del av vår kunskap om säsongens bästa varor."
           />
@@ -155,6 +157,7 @@ const Store = () => {
             <SectionHeader
               align="left"
               eyebrow="Inför besöket"
+              eyebrowIcon={<MapPin className="h-4 w-4" aria-hidden="true" />}
               title="När du kliver in genom dörren"
               description="Gör ett ärende, handla för veckan eller kom in för att snacka råvaror med oss."
               className="mb-8"
@@ -163,7 +166,7 @@ const Store = () => {
               {visitDetails.map((detail) => (
                 <div
                   key={detail.title}
-                  className="rounded-3xl border border-border/70 bg-card/80 p-6 shadow-sm"
+                  className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.12)] backdrop-blur"
                 >
                   <h3 className="text-xl font-semibold">{detail.title}</h3>
                   <p className="mt-3 text-muted-foreground">{detail.description}</p>
@@ -176,6 +179,7 @@ const Store = () => {
             <SectionHeader
               align="left"
               eyebrow="Butiken i bilder"
+              eyebrowIcon={<Camera className="h-4 w-4" aria-hidden="true" />}
               title="Ett litet smakprov"
               description="Klicka för att förstora och upplev atmosfären innan du kommer förbi."
               className="mb-8"
