@@ -1,9 +1,6 @@
 import { useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
-import { Truck, Instagram, Sparkles, LayoutGrid, Leaf } from "lucide-react";
+import { LayoutGrid } from "lucide-react";
 import SectionHeader from "@/components/sections/SectionHeader";
 import heroImage from "@/assets/hero-frukt.jpg";
 import homeCardGodast from "@/assets/home-card-godast.png";
@@ -14,28 +11,6 @@ import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
 const Home = () => {
-  // Mock products for "Säsongens bästa" - 2x4 grid
-  const seasonalProducts = [
-    { id: 1, name: "Svenska jordgubbar", price: "45 kr", image: "/produkter-frukt/svenska-jordgubbar.jpeg" },
-    { id: 2, name: "Ekologiska tomater", price: "35 kr", image: "/produkter-frukt/ekologiska-tomater.jpeg" },
-    { id: 3, name: "Färsk basilika", price: "25 kr", image: "/produkter-frukt/färsk-basilika.jpeg" },
-    { id: 4, name: "Sparris", price: "55 kr", image: "/produkter-frukt/sparris.jpeg" },
-    { id: 5, name: "Blåbär", price: "40 kr", image: "/produkter-frukt/blåbär.jpeg" },
-    { id: 6, name: "Rädisor", price: "20 kr", image: "/produkter-frukt/rädisor.jpeg" },
-    { id: 7, name: "Färsk dill", price: "15 kr", image: "/produkter-frukt/dill.jpeg" },
-    { id: 8, name: "Spenat", price: "30 kr", image: "/produkter-frukt/spenat.jpeg" },
-  ];
-
-  // Mock Instagram posts
-  const instagramPosts = [
-    { id: 1, image: "/placeholder.svg", alt: "Instagram post 1" },
-    { id: 2, image: "/placeholder.svg", alt: "Instagram post 2" },
-    { id: 3, image: "/placeholder.svg", alt: "Instagram post 3" },
-    { id: 4, image: "/placeholder.svg", alt: "Instagram post 4" },
-    { id: 5, image: "/placeholder.svg", alt: "Instagram post 5" },
-    { id: 6, image: "/placeholder.svg", alt: "Instagram post 6" },
-  ];
-
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
   const structuredData = useMemo(
     () => [
@@ -138,44 +113,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Säsongens bästa - 2x4 grid */}
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4">
-          <SectionHeader
-            eyebrow="Kuraterat"
-            eyebrowIcon={<Sparkles className="h-3.5 w-3.5" aria-hidden="true" />}
-            title="Säsongens bästa"
-            description="Handplockade favoriter som är extra goda just nu"
-          />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-            {seasonalProducts.map((product) => (
-              <Link key={product.id} to="/säsong?tab=godast-just-nu">
-                <Card className="group cursor-pointer overflow-hidden rounded-3xl border border-white/50 bg-white/80 shadow-[0_25px_60px_rgba(15,23,42,0.12)] backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_35px_80px_rgba(15,23,42,0.18)]">
-                  <div className="aspect-square relative overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-x-4 bottom-4 hidden rounded-2xl bg-black/40 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-white shadow-lg backdrop-blur group-hover:flex">
-                      Favorit
-                    </div>
-                  </div>
-                  <div className="p-5 space-y-3">
-                    <h3 className="font-semibold text-lg leading-tight text-foreground line-clamp-2">{product.name}</h3>
-                    <div className="flex items-center gap-2 text-primary">
-                      <Leaf className="h-4 w-4" aria-hidden="true" />
-                      <p className="text-lg font-bold">{product.price}</p>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Kategorier */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -206,88 +143,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Hemleverans-teaser */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <Truck className="h-16 w-16 mx-auto mb-6" />
-            <h2 className="text-4xl font-bold mb-6">Hemleverans i Mölndal</h2>
-            <p className="text-xl mb-4 opacity-95 leading-relaxed">
-              Färska råvaror direkt till din dörr – packade samma morgon i vår butik på Frejagatan.
-            </p>
-            <p className="text-lg mb-8 opacity-90">
-              Fri frakt vid order över 400 kr
-            </p>
-            <Link to="/hemleverans">
-              <Button size="lg" variant="secondary" className="px-8">
-                Läs mer om hemleverans
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Instagram-feed */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <Instagram className="h-12 w-12 mx-auto mb-4 text-primary" />
-            <h2 className="text-4xl font-bold mb-4">Följ oss på Instagram</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              @hasselbladslivs
-            </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {instagramPosts.map((post) => (
-              <a
-                key={post.id}
-                href="https://instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group"
-              >
-                <div className="aspect-square bg-muted rounded-lg overflow-hidden relative">
-                  <img
-                    src={post.image}
-                    alt={post.alt}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Instagram className="h-8 w-8 text-white" />
-                  </div>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter-prenumeration */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-4">Håll dig uppdaterad</h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Prenumerera på vårt nyhetsbrev och få de senaste erbjudandena och säsongstipsen
-            </p>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <Input
-                type="email"
-                placeholder="Din e-postadress"
-                className="flex-1"
-                required
-              />
-              <Button type="submit" size="lg" className="sm:w-auto">
-                Prenumerera
-              </Button>
-            </form>
-            <p className="text-sm text-muted-foreground mt-4">
-              Vi skickar inga spam-mejl och du kan avsluta prenumerationen när som helst
-            </p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

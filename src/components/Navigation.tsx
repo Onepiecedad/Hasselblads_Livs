@@ -24,11 +24,6 @@ const Navigation = () => {
 
   return (
     <>
-      {/* Notice Bar */}
-      <div className="bg-primary text-primary-foreground py-2 text-center text-sm">
-        <p>Fri hemleverans i Mölndal vid order över 400 kr.</p>
-      </div>
-      
       <nav className="sticky top-0 z-50 bg-card border-b border-border">
         <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
