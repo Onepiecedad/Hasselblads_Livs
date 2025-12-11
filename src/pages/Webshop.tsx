@@ -6,7 +6,8 @@ import FilterChips from "@/components/shop/FilterChips";
 import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import QuickViewModal from "@/components/shop/QuickViewModal";
-import { categories, products as productCatalog, sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { categories, sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
@@ -27,6 +28,7 @@ const DEFAULT_FILTERS: FiltersState = {
 };
 
 const Webshop = () => {
+  const { products, isLoading, error } = useProducts();
   const { addItem, setOpen } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   const [initialized, setInitialized] = useState(false);
@@ -118,7 +120,7 @@ const Webshop = () => {
     const category = activeCategory;
     const tag = activeTag as ProductTag | "";
 
-    let result = [...productCatalog];
+    let result = [...products];
 
     if (category !== "alla") {
       result = result.filter((product) => product.category === category);
@@ -150,7 +152,7 @@ const Webshop = () => {
     }
 
     return result;
-  }, [searchParams, activeCategory, activeTag, activeSort]);
+  }, [products, searchParams, activeCategory, activeTag, activeSort]);
 
   const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
     addItem({ id: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image }, quantity);
@@ -161,7 +163,7 @@ const Webshop = () => {
 
   const productSchemaGraph = useMemo(
     () =>
-      productCatalog.map((product) => ({
+      products.map((product) => ({
         "@type": "Product",
         name: product.name,
         description: product.description,
@@ -175,7 +177,7 @@ const Webshop = () => {
           url: `${origin}/webbutik`,
         },
       })),
-    [origin],
+    [products, origin],
   );
 
   usePageMetadata({
@@ -203,14 +205,33 @@ const Webshop = () => {
 
   const relatedProducts = useMemo(() => {
     if (!quickViewProduct) return [];
-    return productCatalog
+    return products
       .filter(
         (product) =>
           product.id !== quickViewProduct.id &&
           (product.category === quickViewProduct.category || product.tags.some((tag) => quickViewProduct.tags.includes(tag))),
       )
       .slice(0, 4);
-  }, [quickViewProduct]);
+  }, [products, quickViewProduct]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">Kunde inte ladda produkter. Försök igen senare.</p>
+        <p className="text-sm text-muted-foreground mt-2">{error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background py-12">
@@ -300,7 +321,7 @@ const Webshop = () => {
         open={quickViewOpen}
         onOpenChange={setQuickViewOpen}
         onAddToCart={(product, quantity) => {
-          handleAddToCart(product, quantity, true);
+          handleAddToCart(product as Product, quantity, true);
           setQuickViewOpen(false);
         }}
         returnFocusRef={returnFocusRef}
