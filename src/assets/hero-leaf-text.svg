@@ -1,0 +1,19 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="280 100 280 300" width="280" height="300">
+	<style>
+		tspan { white-space:pre }
+		.s0 { fill: #1c4d4f }
+		.t1 { font-size: 32px;line-height: 24px;fill: #ffffff;font-weight: 700;font-family: "JosefinSans-Bold", "Josefin Sans" }
+		.t2 { font-size: 32px;line-height: 36px;fill: #ffffff;font-weight: 700;font-family: "JosefinSans-Bold", "Josefin Sans" }
+	</style>
+	<path id="Path 112" fill-rule="evenodd" class="s0" d="m533.39 160.29c0 0-1.74 39.68-26.38 57.45-7.54 5.44-16.36 8.2-24.96 9.41 10.15 15.96 16.03 34.89 16.03 55.21 0 56.91-46.14 103.05-103.06 103.05-56.91 0-103.05-46.14-103.05-103.05 0-56.92 46.14-103.06 103.05-103.06 20.42 0 39.45 5.94 55.46 16.18 3.87-10.29 10.09-21.08 20.07-28.28 24.64-17.77 62.84-6.91 62.84-6.91z"/>
+	<text id="Lite godare & bättre mat" style="transform: matrix(1,0,0,1,331,216.458)">
+		<tspan x="49" y="25.2" class="t1">Lite  </tspan><tspan  y="25.2" class="t2">
+</tspan>
+		<tspan x="10" y="61.2" class="t2">godare
+</tspan>
+		<tspan x="0" y="97.2" class="t2">&amp; bättre
+</tspan>
+		<tspan x="35" y="133.2" class="t2">mat
+</tspan>
+	</text>
+</svg>
