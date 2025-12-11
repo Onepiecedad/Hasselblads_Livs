@@ -21,6 +21,7 @@ interface PIMProduct {
     finalImageUrl?: string;
     cloudinaryUrl?: string;
     status: 'pending' | 'processing' | 'completed' | 'skipped' | 'failed';
+    is_published?: boolean;  // true = visas på hemsidan
     csvData?: Record<string, string>;
 }
 
@@ -122,10 +123,10 @@ export function useProducts() {
         const unsubscribe = onSnapshot(
             q,
             (snapshot) => {
-                const productList = snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    return transformProduct({ id: doc.id, ...data } as PIMProduct);
-                });
+                const productList = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
+                    .filter(p => p.status === 'completed' && p.is_published === true)
+                    .map(p => transformProduct(p));
                 setProducts(productList);
                 setIsLoading(false);
                 setError(null);
