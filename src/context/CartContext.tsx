@@ -7,6 +7,7 @@ export type CartItem = {
   unit: string;
   image: string;
   quantity: number;
+  woocommerce_id?: number; // WooCommerce product ID for checkout
 };
 
 type CartState = {

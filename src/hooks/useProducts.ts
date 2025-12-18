@@ -22,6 +22,7 @@ interface PIMProduct {
     cloudinaryUrl?: string;
     status: 'pending' | 'processing' | 'completed' | 'skipped' | 'failed';
     is_published?: boolean;  // true = visas på hemsidan
+    woocommerce_id?: number; // WooCommerce product ID
     csvData?: Record<string, string>;
 }
 
@@ -107,7 +108,8 @@ function transformProduct(pim: PIMProduct): Product {
             country: country || 'Okänt',
             flag: FLAG_MAP[country] || '🌍'
         },
-        image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg'
+        image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
+        woocommerce_id: pim.woocommerce_id
     };
 }
 
