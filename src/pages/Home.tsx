@@ -1,11 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { LayoutGrid } from "lucide-react";
-import SectionHeader from "@/components/sections/SectionHeader";
 import DeliverySection from "@/components/sections/DeliverySection";
 import InstagramFeed from "@/components/sections/InstagramFeed";
-import HeroCarousel from "@/components/sections/HeroCarousel";
-import heroImage from "@/assets/hero-frukt.jpg";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
 import homeCardGodast from "@/assets/home-card-godast.png";
 import homeCardSasong from "@/assets/home-card-sasong.png";
@@ -14,7 +10,32 @@ import homeCardErbjudanden from "@/assets/home-card-erbjudanden.png";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
+// Hero slideshow images from optimized store photos
+const heroImages = [
+  "/hero-slideshow/DSCF0006.jpg",
+  "/hero-slideshow/DSCF0007.jpg",
+  "/hero-slideshow/DSCF0012.jpg",
+  "/hero-slideshow/gemini-hero.jpg",
+  "/hero-slideshow/DSCF0014.jpg",
+  "/hero-slideshow/DSCF0018.jpg",
+  "/hero-slideshow/DSCF0019.jpg",
+  "/hero-slideshow/DSCF0023.jpg",
+  "/hero-slideshow/DSCF0025.jpg",
+  "/hero-slideshow/DSCF0029.jpg",
+  "/hero-slideshow/web_DSCF0024.jpg",
+];
+
 const Home = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-advance hero slideshow
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
   const structuredData = useMemo(
     () => [
@@ -38,7 +59,7 @@ const Home = () => {
     description:
       "Handla färska frukter, grönsaker och delikatesser från Hasselblads Livs i Mölndal. Hemleverans, säsongens favoriter och aktuella erbjudanden.",
     canonicalPath: "/",
-    ogImage: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=1200&q=80&fm=webp",
+    ogImage: "/hero-slideshow/DSCF0003.jpg",
     structuredData,
   });
 
@@ -67,19 +88,21 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Leaf Text Decoration */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      {/* Hero Section with Slideshow */}
+      <section className="relative h-[450px] md:h-[550px] overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Färska råvaror från Hasselblads Livs"
-            className="w-full h-full object-cover object-[center_12%] md:object-[center_25%]"
-          />
+          {heroImages.map((image, index) => (
+            <img
+              key={image}
+              src={image}
+              alt={`Hasselblads Livs butik ${index + 1}`}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${index === currentSlide ? "opacity-100" : "opacity-0"
+                }`}
+            />
+          ))}
         </div>
 
-        {/* Leaf decoration - positioned according to JSON spec:
-            anchor_zone: left_center, x: 5%, y: 22%, width: 33%, height: 60%
-            Must overlap background, must NOT overlap logo/nav/top-bar */}
+        {/* Leaf decoration */}
         <div className="absolute z-10 pointer-events-none hero-leaf-container">
           <HeroLeafBadge className="w-full h-auto max-h-full drop-shadow-2xl" />
         </div>
@@ -119,18 +142,13 @@ const Home = () => {
       {/* Instagram Feed */}
       <InstagramFeed />
 
-      {/* Hero Carousel / Slideshow */}
-      <HeroCarousel />
 
       {/* Kategorier - 3x3 Grid */}
       <section className="py-16 bg-muted/30">
         <div className="container mx-auto px-4">
-          <SectionHeader
-            eyebrow="Utforska sortimentet"
-            eyebrowIcon={<LayoutGrid className="h-4 w-4" aria-hidden="true" />}
-            title="Kategorier"
-            description="Utforska våra mest uppskattade kategorier och gå direkt till rätt sortiment"
-          />
+          <h2 className="text-3xl md:text-4xl font-bold text-center text-primary mb-8">
+            Kategorier
+          </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 max-w-5xl mx-auto">
             {categoryCards.slice(0, 9).map((category) => (
               <Link

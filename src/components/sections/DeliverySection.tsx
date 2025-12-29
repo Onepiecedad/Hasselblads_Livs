@@ -1,23 +1,41 @@
+import { Leaf, Heart, Sparkles } from "lucide-react";
+
 const DeliverySection = () => {
+  const values = [
+    {
+      icon: Leaf,
+      title: "Kunskap",
+      description: "Vi vet var maten kommer ifrån och känner våra producenter personligen.",
+    },
+    {
+      icon: Heart,
+      title: "Omsorg",
+      description: "Varje produkt handplockas med kärlek och noggrannhet.",
+    },
+    {
+      icon: Sparkles,
+      title: "Glädje",
+      description: "Mat ska vara en fest – vi delar vår passion med dig.",
+    },
+  ];
+
   return (
-    <section className="py-16 bg-cream/30">
+    <section className="py-12 pb-20 bg-cream/30">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 max-w-4xl mx-auto">
-          <div className="w-72 md:w-96 flex-shrink-0">
-            <img
-              src="/hasselblads-bicycle-logo.png"
-              alt="Hasselblads Livs - Leverans med cykel"
-              className="w-full h-auto"
-            />
-          </div>
-          <div className="text-center md:text-left">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Vi levererar direkt<br />till din dörr
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-md">
-              Handla enkelt online och få färska varor hemlevererade samma dag i Mölndalsområdet.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {values.map((value) => (
+            <div key={value.title} className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+                <value.icon className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">
+                {value.title}
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                {value.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
