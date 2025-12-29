@@ -6,6 +6,7 @@ import cardOstChark from "@/assets/category-cards/alt1-final/category-ost-chark.
 import cardBrod from "@/assets/category-cards/alt1-final/category-brod.webp";
 import cardNotter from "@/assets/category-cards/alt1-final/category-notter.webp";
 import cardSnacksDryck from "@/assets/category-cards/alt1-final/category-snacks-dryck.webp";
+import cardKott from "@/assets/category-cards/alt1-final/category-kott.png";
 
 export type CategoryCardData = {
   name: string;
@@ -75,5 +76,13 @@ export const categoryCards: CategoryCardData[] = [
     image: cardSnacksDryck,
     href: "/webbutik",
     titleLines: ["SNACKS", "DRYCK"],
+  },
+  {
+    name: "KÖTT",
+    description: "Kvalitetskött från lokala gårdar och producenter",
+    image: cardKott,
+    href: "/webbutik?kategori=kott",
+    filterValue: "kott",
+    titleLines: ["KÖTT"],
   },
 ];

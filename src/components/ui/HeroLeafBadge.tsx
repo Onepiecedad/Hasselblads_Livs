@@ -46,7 +46,7 @@ const HeroLeafBadge: React.FC<HeroLeafBadgeProps> = ({ className = '' }) => {
             />
 
             {/* Text positioned exactly as in original */}
-            <text style={{ transform: 'matrix(1,0,0,1,331,216.458)' }}>
+            <text className="hero-leaf-text-transform">
                 <tspan x="49" y="25.2" className="leaf-text-1">Lite  </tspan>
                 <tspan x="10" y="61.2" className="leaf-text-2">godare </tspan>
                 <tspan x="0" y="97.2" className="leaf-text-2">&amp; bättre  </tspan>

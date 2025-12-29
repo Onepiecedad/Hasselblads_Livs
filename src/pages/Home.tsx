@@ -80,17 +80,7 @@ const Home = () => {
         {/* Leaf decoration - positioned according to JSON spec:
             anchor_zone: left_center, x: 5%, y: 22%, width: 33%, height: 60%
             Must overlap background, must NOT overlap logo/nav/top-bar */}
-        <div
-          className="absolute z-10 pointer-events-none"
-          style={{
-            left: '5%',
-            top: '22%',
-            width: '33%',
-            height: '60%',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
+        <div className="absolute z-10 pointer-events-none hero-leaf-container">
           <HeroLeafBadge className="w-full h-auto max-h-full drop-shadow-2xl" />
         </div>
       </section>
@@ -142,7 +132,7 @@ const Home = () => {
             description="Utforska våra mest uppskattade kategorier och gå direkt till rätt sortiment"
           />
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:gap-6 max-w-5xl mx-auto">
-            {categoryCards.slice(0, 8).map((category) => (
+            {categoryCards.slice(0, 9).map((category) => (
               <Link
                 key={category.name}
                 to={category.href}

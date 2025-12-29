@@ -79,3 +79,18 @@ All colors MUST be HSL.
 .skip-link:focus {
   top: 1rem;
 }
+
+/* Hero Leaf Badge positioning */
+.hero-leaf-container {
+  left: 5%;
+  top: 22%;
+  width: 33%;
+  height: 60%;
+  display: flex;
+  align-items: center;
+}
+
+/* SVG text transform for HeroLeafBadge */
+.hero-leaf-text-transform {
+  transform: matrix(1, 0, 0, 1, 331, 216.458);
+}
