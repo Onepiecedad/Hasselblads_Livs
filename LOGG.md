@@ -14,6 +14,36 @@
 - Hostad på Firebase Hosting
 - Fullt fungerande produkthantering
 
+#### 2. UI-förbättringar på hemsidan
+
+##### Hero-sektion — Dynamiskt bildspel
+
+- Ersatte statisk hero-bild med animerat bildspel
+- **17 optimerade butiksbilder** i `public/hero-slideshow/`
+- Bildstorlek reducerad från 10-21 MB → 0.5-1 MB per bild (~95% reduktion)
+- Slide-from-right animation med 5 sekunders intervall
+
+##### Sidfot — Ultra-minimalistisk design
+
+- Ersatte 4-kolumns layout med 2-raders design
+- **Rad 1:** Hasselblads Livs • 031-123 45 67 • Frejagatan 9, Mölndal + sociala ikoner
+- **Rad 2:** © 2025 Hasselblads Livs
+
+##### Social sektion — Facebook-flöde
+
+- Ersatte höger bildkarusell med Facebook-flöde
+- Speglar Instagram-flödets layout och funktionalitet
+
+##### Kategorier — Förenklad rubrik
+
+- Tog bort "eyebrow"-text och beskrivning
+- Endast rubriken "Kategorier" visas nu
+
+##### Ny kategori — KÖTT
+
+- Lade till KÖTT som 9:e kategori-kort
+- Genererade bild med Gemini (art nouveau-stil)
+
 ### 📊 Uppdaterad produktdata
 
 - **1362 produkter** totalt i Firebase (tidigare 810)
@@ -21,6 +51,12 @@
 - **1177 produkter** väntande/granskade
 - **54 produkter** med status `completed` (tidigare 34)
 - **2 produkter** med fel
+
+### 🔧 Tekniska ändringar
+
+- **23 filer ändrade** (156 tillägg, 207 borttagningar)
+- Commit: `9198e35` — pushad till GitHub
+- Originalmappen `public/Butiken 2/` (276 MB) exkluderad via `.gitignore`
 
 ---
 
@@ -99,13 +135,12 @@
 
 ### 📋 Nästa steg (prioritetsordning)
 
-1. **Fixa bildvisning i PIM** — visa samma fallback som hemsidan
+1. ~~**Deploya PIM till Firebase Hosting**~~ ✅ KLART
 2. **Fixa 0 kr-priser** — identifiera och uppdatera produkter
 3. **Ta bort dubbletter** — rensa i Firebase
-4. **Berika fler produkter** — 34/810 är klara
-5. **Deploya PIM till Firebase Hosting** — så den inte bara körs lokalt
-6. **Koppla checkout** — React-hemsida → WooCommerce kassa
-7. **Konfigurera betalning** — Klarna/Swish i WooCommerce
+4. **Berika fler produkter** — 54/1362 är klara
+5. **Koppla checkout** — React-hemsida → WooCommerce kassa
+6. **Konfigurera betalning** — Klarna/Swish i WooCommerce
 
 ---
 
