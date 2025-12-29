@@ -62,6 +62,11 @@ function mapCategory(pimCategory?: string): Product['category'] {
     if (normalized.includes('frukt')) return 'frukt';
     if (normalized.includes('grönt') || normalized.includes('grönsak')) return 'gronsaker';
     if (normalized.includes('mejeri')) return 'mejeri';
+    if (normalized.includes('chark')) return 'chark';
+    if (normalized.includes('ost')) return 'ost';
+    if (normalized.includes('bröd') || normalized.includes('brod')) return 'brod';
+    if (normalized.includes('dryck')) return 'dryck';
+    if (normalized.includes('snacks')) return 'snacks';
     if (normalized.includes('skafferi') || normalized.includes('kolonial')) return 'skafferi';
 
     return 'skafferi'; // Default

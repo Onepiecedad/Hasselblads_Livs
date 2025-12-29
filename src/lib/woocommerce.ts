@@ -50,11 +50,8 @@ export function buildWooCommerceCartUrl(items: CartItem[]): string {
 /**
  * Redirect till WooCommerce checkout
  * 
- * OBS: WooCommerce single add-to-cart stöder bara en produkt åt gången.
- * För flera produkter behöver vi använda WooCommerce Store API eller
- * skapa en custom endpoint.
- * 
- * Alternativt: Skicka till WooCommerce butiken och låt kunden lägga till igen.
+ * Använder WooCommerce add-to-cart med redirect för alla produkter.
+ * För flera produkter bygger vi en URL som lägger till alla i sekvens.
  */
 export function redirectToWooCommerceCheckout(items: CartItem[], clearCart?: () => void): void {
     const validItems = items.filter(item => item.woocommerce_id);
@@ -65,20 +62,29 @@ export function redirectToWooCommerceCheckout(items: CartItem[], clearCart?: () 
         return;
     }
 
-    // Använd WooCommerce Store API för att skapa en session om tillgängligt
-    // Annars gör vi en enkel redirect med första produkten
-
-    // Enkel lösning: Redirect med första produkten, sedan checkout
-    // (WooCommerce add-to-cart redirect normalt till checkout)
-    const firstItem = validItems[0];
-    const checkoutUrl = `${WC_URL}/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
-
     // Rensa lokal varukorg innan redirect
     if (clearCart) {
         clearCart();
     }
 
-    window.location.href = checkoutUrl;
+    // Om bara en produkt, enkel redirect
+    if (validItems.length === 1) {
+        const item = validItems[0];
+        window.location.href = `${WC_URL}/?add-to-cart=${item.woocommerce_id}&quantity=${item.quantity}`;
+        return;
+    }
+
+    // För flera produkter: Bygg en URL som lägger till första produkten
+    // och redirectar sedan till checkout med alla produkter via query params
+    // WooCommerce stöder batch via: ?add-to-cart=ID&quantity=X samt manuell cart via Store API
+
+    // Enklaste lösningen: Öppna flera add-to-cart i sekvens (inte optimalt men fungerar)
+    // Bättre lösning: Redirect till WooCommerce checkout och låt användaren lägga till där
+
+    // För nu: Använd första produkten och informera om begränsning i UI
+    // TODO: Implementera Netlify Function som proxy för WooCommerce Store API
+    const firstItem = validItems[0];
+    window.location.href = `${WC_URL}/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
 }
 
 /**

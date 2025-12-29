@@ -155,7 +155,14 @@ const Webshop = () => {
   }, [products, searchParams, activeCategory, activeTag, activeSort]);
 
   const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
-    addItem({ id: product.id, name: product.name, price: product.price, unit: product.unit, image: product.image }, quantity);
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      unit: product.unit,
+      image: product.image,
+      woocommerce_id: product.woocommerce_id
+    }, quantity);
     if (openCart) {
       setOpen(true);
     }

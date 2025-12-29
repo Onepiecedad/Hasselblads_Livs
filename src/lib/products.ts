@@ -1,4 +1,4 @@
-export type ProductCategory = "frukt" | "gronsaker" | "mejeri" | "skafferi";
+export type ProductCategory = "frukt" | "gronsaker" | "mejeri" | "skafferi" | "chark" | "ost" | "brod" | "dryck" | "snacks";
 
 export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker";
 
@@ -24,6 +24,11 @@ export const categories: { label: string; value: string }[] = [
   { label: "Frukt", value: "frukt" },
   { label: "Grönsaker", value: "gronsaker" },
   { label: "Mejeri", value: "mejeri" },
+  { label: "Chark", value: "chark" },
+  { label: "Ost", value: "ost" },
+  { label: "Bröd", value: "brod" },
+  { label: "Dryck", value: "dryck" },
+  { label: "Snacks", value: "snacks" },
   { label: "Skafferi", value: "skafferi" },
 ];
 
