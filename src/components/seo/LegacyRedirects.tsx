@@ -1,12 +1,25 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const LegacyRedirects = () => (
-  <Routes>
-    <Route path="/sasong" element={<Navigate to="/säsong" replace />} />
-    <Route path="/kundtjanst" element={<Navigate to="/kundservice" replace />} />
-    <Route path="/kontakt" element={<Navigate to="/kundservice#kontakt" replace />} />
-    <Route path="/checkout" element={<Navigate to="/kassa" replace />} />
-  </Routes>
-);
+const LegacyRedirects = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const path = location.pathname;
+    const redirects: Record<string, string> = {
+      "/sasong": "/säsong",
+      "/kundtjanst": "/kundservice",
+      "/kontakt": "/kundservice#kontakt",
+      "/checkout": "/kassa",
+    };
+
+    if (redirects[path]) {
+      navigate(redirects[path], { replace: true });
+    }
+  }, [location, navigate]);
+
+  return null;
+};
 
 export default LegacyRedirects;

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +10,11 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
+    --font-serif: 'Josefin Sans', sans-serif;
+    --font-sans: 'Lato', sans-serif;
+    --font-accent: 'Great Vibes', cursive;
+    
+    --background: 0 0% 100%;
     --foreground: 180 45% 25%;
 
     --card: 0 0% 100%;
@@ -29,11 +35,11 @@ All colors MUST be HSL.
     --accent: 20 60% 75%;
     --accent-foreground: 180 45% 25%;
 
-    --peach: 20 60% 75%;
-    --cream: 45 70% 85%;
-    --pink: 320 45% 80%;
-    --sky: 195 50% 80%;
-    --teal: 180 45% 28%;
+    --peach: 80 15% 85%;  /* Muted Olive/Moss */
+    --cream: 35 25% 92%;  /* Warm Linen */
+    --pink: 25 20% 88%;   /* Soft Clay/Sand */
+    --sky: 45 15% 90%;    /* Antique Paper */
+    --teal: 180 30% 25%;  /* Deep Forest instead of Teal */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -93,4 +99,93 @@ All colors MUST be HSL.
 /* SVG text transform for HeroLeafBadge */
 .hero-leaf-text-transform {
   transform: matrix(1, 0, 0, 1, 331, 216.458);
+}
+
+/* Premium UI Utilities */
+.glass-panel {
+  @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.soft-shadow {
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
+}
+
+.elegant-gradient {
+  background: linear-gradient(135deg, hsl(var(--muted) / 0.3) 0%, hsl(var(--background)) 100%);
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.parallax-bg {
+  @apply pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#fafafa];
+}
+
+.parallax-orb {
+  @apply absolute blur-[120px] rounded-full opacity-50 transition-transform duration-700 ease-out;
+}
+
+.parallax-leaf {
+  @apply absolute text-primary/40 transition-transform duration-500 ease-out;
+}
+
+.grain-effect {
+  position: relative;
+}
+
+.grain-effect::before {
+  content: "";
+  @apply absolute inset-0 pointer-events-none opacity-[0.05] -z-10;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-accent {
+  font-family: var(--font-accent);
+}
+
+.font-motto {
+  font-family: var(--font-serif);
+  @apply italic lowercase tracking-[0.1em] opacity-60;
+}
+
+.parallax-bg {
+  @apply pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#fdfcf9];
+}
+
+@keyframes slide {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
+}
+
+@keyframes slow-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-slow-rotate {
+  animation: slow-rotate 15s linear infinite;
+}
+
+.decorative-line {
+  @apply h-px w-20 bg-primary/20 relative;
+}
+
+.decorative-line::after {
+  content: "";
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/40;
 }

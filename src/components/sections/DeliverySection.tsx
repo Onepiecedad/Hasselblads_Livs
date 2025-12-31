@@ -20,18 +20,22 @@ const DeliverySection = () => {
   ];
 
   return (
-    <section className="py-12 pb-20 bg-cream/30">
+    <section className="py-20 md:py-32 bg-cream/20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div className="text-center mb-20 flex flex-col items-center gap-4">
+          <span className="font-accent text-5xl md:text-7xl text-primary/60">vår filosofi</span>
+          <div className="decorative-line" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24 max-w-6xl mx-auto">
           {values.map((value) => (
-            <div key={value.title} className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                <value.icon className="w-8 h-8 text-primary" />
+            <div key={value.title} className="text-center group">
+              <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-white soft-shadow mb-10 transition-transform duration-500 group-hover:scale-110">
+                <value.icon className="w-12 h-12 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
+              <h3 className="text-2xl font-bold text-primary mb-6 tracking-tight uppercase">
                 {value.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed text-xl text-balance font-medium">
                 {value.description}
               </p>
             </div>

@@ -24,108 +24,108 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-card border-b border-border">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-white/20 soft-shadow">
         <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3" aria-label="Hasselblads Livs startsida">
-            <img
-              src={hasselbladsSymbol}
-              alt="Hasselblads Livs logotyp"
-              className="h-12 w-12 rounded-full object-cover object-top sm:h-14 sm:w-14"
-              decoding="async"
-            />
-            <span className="hidden text-2xl font-semibold uppercase tracking-[0.25em] text-primary sm:block">
-              Hasselblads Livs
-            </span>
-            <span className="sr-only sm:hidden">Hasselblads Livs</span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right Icons */}
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <Heart className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <User className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setOpen(true)}
-              aria-label="Öppna varukorgen"
-              aria-haspopup="dialog"
-            >
+          <div className="flex items-center justify-between h-20 md:h-24 transition-all duration-300">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-4 group" aria-label="Hasselblads Livs startsida">
               <div className="relative">
-                <ShoppingBag className="h-5 w-5" />
+                <img
+                  src={hasselbladsSymbol}
+                  alt="Hasselblads Livs logotyp"
+                  className="h-12 w-12 rounded-full object-cover object-top sm:h-16 sm:w-16 transition-transform duration-500 group-hover:scale-110 shadow-md"
+                  decoding="async"
+                />
+              </div>
+              <span className="hidden text-xl md:text-2xl font-bold uppercase tracking-[0.3em] text-primary sm:block transition-colors duration-300">
+                Hasselblads Livs
+              </span>
+              <span className="sr-only sm:hidden">Hasselblads Livs</span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-10">
+              {navItems.map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:text-primary relative py-2 group ${active ? "text-primary" : "text-muted-foreground"
+                      }`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {item.name}
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transition-transform duration-300 ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                  </Link>
+                );
+              })}
+            </div>
+
+            {/* Right Icons */}
+            <div className="flex items-center space-x-2 md:space-x-4">
+              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full hover:bg-primary/10">
+                <Heart className="h-5 w-5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full hover:bg-primary/10">
+                <User className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative rounded-full hover:bg-primary/10"
+                onClick={() => setOpen(true)}
+                aria-label="Öppna varukorgen"
+                aria-haspopup="dialog"
+              >
+                <ShoppingBag className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary text-[10px] font-semibold text-primary-foreground">
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-lg animate-in fade-in zoom-in">
                     {cartCount}
                   </span>
                 )}
-              </div>
-            </Button>
+              </Button>
 
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="md:hidden"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-navigation"
-              aria-label="Meny"
+              {/* Mobile Menu Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden rounded-full"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-navigation"
+                aria-label="Meny"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div
+              id="mobile-navigation"
+              className="lg:hidden py-8 space-y-6 border-t border-border/50 animate-in slide-in-from-top duration-300"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
+              {navItems.map((item) => {
+                const active = isActive(item.path);
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block py-2 text-lg font-bold uppercase tracking-widest transition-colors ${active ? "text-primary" : "text-muted-foreground"
+                      }`}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div
-            id="mobile-navigation"
-            className="md:hidden py-4 space-y-2 border-t border-border"
-          >
-            {navItems.map((item) => {
-              const active = isActive(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`block py-2 text-base font-medium transition-colors ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </nav>
+      </nav>
     </>
   );
 };

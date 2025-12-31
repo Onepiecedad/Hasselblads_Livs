@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 interface HeroLeafBadgeProps {
     className?: string;
@@ -8,7 +8,7 @@ interface HeroLeafBadgeProps {
  * Hero leaf badge - uses exact path from Path 112.svg
  * ViewBox adjusted to show only the left leaf (x: 185-545, y: 150-400)
  */
-const HeroLeafBadge: React.FC<HeroLeafBadgeProps> = ({ className = '' }) => {
+const HeroLeafBadge: React.FC<HeroLeafBadgeProps> = memo(({ className = '' }) => {
     return (
         <svg
             viewBox="280 150 270 250"
@@ -20,17 +20,15 @@ const HeroLeafBadge: React.FC<HeroLeafBadgeProps> = ({ className = '' }) => {
             <style>
                 {`
           tspan { white-space: pre; }
-          .leaf-shape { fill: #1c4d4f; }
+          .leaf-shape { fill: hsl(var(--primary)); }
           .leaf-text-1 { 
-            font-size: 32px;
-            line-height: 24px;
+            font-size: 34px;
             fill: #ffffff;
             font-weight: 700;
             font-family: "Josefin Sans", sans-serif;
           }
           .leaf-text-2 { 
-            font-size: 32px;
-            line-height: 36px;
+            font-size: 34px;
             fill: #ffffff;
             font-weight: 700;
             font-family: "Josefin Sans", sans-serif;
@@ -54,6 +52,6 @@ const HeroLeafBadge: React.FC<HeroLeafBadgeProps> = ({ className = '' }) => {
             </text>
         </svg>
     );
-};
+});
 
 export default HeroLeafBadge;
