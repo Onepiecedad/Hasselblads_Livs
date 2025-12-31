@@ -67,7 +67,7 @@
 ### 📊 Påverkade filer
 
 | Fil | Ändringar |
-|-----|-----------|
+| ----- | ----------- |
 | `src/index.css` | Great Vibes font återställd |
 | `src/pages/Home.tsx` | Typografi, parallax, sektionsordning |
 | `src/components/Navigation.tsx` | Mobil brand-text |
@@ -82,7 +82,7 @@
 
 ## 📅 2025-12-29
 
-### ✅ Genomfört
+### ✅ Genomfört (2025-12-29)
 
 #### 1. PIM-appen deployad LIVE
 
@@ -128,7 +128,7 @@
 - **54 produkter** med status `completed` (tidigare 34)
 - **2 produkter** med fel
 
-### 🔧 Tekniska ändringar
+### 🔧 Tekniska ändringar (2025-12-29)
 
 - **23 filer ändrade** (156 tillägg, 207 borttagningar)
 - Commit: `9198e35` — pushad till GitHub
