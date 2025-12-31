@@ -241,11 +241,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Social Feed - More integrated feel */}
-      <section className="bg-transparent">
-        <InstagramFeed />
-      </section>
-
       {/* Kategorier - Balanced Minimalist Section */}
       <section className="py-24 md:py-32 bg-transparent">
         <div className="container mx-auto px-4">
@@ -298,6 +293,11 @@ const Home = () => {
             </Link>
           </div>
         </div>
+      </section>
+
+      {/* Social Feed - At the bottom */}
+      <section className="bg-transparent">
+        <InstagramFeed />
       </section>
 
     </div>

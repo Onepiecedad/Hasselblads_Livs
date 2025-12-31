@@ -38,47 +38,48 @@ const Footer = () => {
 
   return (
     <footer className="bg-background border-t border-border/50">
-      <div className="container mx-auto px-4 py-16 md:py-24">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Brand & Info */}
-          <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
-            <h2 className="text-2xl font-serif italic text-primary">
+          <div className="flex flex-col md:flex-row items-center gap-3 text-center md:text-left">
+            <span className="text-lg font-serif italic text-primary">
               Hasselblads Livs
-            </h2>
-            <div className="flex flex-col md:flex-row items-center gap-x-3 gap-y-2 text-muted-foreground font-medium">
+            </span>
+            <span className="hidden md:inline text-muted-foreground/30">|</span>
+            <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span>Frejagatan 9, Mölndal</span>
-              <span className="hidden md:inline opacity-30">•</span>
+              <span className="opacity-30">•</span>
               <span>031-123 45 67</span>
-              <span className="hidden md:inline opacity-30">•</span>
+              <span className="opacity-30">•</span>
               <a href="mailto:info@hasselbladslivs.se" className="hover:text-primary transition-colors">info@hasselbladslivs.se</a>
             </div>
           </div>
 
           {/* Social icons */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
             <a
               href="https://www.facebook.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary hover:scale-110 transition-all duration-300 shadow-sm"
+              className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all duration-300"
               aria-label="Facebook"
             >
-              <Facebook className="h-5 w-5" />
+              <Facebook className="h-4 w-4" />
             </a>
             <a
               href="https://www.instagram.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary hover:scale-110 transition-all duration-300 shadow-sm"
+              className="w-10 h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all duration-300"
               aria-label="Instagram"
             >
-              <Instagram className="h-5 w-5" />
+              <Instagram className="h-4 w-4" />
             </a>
           </div>
         </div>
 
         {/* Copyright */}
-        <div className="mt-16 pt-8 border-t border-border/30 text-center text-sm text-muted-foreground uppercase tracking-widest font-medium">
+        <div className="mt-6 pt-4 border-t border-border/20 text-center text-xs text-muted-foreground/70">
           <p>&copy; {new Date().getFullYear()} Hasselblads Livs</p>
         </div>
       </div>
