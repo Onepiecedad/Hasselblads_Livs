@@ -4,6 +4,82 @@
 
 ---
 
+## 📅 2025-12-31
+
+### ✅ Genomfört
+
+#### 1. Typografi — Dekorativa sektionsetiketter
+
+- Återintroducerade **Great Vibes** font för sektionsetiketter
+- Ökade storlek till `text-5xl md:text-7xl` för bättre proportion
+- Påverkade sektioner: "våra favoriter", "utforska butiken", "vår filosofi", "följ vår vardag"
+
+#### 2. Kategori-kort — Korrigerade etiketter
+
+- Fixade felaktiga namn som inte matchade kortbilderna
+- Bytte namn/bild-mappning för:
+  - OST & CHARK
+  - MEJERI & ÄGG
+  - SKAFFERI
+  - BRÖD
+  - SÖTT & GOTT
+
+#### 3. Hero-löv — Fixerad position
+
+- Tog bort `animate-float` animation från det stora gröna lövet
+- Lövet är nu statiskt istället för att flyta upp och ner
+
+#### 4. Mobil-optimering
+
+- **Header:** Visar nu "Hasselblads Livs" text på mobil (tidigare dold)
+- **Parallax:** Dold på mobil (`hidden md:block`) för renare upplevelse
+- Textjusteringar för bättre läsbarhet på små skärmar
+
+#### 5. Sidlayout — Omorganiserad
+
+- Flyttade **Sociala medier-sektionen** till botten av sidan
+- Ny ordning: Hero → Vår filosofi → Våra favoriter → Kategorier → Sociala medier
+
+#### 6. Footer — Kompaktare design
+
+- Minskade padding från `py-16 md:py-24` till `py-8`
+- Enrads-layout på desktop för kontaktinfo
+- Mindre ikoner och marginaler
+- Footer tar nu ~50% mindre plats
+
+#### 7. WooCommerce Checkout — Buggfix
+
+- Fixade hantering av flera artiklar vid checkout
+- Använder nu `buildWooCommerceCartUrl` korrekt
+
+#### 8. Routing — Refaktorering
+
+- Refaktorerade `LegacyRedirects` från `<Routes>` till `useEffect`-hook
+- Löste React-varning om nested routes
+
+### 🔧 Tekniska ändringar
+
+- **4 commits** pushade till GitHub:
+  - `ca4f2c6` — Typography, category cards, and UI fixes
+  - `9ac3069` — Mobile: Show brand name in header and hide parallax
+  - `7beebf8` — Layout: Move social section to bottom, compact footer
+
+### 📊 Påverkade filer
+
+| Fil | Ändringar |
+|-----|-----------|
+| `src/index.css` | Great Vibes font återställd |
+| `src/pages/Home.tsx` | Typografi, parallax, sektionsordning |
+| `src/components/Navigation.tsx` | Mobil brand-text |
+| `src/components/Footer.tsx` | Kompakt layout |
+| `src/lib/categoryCards.ts` | Korrigerade namn/bild-mappning |
+| `src/components/sections/DeliverySection.tsx` | Great Vibes typografi |
+| `src/components/sections/InstagramFeed.tsx` | Great Vibes typografi |
+| `src/lib/woocommerce.ts` | Multi-item checkout fix |
+| `src/components/seo/LegacyRedirects.tsx` | useEffect refaktorering |
+
+---
+
 ## 📅 2025-12-29
 
 ### ✅ Genomfört
