@@ -37,10 +37,9 @@ const Navigation = () => {
                   decoding="async"
                 />
               </div>
-              <span className="hidden text-xl md:text-2xl font-bold uppercase tracking-[0.3em] text-primary sm:block transition-colors duration-300">
+              <span className="text-sm sm:text-xl md:text-2xl font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary transition-colors duration-300">
                 Hasselblads Livs
               </span>
-              <span className="sr-only sm:hidden">Hasselblads Livs</span>
             </Link>
 
             {/* Desktop Navigation */}

@@ -116,8 +116,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen relative grain-effect">
-      {/* Sublte Parallax Background Elements */}
-      <div className="parallax-bg" aria-hidden="true" ref={parallaxContainerRef}>
+      {/* Sublte Parallax Background Elements - Hidden on mobile */}
+      <div className="parallax-bg hidden md:block" aria-hidden="true" ref={parallaxContainerRef}>
         {/* Soft Orbs - Much larger and more distinct */}
         <div
           className="parallax-orb w-[800px] h-[800px] bg-peach -top-40 -left-60"
