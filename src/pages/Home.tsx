@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { CircularGallery } from "@/components/ui/circular-gallery";
 import DeliverySection from "@/components/sections/DeliverySection";
 import InstagramFeed from "@/components/sections/InstagramFeed";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
@@ -28,6 +29,7 @@ const heroImages = [
 import { Leaf } from "lucide-react";
 
 const Home = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const parallaxContainerRef = useRef<HTMLDivElement>(null);
 
@@ -211,14 +213,14 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8 lg:gap-10">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10 lg:gap-12 max-w-5xl mx-auto">
               {highlightCards.map((card) => (
                 <Link
                   key={card.title}
                   to={card.href}
                   className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-2xl"
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl">
                       <img
                         src={card.image}
@@ -241,53 +243,37 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Kategorier - Balanced Minimalist Section */}
-      <section className="py-24 md:py-32 bg-transparent">
+      {/* Kategorier - 3D Circular Gallery */}
+      <section className="py-16 md:py-24 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-20">
-            <div className="flex flex-col items-center gap-4 mb-8">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="flex flex-col items-center gap-4 mb-6">
               <span className="font-accent text-5xl md:text-7xl text-primary/60">utforska butiken</span>
               <div className="decorative-line" />
             </div>
-            <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight mb-8">
+            <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight mb-6">
               Våra Avdelningar
             </h2>
-            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70 leading-relaxed">
-              Utforska vårt breda utbud av livsmedel. Vi har allt for vardagens middagar och helgens festligheter.
+            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto font-medium opacity-70 leading-relaxed">
+              Dra för att utforska • Klicka för att öppna
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 sm:gap-8 md:gap-10 lg:gap-12 max-w-6xl mx-auto">
-            {categoryCards.slice(0, 9).map((category) => (
-              <Link
-                key={category.name}
-                to={category.href}
-                className="group block focus:outline-none"
-              >
-                <div className="space-y-6">
-                  <div className="relative aspect-square overflow-hidden rounded-3xl soft-shadow transition-all duration-700 hover:-translate-y-2">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="text-lg md:text-xl font-bold text-primary transition-colors group-hover:text-primary/70 uppercase tracking-wide">
-                      {category.name}
-                    </h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <CircularGallery
+            items={categoryCards.slice(0, 9).map(c => ({
+              name: c.name,
+              image: c.image,
+              href: c.href,
+            }))}
+            radius={300}
+            autoRotateSpeed={0.3}
+            onItemClick={(item) => navigate(item.href)}
+          />
 
-          <div className="mt-20 text-center">
+          <div className="mt-8 text-center">
             <Link
               to="/webbutik"
-              className="inline-flex items-center justify-center px-10 py-3 rounded-full bg-primary text-white text-base font-bold transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-xl"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-primary text-white text-base font-bold transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-lg"
             >
               Se hela sortimentet
             </Link>
