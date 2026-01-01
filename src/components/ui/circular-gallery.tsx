@@ -28,16 +28,14 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         const containerRef = useRef<HTMLDivElement>(null);
         const galleryRef = useRef<HTMLDivElement>(null);
 
-        // Rotation effect based on hover position
+        // Rotation effect based on hover position - only rotates when cursor is on carousel
         useEffect(() => {
             const animate = () => {
                 if (isHovering && hoverDirection !== 0) {
-                    // Rotate based on hover direction
+                    // Rotate based on hover direction - only when cursor is on carousel
                     setRotation(prev => prev + hoverDirection * autoRotateSpeed * 6);
-                } else if (!isHovering) {
-                    // Auto-rotate when not hovering
-                    setRotation(prev => prev + autoRotateSpeed);
                 }
+                // No rotation when not hovering - carousel stays still
                 animationFrameRef.current = requestAnimationFrame(animate);
             };
 
