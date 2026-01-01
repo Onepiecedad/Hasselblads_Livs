@@ -213,7 +213,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10 lg:gap-12 max-w-5xl mx-auto">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8 lg:gap-10">
               {highlightCards.map((card) => (
                 <Link
                   key={card.title}
@@ -246,7 +246,7 @@ const Home = () => {
       {/* Kategorier - 3D Circular Gallery */}
       <section className="py-16 md:py-24 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-8 md:mb-12">
+          <div className="text-center mb-4 md:mb-6">
             <div className="flex flex-col items-center gap-4 mb-6">
               <span className="font-accent text-5xl md:text-7xl text-primary/60">utforska butiken</span>
               <div className="decorative-line" />
@@ -270,7 +270,7 @@ const Home = () => {
             onItemClick={(item) => navigate(item.href)}
           />
 
-          <div className="mt-8 text-center">
+          <div className="mt-16 text-center">
             <Link
               to="/webbutik"
               className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-primary text-white text-base font-bold transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-lg"
