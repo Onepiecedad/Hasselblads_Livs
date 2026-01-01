@@ -113,7 +113,6 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     style={{
                         transform: `rotateY(${-rotation}deg)`,
                         transformStyle: 'preserve-3d',
-                        transition: 'transform 0.15s ease-out',
                     }}
                 >
                     {items.map((item, i) => {
