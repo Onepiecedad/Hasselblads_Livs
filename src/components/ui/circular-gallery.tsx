@@ -35,6 +35,8 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         const galleryRef = useRef<HTMLDivElement>(null);
         const lastTouchX = useRef<number>(0);
         const lastTouchTime = useRef<number>(0);
+        const hasDragged = useRef<boolean>(false);
+        const dragDistance = useRef<number>(0);
 
         // Check if mobile on mount and resize
         useEffect(() => {
@@ -98,6 +100,8 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
             setVelocity(0);
             lastTouchX.current = e.touches[0].clientX;
             lastTouchTime.current = Date.now();
+            hasDragged.current = false;
+            dragDistance.current = 0;
         };
 
         const handleTouchMove = (e: React.TouchEvent) => {
@@ -105,6 +109,12 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
             const touchX = e.touches[0].clientX;
             const deltaX = touchX - lastTouchX.current;
             const deltaTime = Date.now() - lastTouchTime.current;
+
+            // Track total drag distance
+            dragDistance.current += Math.abs(deltaX);
+            if (dragDistance.current > 10) {
+                hasDragged.current = true;
+            }
 
             // Calculate velocity for momentum
             if (deltaTime > 0) {
@@ -120,6 +130,11 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         const handleTouchEnd = () => {
             setTouchStartX(null);
             setIsDragging(false);
+            // Reset hasDragged after a short delay to allow click to be prevented
+            setTimeout(() => {
+                hasDragged.current = false;
+                dragDistance.current = 0;
+            }, 100);
         };
 
         const anglePerItem = 360 / items.length;
@@ -152,7 +167,6 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     style={{
                         transform: `rotateY(${-rotation}deg)`,
                         transformStyle: 'preserve-3d',
-                        transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                     }}
                 >
                     {items.map((item, i) => {
@@ -180,7 +194,12 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                     opacity: opacity,
                                     zIndex: isFront ? 10 : 1,
                                 }}
-                                onClick={() => onItemClick?.(item)}
+                                onClick={() => {
+                                    // Only trigger click if we haven't dragged
+                                    if (!hasDragged.current && dragDistance.current < 10) {
+                                        onItemClick?.(item);
+                                    }
+                                }}
                                 onKeyDown={(e) => e.key === 'Enter' && onItemClick?.(item)}
                             >
                                 <div className={cn(
