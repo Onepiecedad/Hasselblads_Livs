@@ -28,9 +28,13 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         const [hoverDirection, setHoverDirection] = useState(0);
         const [isMobile, setIsMobile] = useState(false);
         const [touchStartX, setTouchStartX] = useState<number | null>(null);
+        const [velocity, setVelocity] = useState(0);
+        const [isDragging, setIsDragging] = useState(false);
         const animationFrameRef = useRef<number | null>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const galleryRef = useRef<HTMLDivElement>(null);
+        const lastTouchX = useRef<number>(0);
+        const lastTouchTime = useRef<number>(0);
 
         // Check if mobile on mount and resize
         useEffect(() => {
@@ -43,12 +47,19 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         // Use mobileRadius on small screens
         const effectiveRadius = isMobile && mobileRadius ? mobileRadius : radius;
 
-        // Rotation effect - hover-based on desktop only, no auto-rotation on mobile
+        // Rotation effect - hover-based on desktop, momentum on mobile
         useEffect(() => {
             const animate = () => {
-                // Only rotate on desktop when hovering
+                // Desktop: rotate on hover
                 if (!isMobile && isHovering && hoverDirection !== 0) {
                     setRotation(prev => prev + hoverDirection * autoRotateSpeed * 6);
+                }
+                // Mobile: apply momentum/inertia when not dragging
+                if (isMobile && !isDragging && Math.abs(velocity) > 0.1) {
+                    setRotation(prev => prev + velocity);
+                    setVelocity(prev => prev * 0.95); // Friction - slow down gradually
+                } else if (isMobile && !isDragging) {
+                    setVelocity(0);
                 }
                 animationFrameRef.current = requestAnimationFrame(animate);
             };
@@ -60,7 +71,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     cancelAnimationFrame(animationFrameRef.current);
                 }
             };
-        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile]);
+        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile, velocity, isDragging]);
 
         // Handle mouse position to determine rotation direction
         const handleMouseMove = (e: React.MouseEvent) => {
@@ -80,22 +91,35 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
             setHoverDirection(0);
         };
 
-        // Touch handlers for mobile - drag to rotate
+        // Touch handlers for mobile - drag to rotate with momentum
         const handleTouchStart = (e: React.TouchEvent) => {
             setTouchStartX(e.touches[0].clientX);
+            setIsDragging(true);
+            setVelocity(0);
+            lastTouchX.current = e.touches[0].clientX;
+            lastTouchTime.current = Date.now();
         };
 
         const handleTouchMove = (e: React.TouchEvent) => {
             if (touchStartX === null) return;
             const touchX = e.touches[0].clientX;
-            const deltaX = touchX - touchStartX;
+            const deltaX = touchX - lastTouchX.current;
+            const deltaTime = Date.now() - lastTouchTime.current;
+
+            // Calculate velocity for momentum
+            if (deltaTime > 0) {
+                setVelocity(-deltaX * 0.5);
+            }
+
             // Rotate based on drag distance
-            setRotation(prev => prev - deltaX * 0.3);
-            setTouchStartX(touchX);
+            setRotation(prev => prev - deltaX * 0.4);
+            lastTouchX.current = touchX;
+            lastTouchTime.current = Date.now();
         };
 
         const handleTouchEnd = () => {
             setTouchStartX(null);
+            setIsDragging(false);
         };
 
         const anglePerItem = 360 / items.length;
@@ -128,6 +152,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     style={{
                         transform: `rotateY(${-rotation}deg)`,
                         transformStyle: 'preserve-3d',
+                        transition: isDragging ? 'none' : 'transform 0.1s ease-out',
                     }}
                 >
                     {items.map((item, i) => {
