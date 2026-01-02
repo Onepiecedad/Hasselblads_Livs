@@ -13,6 +13,8 @@ interface CircularGalleryProps extends React.HTMLAttributes<HTMLDivElement> {
     items: GalleryItem[];
     /** Controls how far the items are from the center. */
     radius?: number;
+    /** Controls how far the items are from the center on mobile. */
+    mobileRadius?: number;
     /** Controls the speed of auto-rotation. */
     autoRotateSpeed?: number;
     /** Callback when an item is clicked */
@@ -20,22 +22,38 @@ interface CircularGalleryProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
-    ({ items, className, radius = 400, autoRotateSpeed = 0.15, onItemClick, ...props }, ref) => {
+    ({ items, className, radius = 400, mobileRadius, autoRotateSpeed = 0.15, onItemClick, ...props }, ref) => {
         const [rotation, setRotation] = useState(0);
         const [isHovering, setIsHovering] = useState(false);
-        const [hoverDirection, setHoverDirection] = useState(0); // -1 = left (clockwise), 1 = right (counter-clockwise)
+        const [hoverDirection, setHoverDirection] = useState(0);
+        const [isMobile, setIsMobile] = useState(false);
+        const [touchStartX, setTouchStartX] = useState<number | null>(null);
         const animationFrameRef = useRef<number | null>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const galleryRef = useRef<HTMLDivElement>(null);
 
-        // Rotation effect based on hover position - only rotates when cursor is on carousel
+        // Check if mobile on mount and resize
+        useEffect(() => {
+            const checkMobile = () => setIsMobile(window.innerWidth < 768);
+            checkMobile();
+            window.addEventListener('resize', checkMobile);
+            return () => window.removeEventListener('resize', checkMobile);
+        }, []);
+
+        // Use mobileRadius on small screens
+        const effectiveRadius = isMobile && mobileRadius ? mobileRadius : radius;
+
+        // Rotation effect - auto-rotate slowly on mobile, hover-based on desktop
         useEffect(() => {
             const animate = () => {
-                if (isHovering && hoverDirection !== 0) {
-                    // Rotate based on hover direction - only when cursor is on carousel
+                if (isMobile) {
+                    // Slow auto-rotation on mobile when not touching
+                    if (touchStartX === null) {
+                        setRotation(prev => prev + autoRotateSpeed * 0.5);
+                    }
+                } else if (isHovering && hoverDirection !== 0) {
                     setRotation(prev => prev + hoverDirection * autoRotateSpeed * 6);
                 }
-                // No rotation when not hovering - carousel stays still
                 animationFrameRef.current = requestAnimationFrame(animate);
             };
 
@@ -46,7 +64,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     cancelAnimationFrame(animationFrameRef.current);
                 }
             };
-        }, [isHovering, hoverDirection, autoRotateSpeed]);
+        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile, touchStartX]);
 
         // Handle mouse position to determine rotation direction
         const handleMouseMove = (e: React.MouseEvent) => {
@@ -56,32 +74,32 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
             const mouseX = e.clientX;
             const distanceFromCenter = mouseX - centerX;
             const normalizedDistance = distanceFromCenter / (rect.width / 2);
-
-            // Use exponential scaling for more dramatic speed increase toward edges
             const exponentialDistance = Math.sign(normalizedDistance) * Math.pow(Math.abs(normalizedDistance), 1.5);
-
-            // Left side = positive rotation (clockwise), right side = negative (counter-clockwise)
             setHoverDirection(-exponentialDistance);
         };
 
-        const handleMouseEnter = () => {
-            setIsHovering(true);
-        };
-
+        const handleMouseEnter = () => setIsHovering(true);
         const handleMouseLeave = () => {
             setIsHovering(false);
             setHoverDirection(0);
         };
 
-        // Touch handlers for mobile
+        // Touch handlers for mobile - drag to rotate
+        const handleTouchStart = (e: React.TouchEvent) => {
+            setTouchStartX(e.touches[0].clientX);
+        };
+
         const handleTouchMove = (e: React.TouchEvent) => {
-            if (!galleryRef.current) return;
-            const rect = galleryRef.current.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
+            if (touchStartX === null) return;
             const touchX = e.touches[0].clientX;
-            const distanceFromCenter = touchX - centerX;
-            const normalizedDistance = distanceFromCenter / (rect.width / 2);
-            setHoverDirection(-normalizedDistance);
+            const deltaX = touchX - touchStartX;
+            // Rotate based on drag distance
+            setRotation(prev => prev - deltaX * 0.3);
+            setTouchStartX(touchX);
+        };
+
+        const handleTouchEnd = () => {
+            setTouchStartX(null);
         };
 
         const anglePerItem = 360 / items.length;
@@ -103,8 +121,9 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onMouseMove={handleMouseMove}
+                onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
-                onTouchEnd={handleMouseLeave}
+                onTouchEnd={handleTouchEnd}
                 {...props}
             >
                 <div
@@ -132,7 +151,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                 aria-label={item.name}
                                 className="absolute w-[160px] h-[160px] md:w-[200px] md:h-[200px] transition-opacity duration-300"
                                 style={{
-                                    transform: `rotateY(${itemAngle}deg) translateZ(${radius}px) scale(${scale})`,
+                                    transform: `rotateY(${itemAngle}deg) translateZ(${effectiveRadius}px) scale(${scale})`,
                                     left: '50%',
                                     top: '50%',
                                     marginLeft: '-80px',
