@@ -33,11 +33,11 @@ const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const parallaxContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-advance hero slideshow - slowed down for a smoother feel
+  // Auto-advance hero slideshow
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 7000); // Increased from 5s to 7s
+    }, 5000); // 5 seconds per image
     return () => clearInterval(timer);
   }, []);
 
@@ -167,17 +167,27 @@ const Home = () => {
       {/* Hero Section with Slideshow */}
       <section className="relative h-[500px] md:h-[650px] overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {heroImages.map((image, index) => (
-            <img
-              key={image}
-              src={image}
-              alt={`Hasselblads Livs butik ${index + 1}`}
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-[3000ms] ease-in-out ${index === currentSlide ? "opacity-100 scale-105" : "opacity-0 scale-100"
-                }`}
-              loading={index === 0 ? "eager" : "lazy"}
-            />
-          ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20" />
+          {/* Crossfade slideshow - two layers for smooth transitions */}
+          {heroImages.map((image, index) => {
+            const isActive = index === currentSlide;
+            const isPrevious = index === (currentSlide - 1 + heroImages.length) % heroImages.length;
+
+            return (
+              <img
+                key={image}
+                src={image}
+                alt={`Hasselblads Livs butik ${index + 1}`}
+                className="absolute inset-0 w-full h-full object-cover will-change-[opacity]"
+                style={{
+                  opacity: isActive ? 1 : 0,
+                  transition: 'opacity 1200ms ease-in-out',
+                  zIndex: isActive ? 2 : isPrevious ? 1 : 0,
+                }}
+                loading="eager"
+              />
+            );
+          })}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20 z-10" />
         </div>
 
         {/* Leaf decoration - stabilized with key and memoized badge */}
@@ -199,7 +209,7 @@ const Home = () => {
       {/* Highlights - Transparent background to show parallax */}
       <section className="py-20 md:py-32 bg-transparent">
         <div className="container mx-auto px-4">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-7xl">
             <div className="text-center mb-24 relative">
               <div className="flex flex-col items-center gap-4 mb-8">
                 <span className="font-accent text-5xl md:text-7xl text-primary/60">våra favoriter</span>
@@ -213,7 +223,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8 lg:gap-10">
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10 lg:gap-14">
               {highlightCards.map((card) => (
                 <Link
                   key={card.title}
@@ -265,7 +275,7 @@ const Home = () => {
               image: c.image,
               href: c.href,
             }))}
-            radius={300}
+            radius={350}
             autoRotateSpeed={0.3}
             onItemClick={(item) => navigate(item.href)}
           />
