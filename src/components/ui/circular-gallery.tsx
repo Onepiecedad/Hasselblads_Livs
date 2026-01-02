@@ -43,15 +43,11 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         // Use mobileRadius on small screens
         const effectiveRadius = isMobile && mobileRadius ? mobileRadius : radius;
 
-        // Rotation effect - auto-rotate slowly on mobile, hover-based on desktop
+        // Rotation effect - hover-based on desktop only, no auto-rotation on mobile
         useEffect(() => {
             const animate = () => {
-                if (isMobile) {
-                    // Slow auto-rotation on mobile when not touching
-                    if (touchStartX === null) {
-                        setRotation(prev => prev + autoRotateSpeed * 0.5);
-                    }
-                } else if (isHovering && hoverDirection !== 0) {
+                // Only rotate on desktop when hovering
+                if (!isMobile && isHovering && hoverDirection !== 0) {
                     setRotation(prev => prev + hoverDirection * autoRotateSpeed * 6);
                 }
                 animationFrameRef.current = requestAnimationFrame(animate);
@@ -64,7 +60,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     cancelAnimationFrame(animationFrameRef.current);
                 }
             };
-        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile, touchStartX]);
+        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile]);
 
         // Handle mouse position to determine rotation direction
         const handleMouseMove = (e: React.MouseEvent) => {
