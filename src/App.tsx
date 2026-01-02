@@ -17,6 +17,7 @@ import BreadcrumbSchema from "./components/seo/BreadcrumbSchema";
 import Checkout from "./pages/Checkout";
 import LegacyRedirects from "./components/seo/LegacyRedirects";
 import RootLayout from "./layouts/RootLayout";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             </Route>
           </Routes>
           <MiniCartDrawer />
+          <ScrollToTop />
         </BrowserRouter>
       </CartProvider>
     </TooltipProvider>

@@ -37,18 +37,18 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="bg-background border-t border-border/50">
-      <div className="container mx-auto px-4 py-4 md:py-8">
+    <footer className="bg-primary">
+      <div className="w-full px-4 md:px-8 py-4 md:py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
           {/* Brand & Info */}
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <span className="text-base md:text-lg font-serif italic text-primary">
+            <span className="text-base md:text-lg font-serif italic text-white">
               Hasselblads Livs
             </span>
-            <span className="hidden md:inline text-muted-foreground/30">|</span>
-            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs md:text-sm text-muted-foreground">
+            <span className="hidden md:inline text-white/30">|</span>
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs md:text-sm text-white/70">
               <span>Frejagatan 9, Mölndal</span>
-              <span className="opacity-30">•</span>
+              <span className="opacity-50">•</span>
               <span>031-123 45 67</span>
             </div>
           </div>
@@ -59,7 +59,7 @@ const Footer = () => {
               href="https://www.facebook.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all duration-300"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all duration-300"
               aria-label="Facebook"
             >
               <Facebook className="h-3.5 w-3.5 md:h-4 md:w-4" />
@@ -68,17 +68,12 @@ const Footer = () => {
               href="https://www.instagram.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-border/50 flex items-center justify-center text-muted-foreground hover:text-primary hover:border-primary transition-all duration-300"
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all duration-300"
               aria-label="Instagram"
             >
               <Instagram className="h-3.5 w-3.5 md:h-4 md:w-4" />
             </a>
           </div>
-        </div>
-
-        {/* Copyright */}
-        <div className="mt-3 md:mt-6 pt-3 md:pt-4 border-t border-border/20 text-center text-[10px] md:text-xs text-muted-foreground/70">
-          <p>&copy; {new Date().getFullYear()} Hasselblads Livs</p>
         </div>
       </div>
     </footer>

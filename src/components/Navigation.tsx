@@ -24,20 +24,19 @@ const Navigation = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-white/20 soft-shadow">
-        <div className="container mx-auto px-4">
+      <nav className="sticky top-0 z-50 bg-primary/95 backdrop-blur-md border-b border-white/10 shadow-lg">
+        <div className="w-full px-4 md:px-8">
           <div className="flex items-center justify-between h-20 md:h-24 transition-all duration-300">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-4 group" aria-label="Hasselblads Livs startsida">
-              <div className="relative">
-                <img
-                  src={hasselbladsSymbol}
-                  alt="Hasselblads Livs logotyp"
-                  className="h-12 w-12 rounded-full object-cover object-top sm:h-16 sm:w-16 transition-transform duration-500 group-hover:scale-110 shadow-md"
-                  decoding="async"
-                />
-              </div>
-              <span className="text-sm sm:text-xl md:text-2xl font-bold uppercase tracking-[0.2em] sm:tracking-[0.3em] text-primary transition-colors duration-300">
+            <Link to="/" className="flex items-center space-x-3 group" aria-label="Hasselblads Livs startsida">
+              <img
+                src={hasselbladsSymbol}
+                alt="Hasselblads Livs logotyp"
+                className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                style={{ filter: 'brightness(0) invert(1)' }}
+                decoding="async"
+              />
+              <span className="text-sm sm:text-xl md:text-2xl font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white transition-colors duration-300">
                 Hasselblads Livs
               </span>
             </Link>
@@ -50,12 +49,12 @@ const Navigation = () => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:text-primary relative py-2 group ${active ? "text-primary" : "text-muted-foreground"
+                    className={`text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:text-white relative py-2 group ${active ? "text-white" : "text-white/70"
                       }`}
                     aria-current={active ? "page" : undefined}
                   >
                     {item.name}
-                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-primary transition-transform duration-300 ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-white transition-transform duration-300 ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
                   </Link>
                 );
               })}
@@ -63,23 +62,23 @@ const Navigation = () => {
 
             {/* Right Icons */}
             <div className="flex items-center space-x-2 md:space-x-4">
-              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full hover:bg-primary/10">
+              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full text-white/80 hover:text-white hover:bg-white/10">
                 <Heart className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full hover:bg-primary/10">
+              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full text-white/80 hover:text-white hover:bg-white/10">
                 <User className="h-5 w-5" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative rounded-full hover:bg-primary/10"
+                className="relative rounded-full text-white hover:bg-white/10"
                 onClick={() => setOpen(true)}
                 aria-label="Öppna varukorgen"
                 aria-haspopup="dialog"
               >
                 <ShoppingBag className="h-6 w-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-lg animate-in fade-in zoom-in">
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-lg animate-in fade-in zoom-in">
                     {cartCount}
                   </span>
                 )}
@@ -89,7 +88,7 @@ const Navigation = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden rounded-full"
+                className="lg:hidden rounded-full text-white hover:bg-white/10"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-navigation"
@@ -104,7 +103,7 @@ const Navigation = () => {
           {mobileMenuOpen && (
             <div
               id="mobile-navigation"
-              className="lg:hidden py-8 space-y-6 border-t border-border/50 animate-in slide-in-from-top duration-300"
+              className="lg:hidden py-8 space-y-6 border-t border-white/20 animate-in slide-in-from-top duration-300"
             >
               {navItems.map((item) => {
                 const active = isActive(item.path);
@@ -113,7 +112,7 @@ const Navigation = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`block py-2 text-lg font-bold uppercase tracking-widest transition-colors ${active ? "text-primary" : "text-muted-foreground"
+                    className={`block py-2 text-lg font-bold uppercase tracking-widest transition-colors ${active ? "text-white" : "text-white/70"
                       }`}
                     aria-current={active ? "page" : undefined}
                   >
