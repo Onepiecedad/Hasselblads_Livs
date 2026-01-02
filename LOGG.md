@@ -4,6 +4,53 @@
 
 ---
 
+## 📅 2026-01-02
+
+### 🎨 DESIGNSTANDARD FASTSTÄLLD
+
+**Home-sidan är nu referensstandard för hela webbplatsen.**
+
+Alla andra sidor ska följa Home-sidans:
+
+- **Typografi:** Great Vibes för dekorativa etiketter, system-sans för brödtext
+- **Färgpalett:** Primary green (#2D4A3E), soft cream backgrounds, muted accents
+- **Animationer:** Subtila hover-effekter, smooth transitions (300-500ms)
+- **Layout:** Generös whitespace, max-w-7xl containers, responsive grid
+- **Komponenter:** Rounded corners (2xl), soft shadows, parallax bakgrundselement
+- **Känsla:** Premium, organisk, skandinavisk minimalism med värme
+
+### ✅ Genomfört
+
+#### 1. Hero-bildspel — Snabbare timing
+
+- **Bildvisning:** 5 sekunder (tidigare 8 sekunder)
+- **Fade-övergång:** 1.2 sekunder (tidigare 2 sekunder)
+- Ger en mer dynamisk och engagerande upplevelse
+
+#### 2. "Handplockat ur sortimentet" — Större kort
+
+- Ökade container från `max-w-6xl` till `max-w-7xl`
+- Ökade gap mellan kort: mobil 8, tablet 10, desktop 14
+- Korten tar nu upp mer utrymme och syns bättre
+
+#### 3. Cirkulär karusell — Justerat avstånd
+
+- Ökade radius från 300px till 350px
+- Bättre separation mellan kategori-korten
+
+### 🔧 Tekniska ändringar
+
+- **1 commit** pushad till GitHub:
+  - `1223290` — Improve hero slideshow and card layouts
+
+### 📊 Påverkade filer
+
+| Fil | Ändringar |
+| ----- | ----------- |
+| `src/pages/Home.tsx` | Slideshow timing, container width, gaps, carousel radius |
+
+---
+
 ## 📅 2025-12-31
 
 ### ✅ Genomfört
