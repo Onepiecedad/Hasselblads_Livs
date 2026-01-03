@@ -4,6 +4,74 @@
 
 ---
 
+## 📅 2026-01-03
+
+### 🎨 DESIGN REFRESH — Brand Identity Update
+
+Uppdaterade designsystemet för att matcha officiell varumärkesguide.
+
+### ✅ Genomfört
+
+#### 1. Primärfärg — Officiell Hasselblads-grön
+
+- Bytte till exakt RGB(0, 106, 82) = HSL(166, 100%, 21%)
+- Uppdaterade `--primary` och `--ring` i CSS-variabler
+
+#### 2. Typografi — Overpass
+
+- Bytte från Nunito Sans/Josefin Sans/Lato till **Overpass**
+- Enligt typografiguiden: Overpass för all webtext
+- Tog bort Great Vibes (dekorativ font)
+
+#### 3. Header & Footer — Grön med vit text
+
+- Bakgrund: `bg-primary/95` (grön med transparens)
+- Text och ikoner: Vita (`text-white`)
+- Logo: Vit symbol (original med CSS filter `brightness(0) invert(1)`)
+- Footer: Matchande design utan copyright-rad
+
+#### 4. Borttagna dekorativa rubriker
+
+- "vår filosofi" (DeliverySection)
+- "våra favoriter" (Home.tsx)
+- "utforska butiken" (Home.tsx)
+- "följ vår vardag" (InstagramFeed.tsx)
+- Alla decorative-line element borttagna
+
+#### 5. Scroll-to-Top — Mobil
+
+- Ny komponent: `ScrollToTop.tsx`
+- Flytande knapp i nedre högra hörnet
+- Endast synlig på mobil (md:hidden)
+- Dyker upp efter 400px scroll
+- Mjuk animation och smooth scroll
+
+#### 6. Layout — Bredare header/footer
+
+- Tog bort `container mx-auto` för bredare layout
+- Logo och info sitter mer åt vänster
+
+### 🔧 Tekniska ändringar
+
+- **2 commits** pushade till GitHub:
+  - `284b19b` — UI Improvements: Green header/footer, white logo/text, and scroll-to-top button
+  - `cc198d2` — Design system updates: new primary color, Overpass font, cleanup
+
+### 📊 Påverkade filer
+
+| Fil | Ändringar |
+| --- | --------- |
+| `src/index.css` | Ny primärfärg, Overpass font |
+| `src/components/Navigation.tsx` | Grön header, vit logo/text |
+| `src/components/Footer.tsx` | Grön footer, vit text, kompaktare |
+| `src/components/ScrollToTop.tsx` | NY FIL - scroll-to-top knapp |
+| `src/App.tsx` | Lade till ScrollToTop-komponent |
+| `src/pages/Home.tsx` | Tog bort dekorativa rubriker |
+| `src/components/sections/DeliverySection.tsx` | Tog bort "vår filosofi" |
+| `src/components/sections/InstagramFeed.tsx` | Tog bort "följ vår vardag" |
+
+---
+
 ## 📅 2026-01-02
 
 ### 🎨 DESIGNSTANDARD FASTSTÄLLD
