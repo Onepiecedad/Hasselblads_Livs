@@ -16,10 +16,6 @@ const InstagramFeed = () => {
         <section className="py-24 md:py-32 bg-transparent">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-20">
-                    <div className="flex flex-col items-center gap-4 mb-8">
-                        <span className="font-accent text-5xl md:text-7xl text-primary/60">följ vår vardag</span>
-                        <div className="decorative-line" />
-                    </div>
                     <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight mb-8">Sociala medier</h2>
                     <p className="text-muted-foreground text-xl md:text-2xl max-w-3xl mx-auto text-balance font-medium opacity-70 leading-relaxed">
                         Följ vårt dagliga arbete i butiken. Vi uppdaterar löpande med nyanlända varor och inspiration för köket.

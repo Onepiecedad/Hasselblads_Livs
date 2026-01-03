@@ -211,10 +211,6 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-24 relative">
-              <div className="flex flex-col items-center gap-4 mb-8">
-                <span className="font-accent text-5xl md:text-7xl text-primary/60">våra favoriter</span>
-                <div className="decorative-line" />
-              </div>
               <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight mb-8">
                 Handplockat ur <br className="hidden md:block" /> sortimentet
               </h2>
@@ -257,10 +253,6 @@ const Home = () => {
       <section className="py-16 md:py-24 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-4 md:mb-6">
-            <div className="flex flex-col items-center gap-4 mb-6">
-              <span className="font-accent text-5xl md:text-7xl text-primary/60">utforska butiken</span>
-              <div className="decorative-line" />
-            </div>
             <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight mb-6">
               Våra Avdelningar
             </h2>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Lato:wght@300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,100..900;1,100..900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -10,9 +10,9 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --font-serif: 'Josefin Sans', sans-serif;
-    --font-sans: 'Lato', sans-serif;
-    --font-accent: 'Great Vibes', cursive;
+    --font-serif: 'Overpass', sans-serif;
+    --font-sans: 'Overpass', sans-serif;
+    --font-accent: 'Overpass', sans-serif;
     
     --background: 0 0% 100%;
     --foreground: 180 45% 25%;
@@ -23,7 +23,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 180 45% 25%;
 
-    --primary: 180 45% 28%;
+    --primary: 166 100% 21%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 20 60% 75%;
@@ -46,7 +46,7 @@ All colors MUST be HSL.
 
     --border: 180 20% 88%;
     --input: 180 20% 88%;
-    --ring: 180 45% 28%;
+    --ring: 166 100% 21%;
 
     --radius: 0.75rem;
 

@@ -22,10 +22,6 @@ const DeliverySection = () => {
   return (
     <section className="py-20 md:py-32 bg-cream/20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-20 flex flex-col items-center gap-4">
-          <span className="font-accent text-5xl md:text-7xl text-primary/60">vår filosofi</span>
-          <div className="decorative-line" />
-        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-16 lg:gap-24 max-w-6xl mx-auto">
           {values.map((value) => (
             <div key={value.title} className="text-center group">
