@@ -1,5 +1,7 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Facebook, Instagram } from "lucide-react";
+import hasselbladsSymbol from "@/assets/logo-hasselblads-symbol.png";
 
 const Footer = () => {
   useEffect(() => {
@@ -42,9 +44,15 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
           {/* Brand & Info */}
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <span className="text-base md:text-lg font-serif italic text-white">
-              Hasselblads Livs
-            </span>
+            <Link to="/" className="group" aria-label="Hasselblads Livs startsida">
+              <img
+                src={hasselbladsSymbol}
+                alt="Hasselblads Livs logotyp"
+                className="h-14 w-14 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+                style={{ filter: 'brightness(0) invert(1)' }}
+                decoding="async"
+              />
+            </Link>
             <span className="hidden md:inline text-white/30">|</span>
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs md:text-sm text-white/70">
               <span>Frejagatan 9, Mölndal</span>
