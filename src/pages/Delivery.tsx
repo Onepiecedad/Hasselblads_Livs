@@ -1,130 +1,28 @@
-import { useEffect, useMemo, useState } from "react";
-import { ShoppingCart, MapPinCheck, NotebookPen, Truck, Leaf } from "lucide-react";
-import HeroSection from "@/components/sections/HeroSection";
-import AddressLookup, { DeliveryStatus } from "@/components/sections/AddressLookup";
-import Steps, { StepItem } from "@/components/sections/Steps";
-import DeliveryWindow, { DeliverySlot } from "@/components/sections/DeliveryWindow";
-import SectionHeader from "@/components/sections/SectionHeader";
-import TextBlock from "@/components/sections/TextBlock";
-import CTAButtons from "@/components/sections/CTAButtons";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { useMemo } from "react";
+import { Truck, MapPin, ArrowRight } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
-const deliveryAreas = [
-  { label: "Centrum / Frejagatan", value: "431 45 Mölndal", postalCode: "43145" },
-  { label: "Åby", value: "431 35 Mölndal", postalCode: "43135" },
-  { label: "Bifrost", value: "431 32 Mölndal", postalCode: "43132" },
-  { label: "Enerbacken", value: "431 37 Mölndal", postalCode: "43137" },
-  { label: "Kvarnbyn", value: "431 33 Mölndal", postalCode: "43133" },
-  { label: "Åby Park", value: "431 63 Mölndal", postalCode: "43163" },
-];
-
-const steps: StepItem[] = [
-  {
-    title: "Handla",
-    description: "Välj dina favoriter i webbutiken eller ring in beställningen till butiken.",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Välj hemleverans",
-    description: "I kassan väljer du hemleverans och fyller i eventuell portkod eller instruktion.",
-    icon: MapPinCheck,
-  },
-  {
-    title: "Ange adress & tid",
-    description: "Bekräfta adress och välj leveransfönster som passar dig bäst.",
-    icon: NotebookPen,
-  },
-  {
-    title: "Vi kör hem",
-    description: "Våra chaufförer packar samma morgon och levererar kyligt och säkert.",
-    icon: Truck,
-  },
-];
-
-const deliverySlots: DeliverySlot[] = [
-  {
-    id: "weekday",
-    day: "Mån – Fre",
-    window: "16.00 – 20.00",
-    minOrder: "400 kr",
-    fee: "39 kr",
-    note: "Fri frakt över 600 kr",
-  },
-  {
-    id: "saturday",
-    day: "Lördag",
-    window: "10.00 – 14.00",
-    minOrder: "400 kr",
-    fee: "59 kr",
-    note: "Perfekt för helgkassen",
-  },
-  {
-    id: "express",
-    day: "Express",
-    window: "Beställ före 11.00 för samma dag",
-    minOrder: "600 kr",
-    fee: "119 kr",
-    note: "Ring oss för bekräftelse",
-  },
-  {
-    id: "company",
-    day: "Företag",
-    window: "08.00 – 12.00",
-    minOrder: "750 kr",
-    fee: "0 kr",
-    note: "Gäller fasta abonnemang",
-  },
-];
-
-const faqs = [
-  {
-    value: "how-to-order",
-    question: "Hur långt i förväg behöver jag beställa?",
-    answer:
-      "Beställ senast kl. 11.00 för leverans samma dag på vardagar. För lördagsleverans räcker det att beställa kvällen innan.",
-  },
-  {
-    value: "delivery-area",
-    question: "Levererar ni utanför Mölndal?",
-    answer:
-      "I dagsläget levererar vi inom Mölndal med omnejd. Kontakta oss om du bor i Göteborg så ser vi om vi kan hjälpa dig vid större beställning.",
-  },
-  {
-    value: "packing",
-    question: "Hur packas mina varor?",
-    answer:
-      "Alla kylvaror packas i isolerade påsar och transporteras i kylbil. Ömtåliga produkter läggs överst och skyddas med extra papper.",
-  },
-  {
-    value: "returns",
-    question: "Vad händer om jag inte kan ta emot leveransen?",
-    answer:
-      "Hör av dig till oss så snart som möjligt. Vi kan lämna varorna vid dörren enligt överenskommelse eller boka om leveransen till ett nytt tillfälle.",
-  },
-];
+import deliveryPackingImg from "@/assets/delivery-packing.jpg";
 
 const Delivery = () => {
-  const [status, setStatus] = useState<DeliveryStatus>("idle");
-  const [selectedSlot, setSelectedSlot] = useState<DeliverySlot>(deliverySlots[0]);
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
   const structuredData = useMemo(
     () => [
       {
-        id: "schema-service-hemleverans",
+        id: "schema-service-leverans",
         data: {
           "@context": "https://schema.org",
           "@type": "Service",
-          serviceType: "Hemleverans av frukt och grönt",
+          serviceType: "Leverans av frukt och grönt",
           provider: {
             "@type": "LocalBusiness",
             name: "Hasselblads Livs",
             url: `${origin}/hemleverans`,
             telephone: "+46-31-123-45-67",
             areaServed: {
-              "@type": "City",
-              name: "Mölndal",
+              "@type": "Place",
+              name: "Malevik",
             },
           },
         },
@@ -134,131 +32,137 @@ const Delivery = () => {
   );
 
   usePageMetadata({
-    title: "Hemleverans i Mölndal | Hasselblads Livs",
+    title: "Leverans | Hasselblads Livs",
     description:
-      "Beställ hemleverans av färska varor från Hasselblads Livs i Mölndal. Kontrollera adress, välj leveransfönster och få dina råvaror samma dag.",
+      "Beställ leverans av färska varor från Hasselblads Livs. Vi levererar till Malevik eller så hämtar du gratis i butiken.",
     canonicalPath: "/hemleverans",
-    ogImage: "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80&fm=webp",
     structuredData,
   });
 
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection
-        eyebrow="Hasselblads Livs • Mölndal"
-        title="Hemleverans från Mölndal – enkelt, snabbt och färskt"
-        description="Beställ innan lunch och få färska råvaror levererade till din dörr samma kväll. Vi packar direkt från vår butik på Frejagatan."
-        backgroundImage="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1600&q=80&fm=webp"
-        imageAlt="Färska grönsaker packas för hemleverans"
-        className="mb-12"
-      />
+      {/* Hero Section - matching Home and About pages */}
+      <section className="relative h-[500px] md:h-[650px] overflow-hidden">
+        <img
+          src={deliveryPackingImg}
+          alt="Hasselblads Livs leverans"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
 
-      <section className="pb-20">
+
+      </section>
+
+      {/* Main Content */}
+      <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-            <div className="space-y-12">
-              <AddressLookup areas={deliveryAreas} onStatusChange={setStatus} />
 
-              <div>
-                <SectionHeader
-                  align="left"
-                  title="Så enkelt är hemleveransen"
-                  description="Fyra steg från varukorg till dörren – hela vägen med Hasselblads kvalitet."
-                />
-                <Steps steps={steps} />
-              </div>
+          {/* Delivery Options Grid */}
+          <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto mb-20">
 
-              <div>
-                <SectionHeader
-                  align="left"
-                  title="Välj leveransfönster"
-                  description="Alla leveranser sker med kylbil. Vi skickar sms samma dag när bilen är på väg."
-                />
-                <DeliveryWindow slots={deliverySlots} onSelect={setSelectedSlot} />
-              </div>
+            {/* Hemleverans Card */}
+            <div className="group relative overflow-hidden rounded-3xl border border-border/70 bg-card p-8 transition-all duration-300 hover:shadow-xl hover:border-primary/30">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
 
-              <div>
-                <SectionHeader align="left" title="Vanliga frågor" />
-                <Accordion
-                  type="single"
-                  collapsible
-                  aria-label="Frågor om hemleverans"
-                  className="rounded-3xl border border-border/70 bg-card px-6"
+              <div className="relative">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Truck className="h-7 w-7" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Hemleverans</h2>
+                </div>
+
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
+                  Vi levererar till er dörr i området Malevik. Bekvämt och enkelt – vi kommer till dig.
+                </p>
+
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-4xl font-bold text-primary">49</span>
+                  <span className="text-xl text-muted-foreground">kr</span>
+                  <span className="text-muted-foreground">/ leverans</span>
+                </div>
+
+                <a
+                  href="/webbutik"
+                  className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-300"
                 >
-                  {faqs.map((faq) => (
-                    <AccordionItem key={faq.value} value={faq.value}>
-                      <AccordionTrigger className="text-left text-lg font-semibold">
-                        {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-base leading-relaxed text-muted-foreground">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+                  Handla nu
+                  <ArrowRight className="h-5 w-5" />
+                </a>
               </div>
             </div>
 
-            <aside className="space-y-6">
-              <TextBlock title="Det här ingår">
-                <p>
-                  Vi packar alltid dina varor samma morgon och levererar i återanvändbara kylväskor. För återkommande kunder samlar vi dina väskor vid nästa leverans.
-                </p>
-                <p>
-                  Våra chaufförer når dig via telefon om vi behöver mer information. Du kan ange portkod, hissinstruktion eller annan notering i kassan.
-                </p>
-              </TextBlock>
+            {/* Hämtställe Card */}
+            <div className="group relative overflow-hidden rounded-3xl border border-border/70 bg-card p-8 transition-all duration-300 hover:shadow-xl hover:border-primary/30">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500" />
 
-              <div className="rounded-3xl border border-primary/50 bg-primary/10 p-6 text-sm leading-relaxed text-muted-foreground">
-                <p className="font-semibold text-primary">
-                  {status === "available"
-                    ? "Adress inom leveransområdet"
-                    : status === "out-of-area"
-                    ? "Adress utanför leveransområdet"
-                    : "Leveransinformation"
-                  }
-                </p>
-                {status === "available" && (
-                  <p>
-                    Välj tidsfönster och slutför ordern så skickar vi en bekräftelse inom kort.
-                  </p>
-                )}
-                {status === "out-of-area" && (
-                  <p>
-                    Kontakta oss på <a href="tel:0311234567" className="font-semibold text-primary underline">031-123 45 67</a> så ser vi över alternativa lösningar.
-                  </p>
-                )}
-                {status === "idle" && (
-                  <p>
-                    Fri hemleverans i Mölndal för order över 600 kr. Under denna gräns tillkommer en låg fraktavgift beroende på valt tidsfönster.
-                  </p>
-                )}
-                <div className="mt-4 rounded-2xl bg-white/70 p-4 shadow-sm">
-                  <p className="text-sm font-semibold text-foreground">Valt leveransfönster</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {selectedSlot.day} · {selectedSlot.window}
-                  </p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Minsta order {selectedSlot.minOrder} · Avgift {selectedSlot.fee}
-                  </p>
+              <div className="relative">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <MapPin className="h-7 w-7" />
+                  </div>
+                  <h2 className="text-2xl font-bold">Hämtställe</h2>
                 </div>
-              </div>
 
-              <div className="rounded-3xl border border-border/70 bg-card p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Leaf className="h-6 w-6 text-primary" />
-                  <h3 className="text-xl font-semibold">Redo att beställa?</h3>
-                </div>
-                <p className="text-muted-foreground">
-                  Du kan alltid lägga till en kommentar i kassan om du behöver kontaktfri leverans eller vill lämna återvinningsbara kassar.
+                <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
+                  Hämta era varor kostnadsfritt på något av våra två hämtställen:
                 </p>
-                <CTAButtons
-                  primary={{ label: "Gå till kassan", href: "/kassa" }}
-                  secondary={{ label: "Handla i webbutik", href: "/webbutik" }}
-                />
+
+                <ul className="space-y-3 mb-6">
+                  <li className="flex items-start gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold mt-0.5">1</span>
+                    <span className="text-muted-foreground">
+                      <strong className="text-foreground">Vår butik</strong>
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold mt-0.5">2</span>
+                    <span className="text-muted-foreground">
+                      <strong className="text-foreground">Gamla Särövägen 153</strong>
+                      <br />
+                      <span className="text-sm">(mittemot Nilssons Plantskola)</span>
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="flex items-baseline gap-2 mb-6">
+                  <span className="text-4xl font-bold text-primary">Gratis</span>
+                </div>
+
+                <a
+                  href="/webbutik"
+                  className="inline-flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all duration-300"
+                >
+                  Handla nu
+                  <ArrowRight className="h-5 w-5" />
+                </a>
               </div>
-            </aside>
+            </div>
           </div>
+
+          {/* Delivery Area Info */}
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+              <MapPin className="h-4 w-4" />
+              Leveransområden
+            </div>
+
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">
+              Just nu: Malevik
+            </h3>
+
+            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+              Vi börjar leverera till området Malevik. Ambitionen är att kunna leverera längs med hela 158:an, från Askim till Onsala.
+            </p>
+
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-card border border-border/70">
+              <span className="flex h-3 w-3 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm font-medium text-muted-foreground">
+                Fler områden kommer snart
+              </span>
+            </div>
+          </div>
+
         </div>
       </section>
     </div>

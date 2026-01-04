@@ -11,6 +11,7 @@ interface HeroSectionProps {
   overlayClassName?: string;
   className?: string;
   children?: ReactNode;
+  minHeight?: string;
 }
 
 const HeroSection = ({
@@ -23,11 +24,15 @@ const HeroSection = ({
   overlayClassName,
   className,
   children,
+  minHeight,
 }: HeroSectionProps) => {
   const contentAlign = align === "center" ? "mx-auto text-center" : "ml-0 text-left";
 
   return (
-    <section className={cn("relative overflow-hidden", className)}>
+    <section
+      className={cn("relative overflow-hidden", className)}
+      style={minHeight ? { minHeight } : undefined}
+    >
       {backgroundImage && (
         <div className="absolute inset-0">
           <img
@@ -44,8 +49,11 @@ const HeroSection = ({
           />
         </div>
       )}
-      <div className={cn("relative z-10 container mx-auto px-4 py-16 md:py-24", align === "center" ? "flex justify-center" : "flex justify-start")}
-      >
+      <div className={cn(
+        "relative z-10 container mx-auto px-4 h-full flex items-center",
+        minHeight ? "py-8" : "py-16 md:py-24",
+        align === "center" ? "justify-center" : "justify-start"
+      )}>
         <div className={cn("max-w-3xl", contentAlign)}>
           {eyebrow && (
             <span
