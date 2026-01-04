@@ -234,11 +234,11 @@ const Home = () => {
                       loading="lazy"
                     />
                     {/* Text overlay - positioned based on decoration location */}
-                    <div className={`absolute inset-0 flex p-3 md:p-8 items-center ${card.textPosition === 'center-right'
+                    <div className={`absolute inset-0 flex p-6 md:p-8 items-center ${card.textPosition === 'center-right'
                       ? 'justify-center'
                       : 'justify-start'
                       }`}>
-                      <h3 className={`text-base sm:text-xl md:text-3xl lg:text-4xl font-bold text-primary leading-tight tracking-wide ${card.textPosition === 'center-right' ? 'text-center' : 'text-left'
+                      <h3 className={`text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-bold text-primary leading-tight tracking-wide ${card.textPosition === 'center-right' ? 'text-center' : 'text-left'
                         }`}>
                         {card.title.split('\n').map((line, i, arr) => (
                           <span key={i}>
