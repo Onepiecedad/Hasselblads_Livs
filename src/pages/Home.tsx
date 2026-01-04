@@ -230,7 +230,7 @@ const Home = () => {
                     <img
                       src={card.image}
                       alt={card.title}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
                     />
                     {/* Text overlay - positioned based on decoration location */}
