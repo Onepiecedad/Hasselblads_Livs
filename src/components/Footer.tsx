@@ -40,46 +40,45 @@ const Footer = () => {
 
   return (
     <footer className="bg-primary">
-      <div className="w-full px-4 md:px-8 py-4 md:py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-6">
-          {/* Brand & Info */}
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 text-center md:text-left">
-            <Link to="/" className="group" aria-label="Hasselblads Livs startsida">
-              <img
-                src={hasselbladsSymbol}
-                alt="Hasselblads Livs logotyp"
-                className="h-14 w-14 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-                style={{ filter: 'brightness(0) invert(1)' }}
-                decoding="async"
-              />
-            </Link>
-            <span className="hidden md:inline text-white/30">|</span>
-            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 text-xs md:text-sm text-white/70">
-              <span>Frejagatan 9, Mölndal</span>
-              <span className="opacity-50">•</span>
-              <span>031-123 45 67</span>
-            </div>
+      <div className="w-full px-4 md:px-8 py-6 md:py-8">
+        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-6">
+          {/* Logo centered on mobile */}
+          <Link to="/" className="group" aria-label="Hasselblads Livs startsida">
+            <img
+              src={hasselbladsSymbol}
+              alt="Hasselblads Livs logotyp"
+              className="h-12 w-12 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
+              style={{ filter: 'brightness(0) invert(1)' }}
+              decoding="async"
+            />
+          </Link>
+
+          {/* Contact info */}
+          <div className="flex flex-col items-center gap-1 text-center md:flex-row md:gap-2">
+            <span className="text-sm text-white/80">Frejagatan 9, Mölndal</span>
+            <span className="hidden md:inline text-white/30">•</span>
+            <span className="text-sm text-white/80">031-123 45 67</span>
           </div>
 
-          {/* Social icons */}
-          <div className="flex items-center gap-3">
+          {/* Social icons with larger touch targets */}
+          <div className="flex items-center gap-4">
             <a
               href="https://www.facebook.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all duration-300"
+              className="w-10 h-10 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white active:scale-95 transition-all duration-300"
               aria-label="Facebook"
             >
-              <Facebook className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <Facebook className="h-4 w-4" />
             </a>
             <a
               href="https://www.instagram.com/hasselbladslivs"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white transition-all duration-300"
+              className="w-10 h-10 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white active:scale-95 transition-all duration-300"
               aria-label="Instagram"
             >
-              <Instagram className="h-3.5 w-3.5 md:h-4 md:w-4" />
+              <Instagram className="h-4 w-4" />
             </a>
           </div>
         </div>
