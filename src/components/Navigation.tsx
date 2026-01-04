@@ -16,7 +16,7 @@ const Navigation = () => {
     { name: "Webbutik", path: "/webbutik" },
     { name: "Leverans", path: "/hemleverans" },
     { name: "Om oss", path: "/om-oss" },
-    { name: "Kundservice", path: "/kundservice" },
+    { name: "Kontakt", path: "/kundservice" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

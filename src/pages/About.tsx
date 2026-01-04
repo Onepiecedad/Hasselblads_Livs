@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { MapPin, Phone, Clock } from "lucide-react";
+
 import usePageMetadata from "@/hooks/usePageMetadata";
 
 
@@ -117,71 +117,7 @@ const About = () => {
             </div>
           </div>
 
-          {/* Contact & Map Section */}
-          <div className="mt-16 md:mt-24 max-w-5xl mx-auto">
-            <div className="grid gap-8 lg:grid-cols-2">
-              {/* Contact Info */}
-              <div className="rounded-3xl bg-primary/5 border border-primary/10 p-8 space-y-6">
-                <h3 className="text-xl font-bold text-primary">Hitta till oss</h3>
 
-                <div className="space-y-4">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Adress</p>
-                      <p className="text-muted-foreground">
-                        Frejagatan 9<br />
-                        431 45 Mölndal
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Telefon</p>
-                      <a
-                        href="tel:031272792"
-                        className="text-primary hover:underline font-semibold"
-                      >
-                        031-27 27 92
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <Clock className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="font-medium">Öppettider</p>
-                      <div className="text-muted-foreground space-y-1">
-                        <p>Måndag – Fredag: 09.00–18.00</p>
-                        <p>Lördag: 09.00–14.00</p>
-                        <p>Söndag: Stängt</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Map */}
-              <div className="rounded-3xl overflow-hidden shadow-lg h-[300px] lg:h-auto">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2134.896549566366!2d12.015829876500205!3d57.655479281088294!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x464ff36b92f4099f%3A0xd07cd27b006bb89e!2sFrejagatan%209%2C%20431%2045%20M%C3%B6lndal!5e0!3m2!1ssv!2sse!4v1700000000000"
-                  title="Karta till Hasselblads Livs i Mölndal"
-                  className="w-full h-full border-0"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
-              </div>
-            </div>
-          </div>
         </div>
       </section>
     </div>
