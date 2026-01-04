@@ -6,11 +6,11 @@ const DeliverySection = () => {
 
           {/* Butik section */}
           <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
               <img
                 src="/Bilder frukt/Butik_ikon.png"
                 alt="Butik"
-                className="w-32 h-32 md:w-40 md:h-40 object-contain"
+                className="max-w-full max-h-full object-contain"
               />
             </div>
             <p className="text-lg md:text-xl text-primary font-medium italic leading-relaxed">
@@ -20,11 +20,11 @@ const DeliverySection = () => {
 
           {/* Leverans section */}
           <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
               <img
                 src="/cykel.webp"
                 alt="Leveranscykel"
-                className="w-32 h-32 md:w-40 md:h-40 object-contain"
+                className="max-w-full max-h-full object-contain"
               />
             </div>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
