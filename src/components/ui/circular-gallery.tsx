@@ -184,13 +184,13 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                 role="button"
                                 tabIndex={0}
                                 aria-label={item.name}
-                                className="absolute w-[130px] h-[130px] md:w-[200px] md:h-[200px] transition-opacity duration-300"
+                                className="absolute w-[150px] h-[150px] md:w-[220px] md:h-[220px] transition-opacity duration-300"
                                 style={{
                                     transform: `rotateY(${itemAngle}deg) translateZ(${effectiveRadius}px) scale(${scale})`,
                                     left: '50%',
                                     top: '50%',
-                                    marginLeft: isMobile ? '-65px' : '-100px',
-                                    marginTop: isMobile ? '-65px' : '-100px',
+                                    marginLeft: isMobile ? '-75px' : '-110px',
+                                    marginTop: isMobile ? '-75px' : '-110px',
                                     opacity: opacity,
                                     zIndex: isFront ? 10 : 1,
                                 }}

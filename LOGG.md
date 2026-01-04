@@ -4,6 +4,74 @@
 
 ---
 
+## 📅 2026-01-04
+
+### 🎨 Startsida & Leverans-refinement
+
+Finjusterade startsidans puff-kort, kategorikarusell och lanserade en ny leverans-teaser med cykel-illustration.
+
+### ✅ Genomfört
+
+#### 1. Puff-kort (Handplockat ur sortimentet) — Designfix
+
+- **Proportioner:** Justerade kortens aspect ratio till **3:2** (landscape) för att matcha originaldesignen bättre.
+- **Text-positionering:** Individuell placering för varje kort för att undvika krockar med illustrationerna (vänsterkorten centrerade, högerkorten vänsterjusterade).
+- **Läsbarhet:** Större text (upp till `text-4xl`) i Hasselblads-grön med subtila drop-shadows mot ljus bakgrund.
+- **Layout:** Tog bort versaler för en mjukare och mer modern känsla.
+
+#### 2. Kategori-karusell — Större kort
+
+- **Storlek:** Ökade kortstorleken i den cirkulära 3D-karusellen från 200px till **220px** (desktop) och 130px till **150px** (mobil).
+- **Visibilitet:** Ger bättre fokus på de art nouveau-inspirerade illustrationerna.
+
+#### 3. Ny Leverans-sektion — "Snart utkörning"
+
+- **Illustration:** Implementerade den nya cykel-illustrationen (`cykel.webp`) i storlek.
+- **Budskap:** Kombinerade företagets värderingar (Kunskap, Omsorg, Glädje) med en teaser: *"Snart har vi även utkörning!"*.
+- **Design:** Balanserad layout med stor bild till vänster och personlig, kursiv text till höger.
+
+#### 4. Kontakt-sida & Sidkonsistens
+
+- **Navigation:** Bytte namn från "Kundservice" → "Kontakt"
+- **Hero-sektion:** Ny bakgrundsbild (Leverans1-frukt.jpg) utan text
+- **Kontaktinfo:** Telefon, e-post, adress, öppettider med ikoner
+- **Kontaktformulär:** Elegant kort med namn, e-post, telefon (valfritt), meddelande
+- **Google Maps:** Inbäddad karta till Frejagatan 9
+- **Borttaget:** FAQ-sektion (10 frågor), köpvillkor/leveranspolicy-kort
+
+#### 2. Om oss-sidan — Rensad
+
+- Borttog kontaktsektion och karta (finns nu på Kontakt-sidan)
+- Sidan slutar nu med bildgalleriet
+- Textfix: "Vi gillar människor och det gör att..." (inte "som gör att")
+
+#### 3. Enhetliga Gradienter
+
+- Leverans & Kontakt: Samma lättare gradient (`from-black/50 via-black/20 to-transparent`)
+- Ger ljusare, luftigare hero-bilder
+
+#### 4. Hero-storlekar synkade
+
+- Alla sidor har nu `h-[500px] md:h-[650px]` (utom Checkout som är mindre)
+
+### 🔧 Tekniska ändringar
+
+- **2 commits** pushade till GitHub:
+  - `4202e51` — Uppdaterad design för konsistens på alla sidor
+  - `f7cb621` — Förenklad Kontakt-sida och enhetlig design
+
+### 📊 Påverkade filer
+
+| `src/pages/Home.tsx` | Slideshow timing, container width, gaps, carousel radius, puff card refinements |
+| `src/components/ui/circular-gallery.tsx` | Ökad kortstorlek |
+| `src/components/sections/DeliverySection.tsx` | NY DESIGN: Cykel-illustration och leverans-teaser |
+| `src/components/Navigation.tsx` | "Kundservice" → "Kontakt" |
+| `src/pages/CustomerService.tsx` | Helt omskriven - clean kontaktsida |
+| `src/pages/About.tsx` | Borttog kontaktsektion/karta, textfix |
+| `src/pages/Delivery.tsx` | Lättare gradient |
+
+---
+
 ## 📅 2026-01-03
 
 ### 🎨 DESIGN REFRESH — Brand Identity Update

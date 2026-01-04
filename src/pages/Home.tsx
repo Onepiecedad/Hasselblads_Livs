@@ -4,10 +4,6 @@ import { CircularGallery } from "@/components/ui/circular-gallery";
 import DeliverySection from "@/components/sections/DeliverySection";
 import InstagramFeed from "@/components/sections/InstagramFeed";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
-import homeCardGodast from "@/assets/home-card-godast.png";
-import homeCardSasong from "@/assets/home-card-sasong.png";
-import homeCardVaror from "@/assets/home-card-varor.png";
-import homeCardErbjudanden from "@/assets/home-card-erbjudanden.png";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
@@ -95,24 +91,28 @@ const Home = () => {
 
   const highlightCards = [
     {
-      title: "Godast just nu",
+      title: "Godast\njust nu",
       href: "/säsong?tab=godast-just-nu",
-      image: homeCardGodast,
+      image: "/Puffar_startsida_Stora_Rityta%201.jpg",
+      textPosition: "center-right" as const, // Decoration is on left
     },
     {
-      title: "Säsongs­premiärer & Nyheter",
+      title: "Säsongs-\npremiärer\n& nyheter",
       href: "/säsong?tab=nyheter",
-      image: homeCardSasong,
+      image: "/Puffar_startsida_Stora-02.jpg",
+      textPosition: "center-left" as const, // Decoration is on right
     },
     {
-      title: "Varor i säsong",
+      title: "Varor i\nsäsong",
       href: "/säsong?tab=i-sasong",
-      image: homeCardVaror,
+      image: "/Puffar_startsida_Stora-03.jpg",
+      textPosition: "center-right" as const, // Decoration is on left
     },
     {
       title: "Erbjudanden",
       href: "/säsong?tab=erbjudanden",
-      image: homeCardErbjudanden,
+      image: "/Puffar_startsida_Stora-04.jpg",
+      textPosition: "center-left" as const, // Decoration is on right
     },
   ];
 
@@ -219,26 +219,33 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-10 lg:gap-14">
+            <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
               {highlightCards.map((card) => (
                 <Link
                   key={card.title}
                   to={card.href}
                   className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-2xl"
                 >
-                  <div className="space-y-5">
-                    <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl">
-                      <img
-                        src={card.image}
-                        alt={card.title}
-                        className="w-full h-auto transition-transform duration-700 group-hover:scale-110"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
-                    </div>
-                    <div className="text-center">
-                      <h3 className="text-base font-bold text-primary transition-colors group-hover:text-primary/70 uppercase tracking-wide">
-                        {card.title}
+                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[3/2]">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    {/* Text overlay - positioned based on decoration location */}
+                    <div className={`absolute inset-0 flex p-6 md:p-8 items-center ${card.textPosition === 'center-right'
+                      ? 'justify-center'
+                      : 'justify-start'
+                      }`}>
+                      <h3 className={`text-2xl md:text-3xl lg:text-4xl font-bold text-primary leading-tight tracking-wide ${card.textPosition === 'center-right' ? 'text-center' : 'text-left'
+                        }`}>
+                        {card.title.split('\n').map((line, i, arr) => (
+                          <span key={i}>
+                            {line}
+                            {i < arr.length - 1 && <br />}
+                          </span>
+                        ))}
                       </h3>
                     </div>
                   </div>

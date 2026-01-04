@@ -92,7 +92,7 @@ const About = () => {
                   2003 startade Solängens Frukt och grönt på Frejagatan 9 i Mölndal. 2018 tog Axel och hans familj över. Sedan dess har det fyllts på rejält med varor, så butiken blev till slut en liten mataffär, så därför byttes namnet till ett mer passande Hasselblads Livs.
                 </p>
                 <p>
-                  Butiken har en skön lanthandelskänsla. Fokus ligger på fräsch frukt och grönt som har höga smaker, som man gärna kan smaka på. Vi har både vanliga och lite exklusivare varor. Vi har gedigen kunskap, som vi gärna delar med oss av om så önskas. Vi gillar människor som gör att många verkar trivas bra hos oss.
+                  Butiken har en skön lanthandelskänsla. Fokus ligger på fräsch frukt och grönt som har höga smaker, som man gärna kan smaka på. Vi har både vanliga och lite exklusivare varor. Vi har gedigen kunskap, som vi gärna delar med oss av om så önskas. Vi gillar människor och det gör att många verkar trivas bra hos oss.
                 </p>
               </div>
             </div>
