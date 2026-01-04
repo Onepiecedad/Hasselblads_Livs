@@ -226,7 +226,7 @@ const Home = () => {
                   to={card.href}
                   className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-2xl"
                 >
-                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[3/2]">
+                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[2/1] md:aspect-[3/2]">
                     <img
                       src={card.image}
                       alt={card.title}
