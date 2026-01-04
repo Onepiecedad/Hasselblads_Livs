@@ -226,11 +226,11 @@ const Home = () => {
                   to={card.href}
                   className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-2xl"
                 >
-                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[2/1] md:aspect-[3/2]">
+                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[2/1] md:aspect-[3/2] bg-cream/50">
                     <img
                       src={card.image}
                       alt={card.title}
-                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
                     />
                     {/* Text overlay - positioned based on decoration location */}
