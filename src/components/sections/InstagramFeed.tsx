@@ -8,7 +8,7 @@ const featuredProduct = {
     description: "Upplev julens smaker med Östra Fornås Potatis julpåse, nyskördade från svenska gårdar.",
     price: "24.90",
     unit: "st",
-    image: "https://images.unsplash.com/photo-1518977676601-b53f82be37c7?auto=format&fit=crop&w=800&q=80",
+    image: "/produkter-frukt/potatis-julpase.png",
     href: "/produkt/potatis-julpase",
 };
 
