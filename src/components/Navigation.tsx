@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ShoppingBag, User, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import hasselbladsSymbol from "@/assets/logo-hasselblads-symbol.png";
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,17 +26,13 @@ const Navigation = () => {
         <div className="w-full px-4 md:px-8">
           <div className="flex items-center justify-between h-20 md:h-24 transition-all duration-300">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-3 group" aria-label="Hasselblads Livs startsida">
+            <Link to="/" className="flex items-center group" aria-label="Hasselblads Livs startsida">
               <img
-                src={hasselbladsSymbol}
+                src="/logo-horizontal-green.png"
                 alt="Hasselblads Livs logotyp"
-                className="h-12 w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-                style={{ filter: 'brightness(0) invert(1)' }}
+                className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105 invert brightness-0"
                 decoding="async"
               />
-              <span className="text-sm sm:text-xl md:text-2xl font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-white transition-colors duration-300">
-                Hasselblads Livs
-              </span>
             </Link>
 
             {/* Desktop Navigation */}

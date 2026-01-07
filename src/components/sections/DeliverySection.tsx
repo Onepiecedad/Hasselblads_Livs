@@ -10,10 +10,10 @@ const DeliverySection = () => {
               <img
                 src="/Bilder frukt/Butik_ikon.png"
                 alt="Butik"
-                className="max-w-full max-h-full object-contain"
+                className="max-w-full max-h-full object-contain scale-125"
               />
             </div>
-            <p className="text-lg md:text-xl text-primary font-medium italic leading-relaxed">
+            <p className="text-lg md:text-xl text-primary leading-relaxed">
               Vår matbutik på Frejagatan 9 har funnits i 22 år
             </p>
           </div>
@@ -28,7 +28,7 @@ const DeliverySection = () => {
               />
             </div>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-              På den gamla Hasselbladstiden (1878-1965) kunde man ringa in sin order och få den levererad av springpojkar. Det tänker vi börja med igen, men nu med webbutik och hemleverans via bil.
+              På den gamla Hasselbladstiden (1878-1965) kunde man ringa in sin order och få den levererad av springpojkar. Det tänker vi börja med igen, men nu med webbutik och leverans via bil eller lådcykel
             </p>
           </div>
 

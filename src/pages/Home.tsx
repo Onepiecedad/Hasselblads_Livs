@@ -211,22 +211,19 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-24 relative">
-              <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight mb-8">
+              <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight">
                 Handplockat ur <br className="hidden md:block" /> sortimentet
               </h2>
-              <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70 leading-relaxed">
-                Vi väljer ut det bästa för dagen. Här hittar du allt från solmogna nyheter till våra mest älskade klassiker.
-              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 max-w-4xl mx-auto">
               {highlightCards.map((card) => (
                 <Link
                   key={card.title}
                   to={card.href}
-                  className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background rounded-2xl"
+                  className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4 focus-visible:ring-offset-background"
                 >
-                  <div className="relative overflow-hidden rounded-2xl soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[3/2]">
+                  <div className="relative overflow-hidden soft-shadow transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl aspect-[2/1]">
                     <img
                       src={card.image}
                       alt={card.title}
@@ -238,7 +235,7 @@ const Home = () => {
                       ? 'justify-center'
                       : 'justify-start'
                       }`}>
-                      <h3 className={`text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-bold text-primary leading-tight tracking-wide ${card.textPosition === 'center-right' ? 'text-center' : 'text-left'
+                      <h3 className={`text-2xl sm:text-3xl md:text-3xl lg:text-4xl font-semibold text-[#2F5852] leading-tight tracking-tight ${card.textPosition === 'center-right' ? 'text-center' : 'text-left'
                         }`}>
                         {card.title.split('\n').map((line, i, arr) => (
                           <span key={i}>

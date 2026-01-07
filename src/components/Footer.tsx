@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram } from "lucide-react";
-import hasselbladsSymbol from "@/assets/logo-hasselblads-symbol.png";
 
 const Footer = () => {
   useEffect(() => {
@@ -43,12 +42,11 @@ const Footer = () => {
       <div className="w-full px-4 md:px-8 py-6 md:py-8">
         <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-6">
           {/* Logo centered on mobile */}
-          <Link to="/" className="group" aria-label="Hasselblads Livs startsida">
+          <Link to="/" className="flex items-center group" aria-label="Hasselblads Livs startsida">
             <img
-              src={hasselbladsSymbol}
+              src="/logo-horizontal-green.png"
               alt="Hasselblads Livs logotyp"
-              className="h-12 w-12 md:h-16 md:w-16 rounded-full object-cover transition-transform duration-500 group-hover:scale-110"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              className="h-14 md:h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-110 invert brightness-0"
               decoding="async"
             />
           </Link>
