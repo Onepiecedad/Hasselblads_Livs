@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingBag, User, Heart } from "lucide-react";
+import { Menu, X, ShoppingBag, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 
@@ -56,9 +56,7 @@ const Navigation = () => {
 
             {/* Right Icons */}
             <div className="flex items-center space-x-2 md:space-x-4">
-              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full text-white/80 hover:text-white hover:bg-white/10">
-                <Heart className="h-5 w-5" />
-              </Button>
+
               <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full text-white/80 hover:text-white hover:bg-white/10">
                 <User className="h-5 w-5" />
               </Button>

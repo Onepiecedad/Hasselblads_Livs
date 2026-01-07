@@ -280,7 +280,7 @@ const Home = () => {
           <div className="mt-16 text-center">
             <Link
               to="/webbutik"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-primary text-white text-base font-bold transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-lg"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-primary text-white text-base font-bold transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-lg"
             >
               Se hela sortimentet
             </Link>

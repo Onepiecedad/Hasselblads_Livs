@@ -27,7 +27,7 @@ const DeliverySection = () => {
                 className="max-w-full max-h-full object-contain"
               />
             </div>
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg md:text-xl text-primary leading-relaxed">
               På den gamla Hasselbladstiden (1878-1965) kunde man ringa in sin order och få den levererad av springpojkar. Det tänker vi börja med igen, men nu med webbutik och leverans via bil eller lådcykel
             </p>
           </div>

@@ -1,122 +1,95 @@
-import { Instagram, Facebook } from "lucide-react";
+import { ShoppingCart, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
-// Social media placeholder images
-const socialImages = [
-    "https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1467453678174-768ec283a940?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=400&q=80",
-    "https://images.unsplash.com/photo-1457296898342-cdd24585d095?auto=format&fit=crop&w=400&q=80",
-];
+// Featured product data - will be replaced with dynamic data later
+const featuredProduct = {
+    name: "Potatis julpåse",
+    description: "Upplev julens smaker med Östra Fornås Potatis julpåse, nyskördade från svenska gårdar.",
+    price: "24.90",
+    unit: "st",
+    image: "https://images.unsplash.com/photo-1518977676601-b53f82ber78?auto=format&fit=crop&w=800&q=80",
+    href: "/produkt/potatis-julpase",
+};
 
-const InstagramFeed = () => {
+const FeaturedSection = () => {
     return (
-        <section className="py-24 md:py-32 bg-transparent">
+        <section className="py-16 md:py-24 bg-transparent">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-20">
-                    <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight mb-8">Sociala medier</h2>
-                    <p className="text-muted-foreground text-xl md:text-2xl max-w-3xl mx-auto text-balance font-medium opacity-70 leading-relaxed">
-                        Följ vårt dagliga arbete i butiken. Vi uppdaterar löpande med nyanlända varor och inspiration för köket.
+                <div className="text-center mb-12">
+                    <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight mb-4">Aktuellt</h2>
+                    <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto font-medium opacity-70 leading-relaxed">
+                        Se vad som händer i butiken och upptäck veckans utvalda produkter.
                     </p>
                 </div>
 
-                {/* Two windows side by side - Refined styles */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto">
+                {/* Two cards side by side */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
 
-                    {/* Left Window - Instagram Feed */}
-                    <div className="bg-white rounded-3xl soft-shadow border border-border/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
-                        {/* Header Header */}
-                        <div className="px-8 py-6 border-b border-border/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center">
-                                        <Instagram className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-foreground">@hasselbladslivs</h3>
-                                        <p className="text-muted-foreground text-sm">Instagram</p>
-                                    </div>
-                                </div>
-                                <Button variant="ghost" size="sm" asChild className="rounded-full">
-                                    <a href="https://www.instagram.com/hasselbladslivs" target="_blank" rel="noopener noreferrer">
-                                        Följ
-                                    </a>
-                                </Button>
-                            </div>
-                        </div>
-
-                        {/* Instagram Grid */}
+                    {/* Left - Video Card */}
+                    <div className="bg-white rounded-2xl soft-shadow border border-border/30 overflow-hidden transition-all duration-500 hover:shadow-xl">
                         <div className="p-6">
-                            <div className="grid grid-cols-3 gap-3">
-                                {socialImages.map((image, index) => (
-                                    <a
-                                        key={index}
-                                        href="https://www.instagram.com/hasselbladslivs"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group relative aspect-square overflow-hidden rounded-xl"
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={`Instagram post ${index + 1}`}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            loading="lazy"
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
-                                            <Instagram className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        </div>
-                                    </a>
-                                ))}
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                    <Play className="h-5 w-5 text-white ml-0.5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-semibold text-foreground">Från butiken</h3>
+                                    <p className="text-muted-foreground text-sm">Se senaste klippet</p>
+                                </div>
+                            </div>
+
+                            {/* Video Container */}
+                            <div className="flex items-center justify-center rounded-xl overflow-hidden bg-muted/30">
+                                <iframe
+                                    src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F850613071270264%2F&show_text=false&width=267&t=0"
+                                    width="267"
+                                    height="400"
+                                    style={{ border: 'none', overflow: 'hidden' }}
+                                    scrolling="no"
+                                    frameBorder="0"
+                                    allowFullScreen={true}
+                                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                                    title="Video från butiken"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Window - Facebook Feed */}
-                    <div className="bg-white rounded-3xl soft-shadow border border-border/50 overflow-hidden transition-all duration-500 hover:shadow-2xl">
-                        {/* Window Header */}
-                        <div className="px-8 py-6 border-b border-border/50">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-[#1877F2] flex items-center justify-center">
-                                        <Facebook className="h-6 w-6 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-foreground">Hasselblads Livs</h3>
-                                        <p className="text-muted-foreground text-sm">Facebook</p>
-                                    </div>
-                                </div>
-                                <Button variant="ghost" size="sm" asChild className="rounded-full">
-                                    <a href="https://www.facebook.com/hasselbladslivs" target="_blank" rel="noopener noreferrer">
-                                        Följ
-                                    </a>
-                                </Button>
+                    {/* Right - Product Card */}
+                    <div className="bg-white rounded-2xl soft-shadow border border-border/30 overflow-hidden transition-all duration-500 hover:shadow-xl group">
+                        <Link to={featuredProduct.href} className="block">
+                            {/* Product Image */}
+                            <div className="relative aspect-square bg-muted/20 overflow-hidden">
+                                <img
+                                    src={featuredProduct.image}
+                                    alt={featuredProduct.name}
+                                    className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                                    loading="lazy"
+                                />
                             </div>
-                        </div>
+                        </Link>
 
-                        {/* Facebook Grid */}
+                        {/* Product Info */}
                         <div className="p-6">
-                            <div className="grid grid-cols-3 gap-3">
-                                {socialImages.map((image, index) => (
-                                    <a
-                                        key={index}
-                                        href="https://www.facebook.com/hasselbladslivs"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group relative aspect-square overflow-hidden rounded-xl"
-                                    >
-                                        <img
-                                            src={image}
-                                            alt={`Facebook post ${index + 1}`}
-                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                            loading="lazy"
-                                        />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-500 flex items-center justify-center">
-                                            <Facebook className="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                                        </div>
-                                    </a>
-                                ))}
+                            <Link to={featuredProduct.href}>
+                                <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                                    {featuredProduct.name}
+                                </h3>
+                            </Link>
+                            <p className="text-muted-foreground text-base mb-4 line-clamp-2">
+                                {featuredProduct.description}
+                            </p>
+
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <span className="text-3xl font-bold text-primary">{featuredProduct.price} kr</span>
+                                    <span className="text-muted-foreground text-sm ml-1">/{featuredProduct.unit}</span>
+                                </div>
+                                <Button size="lg" className="rounded-lg gap-2">
+                                    <ShoppingCart className="h-5 w-5" />
+                                    Lägg i varukorg
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -126,4 +99,4 @@ const InstagramFeed = () => {
     );
 };
 
-export default InstagramFeed;
+export default FeaturedSection;
