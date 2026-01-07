@@ -1,6 +1,6 @@
 const DeliverySection = () => {
   return (
-    <section className="py-16 md:py-24 bg-cream/20">
+    <section className="py-10 md:py-14 bg-cream/20">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 max-w-5xl mx-auto">
 

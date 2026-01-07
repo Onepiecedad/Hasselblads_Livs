@@ -40,8 +40,7 @@ const Footer = () => {
   return (
     <footer className="bg-primary">
       <div className="w-full px-4 md:px-8 py-6 md:py-8">
-        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between md:gap-6">
-          {/* Logo centered on mobile */}
+        <div className="flex justify-center">
           <Link to="/" className="flex items-center group" aria-label="Hasselblads Livs startsida">
             <img
               src="/logo-horizontal-green.png"
@@ -50,35 +49,6 @@ const Footer = () => {
               decoding="async"
             />
           </Link>
-
-          {/* Contact info */}
-          <div className="flex flex-col items-center gap-1 text-center md:flex-row md:gap-2">
-            <span className="text-sm text-white/80">Frejagatan 9, Mölndal</span>
-            <span className="hidden md:inline text-white/30">•</span>
-            <span className="text-sm text-white/80">031-123 45 67</span>
-          </div>
-
-          {/* Social icons with larger touch targets */}
-          <div className="flex items-center gap-4">
-            <a
-              href="https://www.facebook.com/hasselbladslivs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white active:scale-95 transition-all duration-300"
-              aria-label="Facebook"
-            >
-              <Facebook className="h-4 w-4" />
-            </a>
-            <a
-              href="https://www.instagram.com/hasselbladslivs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-10 h-10 md:w-10 md:h-10 rounded-full border border-white/30 flex items-center justify-center text-white/70 hover:text-white hover:border-white active:scale-95 transition-all duration-300"
-              aria-label="Instagram"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
-          </div>
         </div>
       </div>
     </footer>
