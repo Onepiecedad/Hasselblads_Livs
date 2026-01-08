@@ -253,16 +253,18 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Aktuellt - Video Section */}
+      <section className="bg-transparent">
+        <InstagramFeed />
+      </section>
+
       {/* Kategorier - 3D Circular Gallery */}
       <section className="py-10 md:py-16 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-4 md:mb-6">
-            <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight mb-6">
+          <div className="text-center mb-10 md:mb-14">
+            <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">
               Våra Avdelningar
             </h2>
-            <p className="text-muted-foreground text-base md:text-lg max-w-xl mx-auto font-medium opacity-70 leading-relaxed">
-              Dra för att utforska • Klicka för att öppna
-            </p>
           </div>
 
           <CircularGallery
@@ -288,10 +290,7 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Social Feed - At the bottom */}
-      <section className="bg-transparent">
-        <InstagramFeed />
-      </section>
+
 
     </div>
   );

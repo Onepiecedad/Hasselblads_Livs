@@ -30,7 +30,7 @@ const Navigation = () => {
               <img
                 src="/logo-horizontal-green.png"
                 alt="Hasselblads Livs logotyp"
-                className="h-14 sm:h-16 md:h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105 invert brightness-0"
+                className="h-24 sm:h-28 md:h-32 w-auto object-contain transition-transform duration-500 group-hover:scale-105 invert brightness-0"
                 decoding="async"
               />
             </Link>

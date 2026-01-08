@@ -43,9 +43,9 @@ const Footer = () => {
         <div className="flex justify-center">
           <Link to="/" className="flex items-center group" aria-label="Hasselblads Livs startsida">
             <img
-              src="/logo-horizontal-green.png"
+              src="/Logo_HasselbladsLivs_vit.png"
               alt="Hasselblads Livs logotyp"
-              className="h-14 md:h-16 w-auto object-contain transition-transform duration-500 group-hover:scale-110 invert brightness-0"
+              className="h-40 md:h-48 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
               decoding="async"
             />
           </Link>
