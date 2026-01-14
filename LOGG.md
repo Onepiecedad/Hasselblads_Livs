@@ -4,6 +4,39 @@
 
 ---
 
+## 📅 2026-01-14
+
+### 🌐 DNS & Kontaktuppgifter
+
+Korrigerat telefonnummer och postkod på hela webbplatsen samt pekat om domänen `hasselbladslivs.se` korrekt i Loopia.
+
+### ✅ Genomfört
+
+#### 1. Uppdaterade kontaktuppgifter
+
+- **Nytt telefonnummer:** `031-87 63 50` (tidigare 031-27 27 92)
+- **Ny postkod:** `431 44` (tidigare 431 45)
+- **Uppdaterade filer:**
+  - `src/pages/CustomerService.tsx` (Text, länkar och Schema.org data)
+  - `src/pages/Checkout.tsx` (Text och länkar)
+  - `src/components/Footer.tsx` (Schema.org data)
+
+#### 2. DNS-ompekning (Loopia -> Netlify)
+
+- **Problem:** Loopia pekade fortfarande på gamla IP-adresser (`199.16...`) och hade wildcard-pekare (`*`), vilket gjorde att Netlify inte kunde verifiera domänen och utfärda SSL-certifikat.
+- **Åtgärd:**
+  - Tog bort gamla A-pekare för `@`, `www` och `*`.
+  - Lade till nytt A-record för `@` -> `75.2.60.5` (Netlifys load balancer).
+  - Lade till nytt CNAME-record för `www` -> `hasselblads-livs.netlify.app`.
+- **Resultat:** DNS är nu korrekt konfigurerat och SSL kommer aktiveras automatiskt när propageringen är klar.
+
+### 🔧 Tekniska ändringar
+
+- **1 commit** pushad till GitHub:
+  - `6b236c9` — Update phone number to 031-87 63 50 and postal code to 431 44
+
+---
+
 ## 📅 2026-01-04
 
 ### 🎨 Startsida & Leverans-refinement
