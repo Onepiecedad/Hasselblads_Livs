@@ -37,10 +37,10 @@ const Checkout = () => {
                             Vi arbetar på att lansera vår webbutik. Under tiden är du välkommen att kontakta oss för att göra en beställning.
                         </p>
                         <a
-                            href="tel:031272792"
+                            href="tel:031876350"
                             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
                         >
-                            Ring oss: 031-27 27 92
+                            Ring oss: 031-87 63 50
                         </a>
                     </div>
                 </div>

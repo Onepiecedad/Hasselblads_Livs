@@ -19,7 +19,7 @@ const CustomerService = () => {
           url: `${origin}/kundservice`,
           contactPoint: {
             "@type": "ContactPoint",
-            telephone: "+46-31-27-27-92",
+            telephone: "+46-31-87-63-50",
             contactType: "customer service",
             areaServed: "SE",
             availableLanguage: ["sv"],
@@ -38,7 +38,7 @@ const CustomerService = () => {
   usePageMetadata({
     title: "Kontakt | Hasselblads Livs",
     description:
-      "Kontakta Hasselblads Livs – ring oss på 031-27 27 92 eller besök butiken på Frejagatan 9 i Mölndal.",
+      "Kontakta Hasselblads Livs – ring oss på 031-87 63 50 eller besök butiken på Frejagatan 9 i Mölndal.",
     canonicalPath: "/kundservice",
     ogImage: "/Bilder%20frukt/Butik1-frukt.jpg",
     structuredData,
@@ -77,7 +77,7 @@ const CustomerService = () => {
                 <div className="space-y-6">
                   {/* Phone */}
                   <a
-                    href="tel:031272792"
+                    href="tel:031876350"
                     className="flex items-center gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-colors group"
                   >
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -85,7 +85,7 @@ const CustomerService = () => {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Ring oss</p>
-                      <p className="text-xl font-semibold text-primary">031-27 27 92</p>
+                      <p className="text-xl font-semibold text-primary">031-87 63 50</p>
                     </div>
                   </a>
 
@@ -111,7 +111,7 @@ const CustomerService = () => {
                     <div>
                       <p className="text-sm text-muted-foreground">Besök oss</p>
                       <p className="font-semibold">Frejagatan 9</p>
-                      <p className="text-muted-foreground">431 45 Mölndal</p>
+                      <p className="text-muted-foreground">431 44 Mölndal</p>
                     </div>
                   </div>
 

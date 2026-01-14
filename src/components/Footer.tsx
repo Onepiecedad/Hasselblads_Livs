@@ -18,11 +18,11 @@ const Footer = () => {
       "@type": "LocalBusiness",
       name: "Hasselblads Livs",
       url: `${origin}/butiken`,
-      telephone: "+46-31-123-45-67",
+      telephone: "+46-31-87-63-50",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Frejagatan 9",
-        postalCode: "43145",
+        postalCode: "43144",
         addressLocality: "Mölndal",
         addressCountry: "SE",
       },
