@@ -23,7 +23,7 @@ type FiltersState = {
 const DEFAULT_FILTERS: FiltersState = {
     category: "alla",
     tag: "",
-    sort: "popular",
+    sort: "name-asc",
     search: "",
 };
 
