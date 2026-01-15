@@ -27,24 +27,25 @@ const ScrollToTop = () => {
             onClick={scrollToTop}
             aria-label="Tillbaka till toppen"
             className={`
-        md:hidden
-        fixed bottom-6 right-4
-        w-10 h-10
-        bg-primary/90 backdrop-blur-sm
-        text-white
+        fixed bottom-8 right-8
+        w-12 h-12
+        bg-white/80 backdrop-blur-md
+        border border-black/5
+        text-primary
+        hover:bg-primary hover:text-white hover:border-transparent
         rounded-full
-        shadow-lg
+        shadow-sm hover:shadow-lg
         flex items-center justify-center
-        transition-all duration-300 ease-out
+        transition-all duration-500 ease-out
         ${isVisible
                     ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4 pointer-events-none"
+                    : "opacity-0 translate-y-8 pointer-events-none"
                 }
         active:scale-95
-        z-40
+        z-50
       `}
         >
-            <ChevronUp className="h-5 w-5" />
+            <ChevronUp className="h-5 w-5 stroke-[1.5]" />
         </button>
     );
 };

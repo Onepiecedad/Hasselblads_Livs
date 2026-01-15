@@ -169,7 +169,7 @@ const Webshop = () => {
                 result.sort((a, b) => b.price - a.price);
                 break;
             case "name-asc":
-                result.sort((a, b) => a.name.localeCompare(b.name, "sv"));
+                result.sort((a, b) => new Intl.Collator('sv', { sensitivity: 'base', numeric: true }).compare(a.name, b.name));
                 break;
             default:
                 // leave original order for "popular"
