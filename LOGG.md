@@ -36,6 +36,11 @@ Omfattande uppdatering av webbshoppens design för att matcha hemsidans "Art Nou
   - `src/components/shop/ProductCard.tsx`: Ny kortdesign, bildfixar.
   - `src/components/shop/FilterChips.tsx`: Ny styling för filterknappar.
 
+#### 4. Buggfixar & Features
+
+- **Sortering:** Fixade sorteringsproblemet där svenska tecken (Å, Ä, Ö) inte respekterades. Bytt till `Intl.Collator` för korrekt svensk alfabetisk ordning (A-Ö).
+- **Scroll-to-Top:** Implementerat en ny, elegant "Back to Top"-knapp med glasmorphism-design. Den är nu synlig på alla enheter (både mobil och desktop) och dyker upp mjukt när man scrollat ner.
+
 ---
 
 ## 📅 2026-01-15
