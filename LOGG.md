@@ -4,6 +4,60 @@
 
 ---
 
+## 📅 2026-01-15
+
+### 🔥 Kritisk Fix — Webshop Nere
+
+Webshoppen slutade visa produkter med felmeddelandet "Kunde inte ladda produkter. Missing or insufficient permissions."
+
+### ✅ Genomfört
+
+#### 1. Identifierade problemet
+
+- **Symptom:** Webshopen visade "Missing or insufficient permissions" på både localhost och produktion
+- **Orsak:** Firestore-reglerna krävde autentisering (`request.auth != null`) för att läsa produkter, men webshop-besökare är oinloggade
+- **Analys:** Reglerna hade troligen ändrats eller ursprungligen satts upp för autentiserade användare
+
+#### 2. Uppdaterade Firestore Security Rules
+
+Lade till ny regel som tillåter **publik läsning** av produkter:
+
+```javascript
+// PUBLIK LÄSNING av produkter för webshoppen
+match /organizations/hasselblad_common/projects/{project}/products/{productId} {
+  allow read: if true;
+  allow write: if request.auth != null;
+}
+```
+
+#### 3. Skapade lokal utvecklingsmiljö
+
+- Skapade `.env.local` med Firebase API-nycklar för lokal utveckling
+- Tidigare saknades denna fil, vilket gjorde att lokalt dev-läge inte fungerade
+
+### 🔧 Tekniska ändringar
+
+| Ändring | Detaljer |
+|---------|----------|
+| Firestore Rules | Publicerade uppdaterade regler via Firebase Console |
+| `.env.local` | Ny fil med `VITE_FIREBASE_API_KEY` och övriga Firebase-variabler |
+
+### 📊 Påverkade system
+
+| System | Status |
+|--------|--------|
+| Webshop (hasselbladslivs.se) | ✅ Fungerar igen |
+| Webshop (localhost:8080) | ✅ Fungerar igen |
+| Firebase Firestore | ✅ Uppdaterade regler publicerade |
+
+### 💡 Lärdomar
+
+- **Firestore-regler** är en vanlig orsak till "permissions"-fel — kontrollera alltid först
+- **Lokala .env-filer** behövs för utveckling även om produktion fungerar (Netlify har egna env vars)
+- **Test-läge regler** i Firebase kan gå ut efter 30 dagar om man använder default-regler
+
+---
+
 ## 📅 2026-01-14
 
 ### 🌐 DNS & Kontaktuppgifter

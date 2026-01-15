@@ -54,20 +54,41 @@ const FLAG_MAP: Record<string, string> = {
 };
 
 // Mappa PIM-kategori till hemsidans kategori
+// Hanterar hierarkiska kategorier från Firestore, t.ex. "Frukt & Grönt > Frukt"
 function mapCategory(pimCategory?: string): Product['category'] {
     if (!pimCategory) return 'skafferi';
 
+    // Normalisera och extrahera huvudkategori från hierarki
+    // Format kan vara: "Huvudkategori > Underkategori" eller "Huvudkategori & Annat > Detalj"
     const normalized = pimCategory.toLowerCase().trim();
-
-    if (normalized.includes('frukt')) return 'frukt';
-    if (normalized.includes('grönt') || normalized.includes('grönsak')) return 'gronsaker';
-    if (normalized.includes('mejeri')) return 'mejeri';
-    if (normalized.includes('chark')) return 'chark';
-    if (normalized.includes('ost')) return 'ost';
-    if (normalized.includes('bröd') || normalized.includes('brod')) return 'brod';
-    if (normalized.includes('dryck')) return 'dryck';
-    if (normalized.includes('snacks')) return 'snacks';
-    if (normalized.includes('skafferi') || normalized.includes('kolonial')) return 'skafferi';
+    
+    // Extrahera första delen före ">" om den finns
+    const mainPart = normalized.split('>')[0].trim();
+    
+    // Kolla både huvuddelen och hela strängen för bäst matchning
+    const checkParts = [mainPart, normalized];
+    
+    for (const part of checkParts) {
+        // Frukt & Grönt - mer specifik matchning först
+        if (part.includes('frukt') && part.includes('grönt')) {
+            // Om underkategorin specifierar frukt eller grönsak
+            if (normalized.includes('> frukt') || normalized.endsWith('frukt')) return 'frukt';
+            if (normalized.includes('> grön') || normalized.includes('grönsak')) return 'gronsaker';
+            // Default för "Frukt & Grönt" utan underkategori
+            return 'frukt';
+        }
+        
+        // Enskilda kategorier
+        if (part.includes('frukt') && !part.includes('grönt')) return 'frukt';
+        if (part.includes('grönt') || part.includes('grönsak') || part.includes('grön')) return 'gronsaker';
+        if (part.includes('mejeri') || part.includes('ägg')) return 'mejeri';
+        if (part.includes('chark') || part.includes('kött') || part.includes('köttfärs')) return 'chark';
+        if (part.includes('ost')) return 'ost';
+        if (part.includes('bröd') || part.includes('brod') || part.includes('bageri')) return 'brod';
+        if (part.includes('dryck') || part.includes('läsk') || part.includes('juice') || part.includes('vatten')) return 'dryck';
+        if (part.includes('snacks') || part.includes('godis') || part.includes('chips')) return 'snacks';
+        if (part.includes('skafferi') || part.includes('kolonial') || part.includes('konserv') || part.includes('pasta') || part.includes('ris') || part.includes('sås')) return 'skafferi';
+    }
 
     return 'skafferi'; // Default
 }
