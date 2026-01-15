@@ -29,7 +29,7 @@ interface QuickViewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddToCart: (product: QuickViewProduct, quantity: number) => void;
-  returnFocusRef?: RefObject<HTMLButtonElement> | null;
+  returnFocusRef?: RefObject<HTMLElement> | null;
 }
 
 const QuickViewModal = ({ product, related, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {

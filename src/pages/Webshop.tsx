@@ -35,8 +35,8 @@ const Webshop = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [quickViewOpen, setQuickViewOpen] = useState(false);
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-    const returnFocusRef = useRef<HTMLButtonElement | null>(null);
-    const quickViewTriggerRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+    const returnFocusRef = useRef<HTMLElement | null>(null);
+    const quickViewTriggerRefs = useRef<Record<string, HTMLElement | null>>({});
     const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
     // Initialise from sessionStorage once
