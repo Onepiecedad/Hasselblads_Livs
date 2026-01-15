@@ -25,14 +25,14 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Förhindra att QuickView öppnas
+    e.stopPropagation();
     onAddToCart(product);
   };
 
   return (
     <Card
       ref={setQuickViewButtonRef}
-      className="group flex h-full flex-col overflow-hidden border border-border/70 transition-all hover:shadow-lg cursor-pointer"
+      className="group flex h-full flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer rounded-2xl"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
@@ -44,33 +44,35 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
       }}
       aria-label={`Visa ${product.name}`}
     >
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-4 flex items-center justify-center">
         <img
           src={product.image}
           alt={product.name}
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110"
         />
         {featuredTag && (
-          <Badge className="absolute left-3 top-3 bg-primary text-primary-foreground shadow-sm">
+          <Badge className="absolute left-3 top-3 bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm z-10">
             {featuredTag}
           </Badge>
         )}
       </div>
-      <CardContent className="flex flex-1 flex-col p-4">
-        <div className="flex-1 space-y-2">
-          <h3 className="text-lg font-semibold leading-tight line-clamp-2">{product.name}</h3>
-          <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+      <CardContent className="flex flex-1 flex-col p-5">
+        <div className="flex-1 space-y-1.5">
+          <h3 className="text-base font-semibold leading-snug line-clamp-2 text-foreground/90">{product.name}</h3>
+          {product.description && (
+            <p className="text-sm text-muted-foreground/70 line-clamp-2 leading-relaxed">{product.description}</p>
+          )}
         </div>
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-end justify-between">
           <div>
-            <p className="text-2xl font-bold text-primary">{product.price} kr</p>
-            <p className="text-xs text-muted-foreground">{product.unit}</p>
+            <p className="text-xl font-bold text-primary">{product.price} kr</p>
+            <p className="text-xs text-muted-foreground/60">{product.unit}</p>
           </div>
           <Button
             size="icon"
-            variant="outline"
-            className="rounded-full"
+            variant="ghost"
+            className="rounded-full h-10 w-10 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
             aria-label={`Lägg ${product.name} i varukorgen`}
             onClick={handleAddToCart}
           >
@@ -83,4 +85,5 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 };
 
 export default ProductCard;
+
 

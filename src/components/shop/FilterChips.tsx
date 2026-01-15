@@ -20,7 +20,7 @@ const FilterChips = ({ chips, activeValue, onChange, className, ariaLabel }: Fil
 
   return (
     <div
-      className={cn("flex items-center gap-3 overflow-x-auto pb-2", className)}
+      className={cn("flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-hide", className)}
       aria-label={ariaLabel}
       role="listbox"
       aria-orientation="horizontal"
@@ -35,9 +35,10 @@ const FilterChips = ({ chips, activeValue, onChange, className, ariaLabel }: Fil
             aria-selected={isActive}
             onClick={() => handleSelect(chip.value)}
             className={cn(
-              "whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              "border-border/70 bg-muted/40 hover:border-primary/60 hover:bg-primary/5",
-              isActive && "border-primary bg-primary text-primary-foreground shadow-sm",
+              "whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all duration-200",
+              "bg-transparent border border-border/40 text-foreground/70",
+              "hover:border-primary/50 hover:text-primary hover:bg-primary/5",
+              isActive && "border-primary/60 bg-primary/10 text-primary shadow-sm",
             )}
           >
             {chip.label}
@@ -49,3 +50,4 @@ const FilterChips = ({ chips, activeValue, onChange, className, ariaLabel }: Fil
 };
 
 export default FilterChips;
+
