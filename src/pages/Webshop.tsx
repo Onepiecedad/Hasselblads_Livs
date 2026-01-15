@@ -210,16 +210,7 @@ const Webshop = () => {
         setQuickViewOpen(true);
     };
 
-    const relatedProducts = useMemo(() => {
-        if (!quickViewProduct) return [];
-        return products
-            .filter(
-                (product) =>
-                    product.id !== quickViewProduct.id &&
-                    (product.category === quickViewProduct.category || product.tags.some((tag) => quickViewProduct.tags.includes(tag))),
-            )
-            .slice(0, 4);
-    }, [products, quickViewProduct]);
+
 
     // Loading state
     if (isLoading) {
@@ -324,7 +315,6 @@ const Webshop = () => {
 
             <QuickViewModal
                 product={quickViewProduct}
-                related={relatedProducts}
                 open={quickViewOpen}
                 onOpenChange={setQuickViewOpen}
                 onAddToCart={(product, quantity) => {
