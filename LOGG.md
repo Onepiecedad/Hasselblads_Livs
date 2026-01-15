@@ -4,6 +4,40 @@
 
 ---
 
+## 📅 2026-01-15 (Kvällspass)
+
+### 🎨 Webshop Redesign — Art Nouveau & Parallax
+
+Omfattande uppdatering av webbshoppens design för att matcha hemsidans "Art Nouveau"-estetik och eleganta känsla.
+
+### ✅ Genomfört
+
+#### 1. Atmosfärisk Design
+
+- **Parallax-effekt:** Implementerat samma mjuka parallax-system som startsidan med flytande "orbs" och löv som rör sig vid scrollning.
+- **Grain-effekt:** Lade till den karaktäristiska korniga texturen och den varma bakgrundsfärgen `#fdfcf9`.
+- **Typografi:** Uppdaterat rubriker och brödtext med mjukare, mer elegant typografi och justerad letter-spacing.
+
+#### 2. Förbättrade Produktkort
+
+- **"Svävande" design:** Tog bort hårda kantlinjer (borders) och ersatte med mjuka skuggor och en semitransparent glaseffekt (`backdrop-blur-sm`).
+- **Bildhantering:** Löste problem där produktbilder beskars felaktigt genom att byta till `object-contain` och lägga till padding (`p-4`). Nu syns hela produkten snyggt inramad.
+- **Interaktion:** Mjukare hover-effekter både på kortet (lyft + skugga) och på "Lägg i varukorg"-knappen.
+
+#### 3. Förfinad UX/UI
+
+- **Filter & Sök:** Moderniserade filter-chips och sökfält med rundade hörn och en renare, mindre "app-liknande" design.
+- **Responsivitet:** Verifierat och finjusterat layouten för mobilvy (390px) för att säkerställa att upplevelsen är lika premium på små skärmar.
+
+### 🔧 Tekniska ändringar
+
+- **Filer uppdaterade:**
+  - `src/pages/Webshop.tsx`: Huvudlayout, parallax-logik, grain-effekt.
+  - `src/components/shop/ProductCard.tsx`: Ny kortdesign, bildfixar.
+  - `src/components/shop/FilterChips.tsx`: Ny styling för filterknappar.
+
+---
+
 ## 📅 2026-01-15
 
 ### 🔥 Kritisk Fix — Webshop Nere
