@@ -356,7 +356,7 @@ const Webshop = () => {
                         )}
                     </div>
 
-                    <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
                         {filteredProducts.map((product) => (
                             <ProductCard
                                 key={product.id}

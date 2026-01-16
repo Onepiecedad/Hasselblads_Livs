@@ -57,26 +57,26 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           </Badge>
         )}
       </div>
-      <CardContent className="flex flex-1 flex-col p-5">
+      <CardContent className="flex flex-1 flex-col p-3 sm:p-5">
         <div className="flex-1 space-y-1.5">
-          <h3 className="text-base font-semibold leading-snug line-clamp-2 text-foreground/90">{product.name}</h3>
+          <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">{product.name}</h3>
           {product.description && (
-            <p className="text-sm text-muted-foreground/70 line-clamp-2 leading-relaxed">{product.description}</p>
+            <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
           )}
         </div>
-        <div className="mt-4 flex items-end justify-between">
+        <div className="mt-4 flex items-end justify-between gap-1">
           <div>
-            <p className="text-xl font-bold text-primary">{product.price} kr</p>
-            <p className="text-xs text-muted-foreground/60">{product.unit}</p>
+            <p className="text-lg font-bold text-primary sm:text-xl">{product.price} kr</p>
+            <p className="text-[10px] text-muted-foreground/60 sm:text-xs">{product.unit}</p>
           </div>
           <Button
             size="icon"
             variant="ghost"
-            className="rounded-full h-10 w-10 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors"
+            className="rounded-full h-8 w-8 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors sm:h-10 sm:w-10"
             aria-label={`Lägg ${product.name} i varukorgen`}
             onClick={handleAddToCart}
           >
-            <ShoppingCart className="h-4 w-4" />
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </Button>
         </div>
       </CardContent>
