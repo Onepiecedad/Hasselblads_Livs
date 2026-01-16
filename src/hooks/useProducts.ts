@@ -53,41 +53,65 @@ const FLAG_MAP: Record<string, string> = {
     'Cypern': '🇨🇾',
 };
 
-// Mappa PIM-kategori till hemsidans kategori
+// Mappa PIM-kategori till hemsidans nya kombinerade kategorier
 // Hanterar hierarkiska kategorier från Firestore, t.ex. "Frukt & Grönt > Frukt"
 function mapCategory(pimCategory?: string): Product['category'] {
     if (!pimCategory) return 'skafferi';
 
     // Normalisera och extrahera huvudkategori från hierarki
-    // Format kan vara: "Huvudkategori > Underkategori" eller "Huvudkategori & Annat > Detalj"
     const normalized = pimCategory.toLowerCase().trim();
-    
+
     // Extrahera första delen före ">" om den finns
     const mainPart = normalized.split('>')[0].trim();
-    
+
     // Kolla både huvuddelen och hela strängen för bäst matchning
     const checkParts = [mainPart, normalized];
-    
+
     for (const part of checkParts) {
-        // Frukt & Grönt - mer specifik matchning först
-        if (part.includes('frukt') && part.includes('grönt')) {
-            // Om underkategorin specifierar frukt eller grönsak
-            if (normalized.includes('> frukt') || normalized.endsWith('frukt')) return 'frukt';
-            if (normalized.includes('> grön') || normalized.includes('grönsak')) return 'gronsaker';
-            // Default för "Frukt & Grönt" utan underkategori
-            return 'frukt';
+        // Frukt & Grönt (inklusive frukt och grönsaker)
+        if (part.includes('frukt') || part.includes('grönt') || part.includes('grönsak') || part.includes('grön')) {
+            return 'frukt-gront';
         }
-        
-        // Enskilda kategorier
-        if (part.includes('frukt') && !part.includes('grönt')) return 'frukt';
-        if (part.includes('grönt') || part.includes('grönsak') || part.includes('grön')) return 'gronsaker';
-        if (part.includes('mejeri') || part.includes('ägg')) return 'mejeri';
-        if (part.includes('chark') || part.includes('kött') || part.includes('köttfärs')) return 'chark';
-        if (part.includes('ost')) return 'ost';
-        if (part.includes('bröd') || part.includes('brod') || part.includes('bageri')) return 'brod';
-        if (part.includes('dryck') || part.includes('läsk') || part.includes('juice') || part.includes('vatten')) return 'dryck';
-        if (part.includes('snacks') || part.includes('godis') || part.includes('chips')) return 'snacks';
-        if (part.includes('skafferi') || part.includes('kolonial') || part.includes('konserv') || part.includes('pasta') || part.includes('ris') || part.includes('sås')) return 'skafferi';
+
+        // Mejeri & Ägg
+        if (part.includes('mejeri') || part.includes('ägg')) {
+            return 'mejeri-agg';
+        }
+
+        // Ost & Chark
+        if (part.includes('ost') || part.includes('chark')) {
+            return 'ost-chark';
+        }
+
+        // Kött
+        if (part.includes('kött') || part.includes('köttfärs')) {
+            return 'kott';
+        }
+
+        // Bröd
+        if (part.includes('bröd') || part.includes('brod') || part.includes('bageri')) {
+            return 'brod';
+        }
+
+        // Sött & Gott (godis, kakor, desserter, choklad, etc.)
+        if (part.includes('sött') || part.includes('gott') || part.includes('godis') || part.includes('choklad') || part.includes('kaka') || part.includes('dessert') || part.includes('glass')) {
+            return 'sott-gott';
+        }
+
+        // Nötter & Torkad Frukt
+        if (part.includes('nöt') || part.includes('torkad') || part.includes('russin') || part.includes('mandel')) {
+            return 'notter-torkad-frukt';
+        }
+
+        // Snacks & Dryck
+        if (part.includes('snacks') || part.includes('chips') || part.includes('dryck') || part.includes('läsk') || part.includes('juice') || part.includes('vatten') || part.includes('öl') || part.includes('vin')) {
+            return 'snacks-dryck';
+        }
+
+        // Skafferi (fallback for pantry items)
+        if (part.includes('skafferi') || part.includes('kolonial') || part.includes('konserv') || part.includes('pasta') || part.includes('ris') || part.includes('sås') || part.includes('olja') || part.includes('krydda')) {
+            return 'skafferi';
+        }
     }
 
     return 'skafferi'; // Default

@@ -1,4 +1,4 @@
-export type ProductCategory = "frukt" | "gronsaker" | "mejeri" | "skafferi" | "chark" | "ost" | "brod" | "dryck" | "snacks";
+export type ProductCategory = "frukt-gront" | "mejeri-agg" | "ost-chark" | "brod" | "skafferi" | "sott-gott" | "notter-torkad-frukt" | "snacks-dryck" | "kott";
 
 export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker";
 
@@ -21,15 +21,15 @@ export type Product = {
 
 export const categories: { label: string; value: string }[] = [
   { label: "Alla", value: "alla" },
-  { label: "Frukt", value: "frukt" },
-  { label: "Grönsaker", value: "gronsaker" },
-  { label: "Mejeri", value: "mejeri" },
-  { label: "Chark", value: "chark" },
-  { label: "Ost", value: "ost" },
+  { label: "Frukt & Grönt", value: "frukt-gront" },
+  { label: "Mejeri & Ägg", value: "mejeri-agg" },
+  { label: "Ost & Chark", value: "ost-chark" },
   { label: "Bröd", value: "brod" },
-  { label: "Dryck", value: "dryck" },
-  { label: "Snacks", value: "snacks" },
   { label: "Skafferi", value: "skafferi" },
+  { label: "Sött & Gott", value: "sott-gott" },
+  { label: "Nötter & Torkad Frukt", value: "notter-torkad-frukt" },
+  { label: "Snacks & Dryck", value: "snacks-dryck" },
+  { label: "Kött", value: "kott" },
 ];
 
 export const tagFilters: { label: string; value: string; tag: ProductTag }[] = [
