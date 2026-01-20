@@ -7,7 +7,7 @@ import Home from "./pages/Home";
 import Webshop from "./pages/Webshop";
 import Delivery from "./pages/Delivery";
 import About from "./pages/About";
-import Season from "./pages/Season";
+
 import CustomerService from "./pages/CustomerService";
 import NotFound from "./pages/NotFound";
 import MiniCartDrawer from "./components/shop/MiniCartDrawer";
@@ -36,7 +36,7 @@ const App = () => (
               <Route path="hemleverans" element={<Delivery />} />
               <Route path="butiken" element={<About />} />
               <Route path="om-oss" element={<About />} />
-              <Route path="säsong" element={<Season />} />
+
               <Route path="kundservice" element={<CustomerService />} />
               <Route path="kassa" element={<Checkout />} />
               <Route path="kopvillkor" element={<About />} />
