@@ -274,7 +274,7 @@ const Home = () => {
               href: c.href,
             }))}
             radius={350}
-            mobileRadius={150}
+            mobileRadius={200}
             autoRotateSpeed={0.3}
             onItemClick={(item) => navigate(item.href)}
           />

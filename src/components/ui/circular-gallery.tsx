@@ -149,7 +149,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                 role="region"
                 aria-label="Circular 3D Gallery"
                 className={cn(
-                    "relative w-full h-[220px] md:h-[320px] flex items-center justify-center select-none",
+                    "relative w-full h-[280px] md:h-[320px] flex items-center justify-center select-none",
                     className
                 )}
                 style={{ perspective: '1200px' }}
@@ -184,13 +184,13 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                 role="button"
                                 tabIndex={0}
                                 aria-label={item.name}
-                                className="absolute w-[110px] h-[110px] md:w-[220px] md:h-[220px] transition-opacity duration-300"
+                                className="absolute w-[140px] h-[140px] md:w-[220px] md:h-[220px] transition-opacity duration-300"
                                 style={{
                                     transform: `rotateY(${itemAngle}deg) translateZ(${effectiveRadius}px) scale(${scale})`,
                                     left: '50%',
                                     top: '50%',
-                                    marginLeft: isMobile ? '-55px' : '-110px',
-                                    marginTop: isMobile ? '-55px' : '-110px',
+                                    marginLeft: isMobile ? '-70px' : '-110px',
+                                    marginTop: isMobile ? '-70px' : '-110px',
                                     opacity: opacity,
                                     zIndex: isFront ? 10 : 1,
                                 }}
