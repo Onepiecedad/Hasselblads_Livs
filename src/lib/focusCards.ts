@@ -18,26 +18,27 @@ export const focusCards: FocusCardData[] = [
         textPosition: "right", // Illustration is on left
     },
     {
+        name: "Säsonspremiärer & nyheter",
+        tag: "nyhet",
+        image: "/Puffar_startsida_Stora-02.jpg",
+        filterValue: "nyhet",
+        textPosition: "left", // Illustration is on right
+    },
+    {
+        name: "Varor i säsong",
+        tag: "klassiker",
+        image: "/Puffar_startsida_Stora-03.jpg",
+        filterValue: "klassiker",
+        textPosition: "right", // Illustration is on left
+    },
+    {
         name: "Erbjudanden",
         tag: "erbjudande",
         image: "/Puffar_startsida_Stora-04.jpg",
         filterValue: "erbjudande",
         textPosition: "left", // Illustration is on right
     },
-    {
-        name: "Nyheter",
-        tag: "nyhet",
-        image: "/Puffar_startsida_Stora-02.jpg",
-        filterValue: "nyhet",
-        textPosition: "center", // Centered text
-    },
-    {
-        name: "Klassiker",
-        tag: "klassiker",
-        image: "/Puffar_startsida_Stora-03.jpg",
-        filterValue: "klassiker",
-        textPosition: "center", // Centered text
-    },
 ];
+
 
 
