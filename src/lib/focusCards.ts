@@ -11,21 +11,21 @@ export type FocusCardData = {
 
 export const focusCards: FocusCardData[] = [
     {
-        name: "Godast just nu",
+        name: "Godast\njust nu",
         tag: "sasong",
         image: "/Puffar_startsida_Stora_Rityta%201.jpg",
         filterValue: "sasong",
         textPosition: "right", // Illustration is on left
     },
     {
-        name: "Säsonspremiärer & nyheter",
+        name: "Säsongs-\npremiärer\n& nyheter",
         tag: "nyhet",
         image: "/Puffar_startsida_Stora-02.jpg",
         filterValue: "nyhet",
         textPosition: "left", // Illustration is on right
     },
     {
-        name: "Varor i säsong",
+        name: "Varor i\nsäsong",
         tag: "klassiker",
         image: "/Puffar_startsida_Stora-03.jpg",
         filterValue: "klassiker",

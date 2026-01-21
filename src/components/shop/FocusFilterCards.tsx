@@ -18,7 +18,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                 Handplockat
             </p>
             <div
-                className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4"
+                className="grid grid-cols-2 md:grid-cols-4 gap-3"
                 role="listbox"
                 aria-label="Filtrera på handplockade kategorier"
                 aria-orientation="horizontal"
@@ -34,14 +34,14 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                             aria-selected={isActive}
                             onClick={() => handleSelect(card.filterValue)}
                             className={cn(
-                                "group relative overflow-hidden rounded-2xl",
-                                // Larger aspect ratio for more visual impact
-                                "aspect-[4/3] sm:aspect-[3/2]",
+                                "group relative overflow-hidden",
+                                // Same aspect ratio as homepage (2:1)
+                                "aspect-[2/1]",
                                 "transition-all duration-300 ease-out",
                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                 isActive
-                                    ? "ring-3 ring-primary shadow-xl scale-[1.02]"
-                                    : "hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5"
+                                    ? "ring-4 ring-primary ring-inset z-10"
+                                    : "hover:brightness-105"
                             )}
                         >
                             {/* Background Image */}
@@ -55,31 +55,36 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                                 loading="lazy"
                             />
 
-                            {/* Text label - positioned based on textPosition setting */}
+                            {/* Text label - positioned to match homepage */}
                             <div
                                 className={cn(
-                                    "absolute inset-0 flex items-center p-4 sm:p-5 md:p-6",
-                                    card.textPosition === "right" && "justify-end text-right",
-                                    card.textPosition === "left" && "justify-start text-left",
-                                    card.textPosition === "center" && "justify-center text-center"
+                                    "absolute inset-0 flex items-center p-6 md:p-8",
+                                    card.textPosition === "right" && "justify-center",
+                                    card.textPosition === "left" && "justify-start"
                                 )}
                             >
-                                <span
+                                <h3
                                     className={cn(
-                                        "text-[#2F5852] font-bold leading-tight tracking-tight",
-                                        // Much larger text sizes
-                                        "text-xl sm:text-2xl md:text-3xl lg:text-4xl",
+                                        "text-[#2F5852] font-semibold leading-tight tracking-tight",
+                                        "text-2xl sm:text-3xl md:text-3xl lg:text-4xl",
+                                        card.textPosition === "right" && "text-center",
+                                        card.textPosition === "left" && "text-left",
                                         isActive && "underline underline-offset-4 decoration-2"
                                     )}
                                 >
-                                    {card.name}
-                                </span>
+                                    {card.name.split('\n').map((line, i, arr) => (
+                                        <span key={i}>
+                                            {line}
+                                            {i < arr.length - 1 && <br />}
+                                        </span>
+                                    ))}
+                                </h3>
                             </div>
 
                             {/* Active indicator */}
                             {isActive && (
-                                <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-lg">
-                                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
