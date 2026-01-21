@@ -316,18 +316,30 @@ const Webshop = () => {
 
             <div className="relative z-10 py-16 md:py-20">
                 <div className="container mx-auto px-4">
-                    <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-12">
+                    <div className="mb-12">
                         <div className="max-w-xl">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary tracking-tight">Webbutik</h1>
                             <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
                                 Handla färska varor online med hemleverans i Mölndal eller upphämtning i butiken på Frejagatan.
                             </p>
                         </div>
-                        <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                     </div>
 
-                    <div className="space-y-6">
-                        <div className="relative max-w-lg">
+                    {/* Visual Filter Cards - Focus first, then Categories */}
+                    <div className="space-y-6 mb-10">
+                        <FocusFilterCards
+                            activeValue={activeTag || null}
+                            onChange={(value) => handleTagChange(value)}
+                        />
+                        <CategoryFilterCards
+                            activeValues={activeCategories}
+                            onChange={handleCategoriesChange}
+                        />
+                    </div>
+
+                    {/* Search and Sort - under the filter cards, with products */}
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                        <div className="relative flex-1 max-w-lg">
                             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/60" />
                             <Input
                                 type="search"
@@ -338,21 +350,10 @@ const Webshop = () => {
                                 aria-label="Sök produkter"
                             />
                         </div>
-
-                        {/* Visual Filter Cards - Focus first, then Categories */}
-                        <div className="space-y-6">
-                            <FocusFilterCards
-                                activeValue={activeTag || null}
-                                onChange={(value) => handleTagChange(value)}
-                            />
-                            <CategoryFilterCards
-                                activeValues={activeCategories}
-                                onChange={handleCategoriesChange}
-                            />
-                        </div>
+                        <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                     </div>
 
-                    <div className="mt-8 flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
+                    <div className="flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
                         <span className="font-medium">{filteredProducts.length} produkter</span>
                         {(activeCategories.length > 0 || activeTag || searchTerm) && (
                             <button
