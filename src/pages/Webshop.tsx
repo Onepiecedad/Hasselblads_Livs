@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Leaf } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import FilterChips from "@/components/shop/FilterChips";
+import FocusFilterCards from "@/components/shop/FocusFilterCards";
+import CategoryFilterCards from "@/components/shop/CategoryFilterCards";
 import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import QuickViewModal from "@/components/shop/QuickViewModal";
-import { categories, sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { focusCards } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
@@ -14,14 +16,14 @@ import usePageMetadata from "@/hooks/usePageMetadata";
 const STORAGE_KEY = "webshop-filters";
 
 type FiltersState = {
-    category: string;
+    categories: string[]; // Changed to array for multi-select
     tag: string;
     sort: string;
     search: string;
 };
 
 const DEFAULT_FILTERS: FiltersState = {
-    category: "alla",
+    categories: [],
     tag: "",
     sort: "name-asc",
     search: "",
@@ -71,14 +73,22 @@ const Webshop = () => {
         const saved = sessionStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
-                const parsed: FiltersState = { ...DEFAULT_FILTERS, ...JSON.parse(saved) };
+                const parsed = JSON.parse(saved);
+                // Handle migration from old format
+                const categories = parsed.categories || (parsed.category && parsed.category !== "alla" ? [parsed.category] : []);
+                const parsedState: FiltersState = {
+                    categories,
+                    tag: parsed.tag || "",
+                    sort: parsed.sort || DEFAULT_FILTERS.sort,
+                    search: parsed.search || "",
+                };
                 const params = new URLSearchParams();
-                if (parsed.category && parsed.category !== "alla") params.set("kategori", parsed.category);
-                if (parsed.tag) params.set("tag", parsed.tag);
-                if (parsed.sort && parsed.sort !== DEFAULT_FILTERS.sort) params.set("sort", parsed.sort);
-                if (parsed.search) params.set("sok", parsed.search);
+                if (parsedState.categories.length > 0) params.set("kategori", parsedState.categories.join(","));
+                if (parsedState.tag) params.set("tag", parsedState.tag);
+                if (parsedState.sort && parsedState.sort !== DEFAULT_FILTERS.sort) params.set("sort", parsedState.sort);
+                if (parsedState.search) params.set("sok", parsedState.search);
                 setSearchParams(params, { replace: true });
-                setSearchTerm(parsed.search);
+                setSearchTerm(parsedState.search);
             } catch (error) {
                 console.error("Failed to parse stored filters", error);
             }
@@ -92,8 +102,9 @@ const Webshop = () => {
 
     useEffect(() => {
         if (!initialized) return;
+        const kategorier = searchParams.get("kategori");
         const current: FiltersState = {
-            category: searchParams.get("kategori") ?? DEFAULT_FILTERS.category,
+            categories: kategorier ? kategorier.split(",").filter(Boolean) : [],
             tag: searchParams.get("tag") ?? DEFAULT_FILTERS.tag,
             sort: searchParams.get("sort") ?? DEFAULT_FILTERS.sort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -102,12 +113,18 @@ const Webshop = () => {
         setSearchTerm(current.search);
     }, [searchParams, initialized]);
 
-    const activeCategory = searchParams.get("kategori") ?? DEFAULT_FILTERS.category;
+    // Parse active categories from URL (comma-separated)
+    const activeCategories: string[] = useMemo(() => {
+        const param = searchParams.get("kategori");
+        return param ? param.split(",").filter(Boolean) : [];
+    }, [searchParams]);
+
     const activeTag = searchParams.get("tag") ?? DEFAULT_FILTERS.tag;
     const activeSort = searchParams.get("sort") ?? DEFAULT_FILTERS.sort;
+
     const updateFilters = (updates: Partial<FiltersState>) => {
         const current: FiltersState = {
-            category: activeCategory,
+            categories: activeCategories,
             tag: activeTag,
             sort: activeSort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -115,7 +132,7 @@ const Webshop = () => {
         const next: FiltersState = { ...current, ...updates };
         const params = new URLSearchParams();
 
-        if (next.category && next.category !== DEFAULT_FILTERS.category) params.set("kategori", next.category);
+        if (next.categories.length > 0) params.set("kategori", next.categories.join(","));
         if (next.tag) params.set("tag", next.tag);
         if (next.sort && next.sort !== DEFAULT_FILTERS.sort) params.set("sort", next.sort);
         if (next.search) params.set("sok", next.search);
@@ -123,8 +140,8 @@ const Webshop = () => {
         setSearchParams(params, { replace: false });
     };
 
-    const handleCategoryChange = (value: string | null) => {
-        updateFilters({ category: value ?? DEFAULT_FILTERS.category });
+    const handleCategoriesChange = (values: string[]) => {
+        updateFilters({ categories: values });
     };
 
     const handleTagChange = (value: string | null) => {
@@ -142,13 +159,14 @@ const Webshop = () => {
 
     const filteredProducts = useMemo(() => {
         const term = (searchParams.get("sok") ?? "").toLowerCase();
-        const category = activeCategory;
+        const categories = activeCategories;
         const tag = activeTag as ProductTag | "";
 
         let result = [...products];
 
-        if (category !== "alla") {
-            result = result.filter((product) => product.category === category);
+        // Multi-select category filtering
+        if (categories.length > 0) {
+            result = result.filter((product) => categories.includes(product.category));
         }
 
         if (tag) {
@@ -177,7 +195,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategory, activeTag, activeSort]);
+    }, [products, searchParams, activeCategories, activeTag, activeSort]);
 
     const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
         addItem({
@@ -321,35 +339,26 @@ const Webshop = () => {
                             />
                         </div>
 
-                        <div className="space-y-5">
-                            <div>
-                                <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">Kategori</p>
-                                <FilterChips
-                                    chips={categories}
-                                    activeValue={activeCategory}
-                                    onChange={handleCategoryChange}
-                                    ariaLabel="Filtrera på kategori"
-                                />
-                            </div>
-                            <div>
-                                <p className="mb-3 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">Fokus</p>
-                                <FilterChips
-                                    chips={tagFilters.map((filter) => ({ label: filter.label, value: filter.tag }))}
-                                    activeValue={activeTag || null}
-                                    onChange={handleTagChange}
-                                    ariaLabel="Filtrera på säsongserbjudanden"
-                                />
-                            </div>
+                        {/* Visual Filter Cards - Focus first, then Categories */}
+                        <div className="space-y-6">
+                            <FocusFilterCards
+                                activeValue={activeTag || null}
+                                onChange={(value) => handleTagChange(value)}
+                            />
+                            <CategoryFilterCards
+                                activeValues={activeCategories}
+                                onChange={handleCategoriesChange}
+                            />
                         </div>
                     </div>
 
                     <div className="mt-8 flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
                         <span className="font-medium">{filteredProducts.length} produkter</span>
-                        {(activeCategory !== DEFAULT_FILTERS.category || activeTag || searchTerm) && (
+                        {(activeCategories.length > 0 || activeTag || searchTerm) && (
                             <button
                                 type="button"
                                 className="text-primary/80 hover:text-primary transition-colors font-medium"
-                                onClick={() => updateFilters(DEFAULT_FILTERS)}
+                                onClick={() => updateFilters({ categories: [], tag: "", search: "" })}
                             >
                                 Nollställ filter
                             </button>

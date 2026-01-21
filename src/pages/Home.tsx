@@ -207,7 +207,7 @@ const Home = () => {
       <DeliverySection />
 
       {/* Highlights - Transparent background to show parallax */}
-      <section className="py-10 md:py-16 bg-transparent">
+      <section className="py-10 md:py-14 bg-transparent">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-10 relative">
@@ -259,7 +259,7 @@ const Home = () => {
       </section>
 
       {/* Kategorier - 3D Circular Gallery */}
-      <section className="py-10 md:py-16 bg-transparent overflow-hidden">
+      <section className="py-10 md:py-14 bg-transparent overflow-hidden">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10 md:mb-14">
             <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">

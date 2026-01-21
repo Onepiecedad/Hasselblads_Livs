@@ -10,11 +10,14 @@ const DeliverySection = () => {
               <img
                 src="/Bilder frukt/Butik_ikon.png"
                 alt="Butik"
-                className="max-w-full max-h-full object-contain scale-125"
+                className="max-w-full max-h-full object-contain scale-125 mix-blend-multiply"
+                style={{
+                  filter: 'hue-rotate(15deg) saturate(0.7)'
+                }}
               />
             </div>
-            <p className="text-lg md:text-xl text-primary leading-relaxed">
-              Vår matbutik på Frejagatan 9 har funnits i 22 år
+            <p className="text-lg md:text-xl text-primary leading-relaxed italic">
+              Vår matbutik på Frejagatan 9 har funnits i 22 år, men familjen Hasselblad har arbetat med livsmedel i 150 år
             </p>
           </div>
 
