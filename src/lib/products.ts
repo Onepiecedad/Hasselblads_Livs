@@ -7,6 +7,7 @@ export type Product = {
   name: string;
   description: string;
   category: ProductCategory;
+  subcategory?: string; // For grouping within large categories
   tags: ProductTag[];
   price: number;
   unit: string;

@@ -117,6 +117,24 @@ function mapCategory(pimCategory?: string): Product['category'] {
     return 'skafferi'; // Default
 }
 
+// Extrahera underkategori från hierarkisk kategori eller sub_category-fält
+function extractSubcategory(mainCategory?: string, subCategory?: string): string | undefined {
+    // Använd sub_category-fältet om det finns
+    if (subCategory && subCategory.trim()) {
+        return subCategory.trim();
+    }
+
+    // Försök extrahera från hierarkisk huvudkategori (t.ex. "Frukt & Grönt > Frukt")
+    if (mainCategory && mainCategory.includes('>')) {
+        const parts = mainCategory.split('>');
+        if (parts.length > 1) {
+            return parts[1].trim();
+        }
+    }
+
+    return undefined;
+}
+
 // Parsa taggar från CSV-data
 function parseTags(symbolField?: string): Product['tags'] {
     if (!symbolField) return [];
@@ -145,12 +163,14 @@ function parseUnit(kgSt?: string): string {
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
     const country = pim.origin_country || pim.csvData?.['Etiketter land'] || '';
+    const mainCategory = pim.main_category || pim.csvData?.['Huvudkategori'];
 
     return {
         id: pim.id,
         name: pim.display_name || pim.product_name,
         description: pim.description || '',
-        category: mapCategory(pim.main_category || pim.csvData?.['Huvudkategori']),
+        category: mapCategory(mainCategory),
+        subcategory: extractSubcategory(mainCategory, pim.sub_category),
         tags: parseTags(pim.csvData?.['Symbol (Eko, FT etc)']),
         price: pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0'),
         unit: parseUnit(pim.csvData?.['Kg/st']),

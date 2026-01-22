@@ -66,35 +66,46 @@ const Webshop = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [parallaxContainerRef]);
 
-    // Initialise from sessionStorage once
+    // Initialise from URL params first, then fallback to sessionStorage
     useEffect(() => {
         if (initialized) return;
 
-        const saved = sessionStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                // Handle migration from old format
-                const categories = parsed.categories || (parsed.category && parsed.category !== "alla" ? [parsed.category] : []);
-                const parsedState: FiltersState = {
-                    categories,
-                    tag: parsed.tag || "",
-                    sort: parsed.sort || DEFAULT_FILTERS.sort,
-                    search: parsed.search || "",
-                };
-                const params = new URLSearchParams();
-                if (parsedState.categories.length > 0) params.set("kategori", parsedState.categories.join(","));
-                if (parsedState.tag) params.set("tag", parsedState.tag);
-                if (parsedState.sort && parsedState.sort !== DEFAULT_FILTERS.sort) params.set("sort", parsedState.sort);
-                if (parsedState.search) params.set("sok", parsedState.search);
-                setSearchParams(params, { replace: true });
-                setSearchTerm(parsedState.search);
-            } catch (error) {
-                console.error("Failed to parse stored filters", error);
-            }
+        // Check if URL has any filter params - these take priority
+        const urlKategori = searchParams.get("kategori");
+        const urlTag = searchParams.get("tag");
+        const urlSort = searchParams.get("sort");
+        const urlSok = searchParams.get("sok");
+
+        const hasUrlParams = urlKategori || urlTag || urlSort || urlSok;
+
+        if (hasUrlParams) {
+            // URL params exist - use them and update search term
+            setSearchTerm(urlSok ?? "");
         } else {
-            const initialSearch = searchParams.get("sok") ?? "";
-            setSearchTerm(initialSearch);
+            // No URL params - try to restore from sessionStorage
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Handle migration from old format
+                    const categories = parsed.categories || (parsed.category && parsed.category !== "alla" ? [parsed.category] : []);
+                    const parsedState: FiltersState = {
+                        categories,
+                        tag: parsed.tag || "",
+                        sort: parsed.sort || DEFAULT_FILTERS.sort,
+                        search: parsed.search || "",
+                    };
+                    const params = new URLSearchParams();
+                    if (parsedState.categories.length > 0) params.set("kategori", parsedState.categories.join(","));
+                    if (parsedState.tag) params.set("tag", parsedState.tag);
+                    if (parsedState.sort && parsedState.sort !== DEFAULT_FILTERS.sort) params.set("sort", parsedState.sort);
+                    if (parsedState.search) params.set("sok", parsedState.search);
+                    setSearchParams(params, { replace: true });
+                    setSearchTerm(parsedState.search);
+                } catch (error) {
+                    console.error("Failed to parse stored filters", error);
+                }
+            }
         }
         setInitialized(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -196,6 +207,48 @@ const Webshop = () => {
 
         return result;
     }, [products, searchParams, activeCategories, activeTag, activeSort]);
+
+    // Group products by subcategory when exactly ONE category is selected
+    const groupedProducts = useMemo(() => {
+        // Only group when exactly one category is selected and there are many products
+        const shouldGroup = activeCategories.length === 1 && filteredProducts.length > 20;
+
+        if (!shouldGroup) {
+            return null; // Return null to indicate "don't group, show flat list"
+        }
+
+        const groups: Record<string, Product[]> = {};
+        const uncategorized: Product[] = [];
+
+        for (const product of filteredProducts) {
+            if (product.subcategory) {
+                if (!groups[product.subcategory]) {
+                    groups[product.subcategory] = [];
+                }
+                groups[product.subcategory].push(product);
+            } else {
+                uncategorized.push(product);
+            }
+        }
+
+        // Sort groups alphabetically (Swedish locale)
+        const sortedGroupNames = Object.keys(groups).sort((a, b) =>
+            new Intl.Collator('sv', { sensitivity: 'base' }).compare(a, b)
+        );
+
+        // Build ordered result with uncategorized at the end
+        const result: Array<{ subcategory: string; products: Product[] }> = sortedGroupNames.map(name => ({
+            subcategory: name,
+            products: groups[name]
+        }));
+
+        // Add uncategorized products as "Övrigt" if any exist
+        if (uncategorized.length > 0) {
+            result.push({ subcategory: 'Övrigt', products: uncategorized });
+        }
+
+        return result;
+    }, [filteredProducts, activeCategories]);
 
     const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
         addItem({
