@@ -58,7 +58,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                             {/* Text label - positioned to match homepage */}
                             <div
                                 className={cn(
-                                    "absolute inset-0 flex items-center p-6 md:p-8",
+                                    "absolute inset-0 flex items-center p-3 sm:p-6 md:p-8",
                                     card.textPosition === "right" && "justify-center",
                                     card.textPosition === "left" && "justify-start"
                                 )}
@@ -66,7 +66,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                                 <h3
                                     className={cn(
                                         "text-[#2F5852] font-semibold leading-tight tracking-tight",
-                                        "text-2xl sm:text-3xl md:text-3xl lg:text-4xl",
+                                        "text-lg sm:text-2xl md:text-3xl lg:text-4xl",
                                         card.textPosition === "right" && "text-center",
                                         card.textPosition === "left" && "text-left",
                                         isActive && "underline underline-offset-4 decoration-2"

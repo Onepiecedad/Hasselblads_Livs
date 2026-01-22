@@ -33,7 +33,7 @@ const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilt
                 Avdelningar
             </p>
             <div
-                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
+                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-3 scrollbar-hide scroll-smooth-x scroll-snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
                 role="listbox"
                 aria-label="Filtrera på avdelning"
                 aria-orientation="horizontal"
@@ -46,7 +46,7 @@ const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilt
                     aria-selected={isAllaActive}
                     onClick={() => handleSelect("alla")}
                     className={cn(
-                        "flex-shrink-0 flex flex-col items-center justify-center gap-1.5",
+                        "flex-shrink-0 flex flex-col items-center justify-center gap-1.5 scroll-snap-start",
                         // Larger size
                         "w-24 sm:w-28 h-28 sm:h-32 rounded-2xl",
                         "transition-all duration-300 ease-out",
@@ -77,7 +77,7 @@ const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilt
                             aria-selected={isActive}
                             onClick={() => handleSelect(card.filterValue || "")}
                             className={cn(
-                                "flex-shrink-0 relative overflow-hidden rounded-2xl",
+                                "flex-shrink-0 relative overflow-hidden rounded-2xl scroll-snap-start",
                                 // Larger size
                                 "w-24 sm:w-28 h-28 sm:h-32",
                                 "transition-all duration-300 ease-out",

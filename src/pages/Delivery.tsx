@@ -2,8 +2,6 @@ import { useMemo } from "react";
 import { Truck, MapPin, ArrowRight } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
-import deliveryPackingImg from "@/assets/delivery-packing.jpg";
-
 const Delivery = () => {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
@@ -44,11 +42,11 @@ const Delivery = () => {
       {/* Hero Section - matching Home and About pages */}
       <section className="relative h-[500px] md:h-[650px] overflow-hidden">
         <img
-          src={deliveryPackingImg}
+          src="/Bilder%20frukt/Leverans1-frukt.jpg"
           alt="Hasselblads Livs leverans"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" /> */}
 
 
       </section>

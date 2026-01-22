@@ -49,11 +49,11 @@ const CustomerService = () => {
       {/* Hero Section */}
       <section className="relative h-[500px] md:h-[650px] overflow-hidden">
         <img
-          src="/Bilder%20frukt/Leverans1-frukt.jpg"
-          alt="Hasselblads Livs - färsk frukt och grönt"
+          src="/Bilder%20frukt/Fasad-by-night-1536x1152.jpg"
+          alt="Hasselblads Livs butiksfasad"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+        {/* <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" /> */}
       </section>
 
       {/* Main Contact Section */}
