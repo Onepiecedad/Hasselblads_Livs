@@ -195,22 +195,40 @@ function transformProduct(pim: PIMProduct): Product {
     };
 }
 
+// Module-level cache to persist products across navigations
+let cachedProducts: Product[] | null = null;
+let unsubscribeRef: (() => void) | null = null;
+
 export function useProducts() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [products, setProducts] = useState<Product[]>(cachedProducts || []);
+    const [isLoading, setIsLoading] = useState(!cachedProducts);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
+        // If we already have cached products, use them immediately
+        if (cachedProducts && cachedProducts.length > 0) {
+            setProducts(cachedProducts);
+            setIsLoading(false);
+        }
+
+        // If we already have an active subscription, don't create another
+        if (unsubscribeRef) {
+            return;
+        }
+
         const productsRef = collection(db, PRODUCTS_PATH);
         const q = query(productsRef, where('status', '==', 'completed'));
 
-        const unsubscribe = onSnapshot(
+        unsubscribeRef = onSnapshot(
             q,
             (snapshot) => {
                 const productList = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
                     .filter(p => p.status === 'completed' && p.is_published === true)
                     .map(p => transformProduct(p));
+
+                // Update cache
+                cachedProducts = productList;
                 setProducts(productList);
                 setIsLoading(false);
                 setError(null);
@@ -221,7 +239,8 @@ export function useProducts() {
             }
         );
 
-        return () => unsubscribe();
+        // Don't unsubscribe - keep the subscription active for real-time updates
+        // The subscription will be shared across all components using useProducts
     }, []);
 
     return { products, isLoading, error };
