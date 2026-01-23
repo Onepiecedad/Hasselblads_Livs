@@ -92,25 +92,25 @@ const Home = () => {
   const highlightCards = [
     {
       title: "Godast\njust nu",
-      href: "/webbutik",
+      href: "/webbutik?tag=godast",
       image: "/Puffar_startsida_Stora_Rityta%201.jpg",
       textPosition: "center-right" as const, // Decoration is on left
     },
     {
       title: "Säsongs-\npremiärer\n& nyheter",
-      href: "/webbutik",
+      href: "/webbutik?tag=nyheter",
       image: "/Puffar_startsida_Stora-02.jpg",
       textPosition: "center-left" as const, // Decoration is on right
     },
     {
       title: "Varor i\nsäsong",
-      href: "/webbutik",
+      href: "/webbutik?tag=isasong",
       image: "/Puffar_startsida_Stora-03.jpg",
       textPosition: "center-right" as const, // Decoration is on left
     },
     {
       title: "Erbjudanden",
-      href: "/webbutik",
+      href: "/webbutik?tag=erbjudanden",
       image: "/Puffar_startsida_Stora-04.jpg",
       textPosition: "center-left" as const, // Decoration is on right
     },
