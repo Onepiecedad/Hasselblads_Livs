@@ -72,11 +72,33 @@ const Webshop = () => {
 
         // Check if URL has any filter params - these take priority
         const urlKategori = searchParams.get("kategori");
-        const urlTag = searchParams.get("tag");
+        let urlTag = searchParams.get("tag");
         const urlSort = searchParams.get("sort");
         const urlSok = searchParams.get("sok");
 
-        const hasUrlParams = urlKategori || urlTag || urlSort || urlSok;
+        // Support ?focus= parameter (maps feature card IDs to product tags)
+        // This enables linking from the homepage video to the correct products
+        const urlFocus = searchParams.get("focus");
+        if (urlFocus && !urlTag) {
+            // Map focus card IDs to product tags
+            const focusToTagMap: Record<string, string> = {
+                godast: 'sasong',
+                nyheter: 'nyhet',
+                isasong: 'klassiker',
+                erbjudanden: 'erbjudande',
+            };
+            const mappedTag = focusToTagMap[urlFocus];
+            if (mappedTag) {
+                urlTag = mappedTag;
+                // Update URL to use tag param instead of focus (cleaner URL)
+                const newParams = new URLSearchParams(searchParams);
+                newParams.delete("focus");
+                newParams.set("tag", mappedTag);
+                setSearchParams(newParams, { replace: true });
+            }
+        }
+
+        const hasUrlParams = urlKategori || urlTag || urlSort || urlSok || urlFocus;
 
         if (hasUrlParams) {
             // URL params exist - use them and update search term

@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CircularGallery } from "@/components/ui/circular-gallery";
 import DeliverySection from "@/components/sections/DeliverySection";
-import InstagramFeed from "@/components/sections/InstagramFeed";
+import FeaturedContent from "@/components/sections/FeaturedContent";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
@@ -255,7 +255,7 @@ const Home = () => {
 
       {/* Aktuellt - Video Section */}
       <section className="bg-transparent">
-        <InstagramFeed />
+        <FeaturedContent />
       </section>
 
       {/* Kategorier - 3D Circular Gallery */}
