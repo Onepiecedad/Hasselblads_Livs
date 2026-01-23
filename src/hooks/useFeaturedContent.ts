@@ -62,12 +62,19 @@ export function getVideoEmbedInfo(url: string): VideoEmbedInfo {
         };
     }
 
-    // Facebook Reel/Video
-    const facebookMatch = url.match(/facebook\.com\/(?:reel|watch|.*\/videos)\/(\d+)/);
-    if (facebookMatch) {
+    // Facebook Reel/Video - supports multiple URL formats
+    // Examples: 
+    // - facebook.com/reel/850613071270264
+    // - facebook.com/share/v/abc123
+    // - facebook.com/watch?v=123
+    // - facebook.com/user/videos/123
+    const isFacebookUrl = url.includes('facebook.com');
+    if (isFacebookUrl) {
+        // For Facebook, always use the plugins/video.php embed format
+        // This works for most Facebook video types
         return {
             type: 'facebook',
-            embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`,
+            embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=267&height=476`,
         };
     }
 
