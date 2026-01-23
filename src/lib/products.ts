@@ -1,6 +1,6 @@
 export type ProductCategory = "frukt-gront" | "mejeri-agg" | "ost-chark" | "brod" | "skafferi" | "sott-gott" | "notter-torkad-frukt" | "snacks-dryck" | "kott";
 
-export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker";
+export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade";
 
 export type Product = {
   id: string;

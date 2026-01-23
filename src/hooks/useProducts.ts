@@ -23,6 +23,7 @@ interface PIMProduct {
     status: 'pending' | 'processing' | 'completed' | 'skipped' | 'failed';
     is_published?: boolean;  // true = visas på hemsidan
     woocommerce_id?: number; // WooCommerce product ID
+    tags?: string[];         // Produkttaggar (sasong, eko, etc.)
     csvData?: Record<string, string>;
 }
 
@@ -135,14 +136,25 @@ function extractSubcategory(mainCategory?: string, subCategory?: string): string
     return undefined;
 }
 
-// Parsa taggar från CSV-data
-function parseTags(symbolField?: string): Product['tags'] {
+// Parsa taggar - prioritera produktens tags-fält, fallback till CSV-symbol
+function parseTags(pimTags?: string[], symbolField?: string): Product['tags'] {
+    // Om produkten har taggar satta i PIM, använd dessa
+    if (pimTags && pimTags.length > 0) {
+        const validTags: Product['tags'] = [];
+        for (const tag of pimTags) {
+            if (['sasong', 'erbjudande', 'nyhet', 'klassiker', 'eko', 'fairtrade'].includes(tag)) {
+                validTags.push(tag as Product['tags'][number]);
+            }
+        }
+        return validTags;
+    }
+
+    // Fallback: Parsa från CSV-symbol (bakåtkompatibilitet)
     if (!symbolField) return [];
 
     const tags: Product['tags'] = [];
     const normalized = symbolField.toLowerCase();
 
-    if (normalized.includes('eko')) tags.push('sasong');
     if (normalized.includes('nyhet')) tags.push('nyhet');
 
     return tags;
@@ -171,7 +183,7 @@ function transformProduct(pim: PIMProduct): Product {
         description: pim.description || '',
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
-        tags: parseTags(pim.csvData?.['Symbol (Eko, FT etc)']),
+        tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price: pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0'),
         unit: parseUnit(pim.csvData?.['Kg/st']),
         origin: {

@@ -12,13 +12,24 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
-  const featuredTag = product.tags.includes("sasong")
-    ? "Säsong"
-    : product.tags.includes("erbjudande")
-      ? "Erbjudande"
-      : product.tags.includes("nyhet")
-        ? "Nyhet"
-        : null;
+  // Bygg lista av taggar att visa (max 2)
+  const displayTags: { label: string; variant: 'default' | 'eco' | 'fair' }[] = [];
+
+  if (product.tags.includes("eko")) {
+    displayTags.push({ label: "🌱 Eko", variant: "eco" });
+  }
+  if (product.tags.includes("fairtrade")) {
+    displayTags.push({ label: "🤝 Fairtrade", variant: "fair" });
+  }
+  if (product.tags.includes("sasong") && displayTags.length < 2) {
+    displayTags.push({ label: "Säsong", variant: "default" });
+  }
+  if (product.tags.includes("erbjudande") && displayTags.length < 2) {
+    displayTags.push({ label: "Erbjudande", variant: "default" });
+  }
+  if (product.tags.includes("nyhet") && displayTags.length < 2) {
+    displayTags.push({ label: "Nyhet", variant: "default" });
+  }
 
   const handleCardClick = () => {
     onQuickView(product);
@@ -51,10 +62,23 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           loading="lazy"
           className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110"
         />
-        {featuredTag && (
-          <Badge className="absolute left-3 top-3 bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm z-10">
-            {featuredTag}
-          </Badge>
+        {displayTags.length > 0 && (
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1 z-10">
+            {displayTags.map((tag, i) => (
+              <Badge
+                key={i}
+                className={
+                  tag.variant === "eco"
+                    ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
+                    : tag.variant === "fair"
+                      ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
+                      : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
+                }
+              >
+                {tag.label}
+              </Badge>
+            ))}
+          </div>
         )}
       </div>
       <CardContent className="flex flex-1 flex-col p-3 sm:p-5">
