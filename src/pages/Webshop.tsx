@@ -8,10 +8,11 @@ import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import QuickViewModal from "@/components/shop/QuickViewModal";
 import { sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
-import { focusCards } from "@/lib/focusCards";
+import { focusCards, getFallbackTag } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
+import { useFeaturedContent, type FeatureCardId } from "@/hooks/useFeaturedContent";
 
 const STORAGE_KEY = "webshop-filters";
 
@@ -32,6 +33,7 @@ const DEFAULT_FILTERS: FiltersState = {
 const Webshop = () => {
     const { products, isLoading, error } = useProducts();
     const { addItem, setOpen } = useCart();
+    const { getCardProducts, isLoading: isFeaturedLoading } = useFeaturedContent();
     const [searchParams, setSearchParams] = useSearchParams();
     const [initialized, setInitialized] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
@@ -76,24 +78,18 @@ const Webshop = () => {
         const urlSort = searchParams.get("sort");
         const urlSok = searchParams.get("sok");
 
-        // Support ?focus= parameter (maps feature card IDs to product tags)
+        // Support ?focus= parameter (maps to feature card IDs)
         // This enables linking from the homepage video to the correct products
         const urlFocus = searchParams.get("focus");
         if (urlFocus && !urlTag) {
-            // Map focus card IDs to product tags
-            const focusToTagMap: Record<string, string> = {
-                godast: 'sasong',
-                nyheter: 'nyhet',
-                isasong: 'klassiker',
-                erbjudanden: 'erbjudande',
-            };
-            const mappedTag = focusToTagMap[urlFocus];
-            if (mappedTag) {
-                urlTag = mappedTag;
+            // Valid focus card IDs
+            const validFocusIds = ['godast', 'nyheter', 'isasong', 'erbjudanden'];
+            if (validFocusIds.includes(urlFocus)) {
+                urlTag = urlFocus; // Use card ID directly as tag
                 // Update URL to use tag param instead of focus (cleaner URL)
                 const newParams = new URLSearchParams(searchParams);
                 newParams.delete("focus");
-                newParams.set("tag", mappedTag);
+                newParams.set("tag", urlFocus);
                 setSearchParams(newParams, { replace: true });
             }
         }
@@ -193,7 +189,7 @@ const Webshop = () => {
     const filteredProducts = useMemo(() => {
         const term = (searchParams.get("sok") ?? "").toLowerCase();
         const categories = activeCategories;
-        const tag = activeTag as ProductTag | "";
+        const focusCardId = activeTag as FeatureCardId | "";
 
         let result = [...products];
 
@@ -202,8 +198,23 @@ const Webshop = () => {
             result = result.filter((product) => categories.includes(product.category));
         }
 
-        if (tag) {
-            result = result.filter((product) => product.tags.includes(tag));
+        // Focus card filtering - use PIM products first, fallback to tags
+        if (focusCardId && ['godast', 'nyheter', 'isasong', 'erbjudanden'].includes(focusCardId)) {
+            const pimProductIds = getCardProducts(focusCardId as FeatureCardId);
+
+            if (pimProductIds.length > 0) {
+                // Use PIM-selected products
+                result = result.filter((product) => pimProductIds.includes(product.id));
+            } else {
+                // Fallback to tag-based filtering
+                const fallbackTag = getFallbackTag(focusCardId as FeatureCardId);
+                if (fallbackTag) {
+                    result = result.filter((product) => product.tags.includes(fallbackTag as ProductTag));
+                }
+            }
+        } else if (focusCardId) {
+            // Legacy tag-based filtering for other tags
+            result = result.filter((product) => product.tags.includes(focusCardId as ProductTag));
         }
 
         if (term) {
@@ -228,7 +239,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategories, activeTag, activeSort]);
+    }, [products, searchParams, activeCategories, activeTag, activeSort, getCardProducts]);
 
     // Group products by subcategory when exactly ONE category is selected
     const groupedProducts = useMemo(() => {

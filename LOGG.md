@@ -4,6 +4,66 @@
 
 ---
 
+## 📅 2026-01-23
+
+### 🎨 Instagram Embed — Dölj Header/Footer
+
+Fixade Instagram-inbäddningen i "Aktuellt"-sektionen för att endast visa videoinnehållet utan Instagrams UI-element.
+
+### ✅ Genomfört
+
+#### 1. Problem identifierat
+
+- **Symptom:** Instagram-embeds visade profilbild, användarnamn (header) samt likes, kommentarer och "View more on Instagram" (footer)
+- **Utmaning:** Instagram tillåter inte styling av iframe-innehåll via CSS (cross-origin security)
+- **Lösning:** Kombinerad `clip-path` + pseudo-element overlay
+
+#### 2. Teknisk lösning
+
+```css
+.scaled-social-media-wrapper {
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+}
+
+.scaled-social-media-wrapper::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 160px;
+    background: var(--color-background);
+    z-index: 10;
+}
+```
+
+- **Clip-path:** Möjliggör att pseudo-element renderas korrekt trots `overflow: hidden`
+- **Pseudo-element:** 160px hög overlay som täcker footern
+- **Header:** Redan dold via negativ `top`-positionering av iframe
+
+#### 3. Resultat
+
+| **Före** | **Efter** |
+|----------|-----------|
+| ❌ Header synlig (profilbild, användarnamn) | ✅ Header helt dold |
+| ❌ Footer synlig (likes, kommentarer, "View more") | ✅ Footer helt dold |
+| ❌ Distraherande Instagram UI | ✅ Rent, professionellt utseende |
+
+### 🔧 Tekniska ändringar
+
+| Fil | Ändringar |
+|-----|-----------|
+| `src/index.css` | Lade till `clip-path` och `::after` pseudo-element för `.scaled-social-media-wrapper` |
+
+### 💡 Lärdomar
+
+- **Cross-origin iframes** kan inte stylas direkt — kräver kreativa lösningar som clipping/overlays
+- **CSS `clip-path: inset(0 0 0 0)`** behövs för att pseudo-elements ska renderas ovanpå `overflow: hidden` containers
+- **Negativ positionering** av iframe är effektivt för att dölja headers
+
+---
+
 ## 📅 2026-01-15 (Kvällspass)
 
 ### 🎨 Webshop Redesign — Art Nouveau & Parallax

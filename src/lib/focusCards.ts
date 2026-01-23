@@ -1,44 +1,52 @@
 // Focus/Handplockat cards - used for tag filtering in webshop
 // Images match the homepage "Handplockat ur sortimentet" section
+// 
+// filterValue: Matches Firebase FeatureCardId (godast, nyheter, isasong, erbjudanden)
+// fallbackTag: Used when no products are selected in PIM for this card
+
+import type { FeatureCardId } from "@/hooks/useFeaturedContent";
 
 export type FocusCardData = {
     name: string;
-    tag: string; // Matches ProductTag from products.ts
+    filterValue: FeatureCardId; // Matches Firebase FeatureCardId
+    fallbackTag: string; // Fallback ProductTag when no PIM products selected
     image: string;
-    filterValue: string;
     textPosition: "left" | "right" | "center"; // Where text should be positioned
 };
 
 export const focusCards: FocusCardData[] = [
     {
         name: "Godast\njust nu",
-        tag: "sasong",
+        filterValue: "godast",
+        fallbackTag: "sasong",
         image: "/Puffar_startsida_Stora_Rityta%201.jpg",
-        filterValue: "sasong",
         textPosition: "right", // Illustration is on left
     },
     {
         name: "Säsongs-\npremiärer\n& nyheter",
-        tag: "nyhet",
+        filterValue: "nyheter",
+        fallbackTag: "nyhet",
         image: "/Puffar_startsida_Stora-02.jpg",
-        filterValue: "nyhet",
         textPosition: "left", // Illustration is on right
     },
     {
         name: "Varor i\nsäsong",
-        tag: "klassiker",
+        filterValue: "isasong",
+        fallbackTag: "klassiker",
         image: "/Puffar_startsida_Stora-03.jpg",
-        filterValue: "klassiker",
         textPosition: "right", // Illustration is on left
     },
     {
         name: "Erbjudanden",
-        tag: "erbjudande",
+        filterValue: "erbjudanden",
+        fallbackTag: "erbjudande",
         image: "/Puffar_startsida_Stora-04.jpg",
-        filterValue: "erbjudande",
         textPosition: "left", // Illustration is on right
     },
 ];
 
-
-
+// Helper to get fallback tag for a card ID
+export const getFallbackTag = (cardId: FeatureCardId): string => {
+    const card = focusCards.find(c => c.filterValue === cardId);
+    return card?.fallbackTag || "";
+};

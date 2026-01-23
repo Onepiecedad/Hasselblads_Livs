@@ -158,6 +158,12 @@ export function useFeaturedContent() {
     // Computed: get embed info for current video
     const videoEmbedInfo = getVideoEmbedInfo(settings.featuredVideo.url);
 
+    // Helper function to get product IDs for a specific feature card
+    const getCardProducts = (cardId: FeatureCardId): string[] => {
+        const card = settings.featureCards[cardId];
+        return card?.productIds || [];
+    };
+
     return {
         settings,
         featuredVideo: settings.featuredVideo,
@@ -165,6 +171,7 @@ export function useFeaturedContent() {
         activeCard,
         activeCardId: settings.featuredVideo.activeCardId,
         videoEmbedInfo,
+        getCardProducts,
         isLoading,
         error,
     };
