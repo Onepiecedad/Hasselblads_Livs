@@ -6,6 +6,38 @@
 
 ## 📅 2026-01-23
 
+### ✅ PIM Hemsida-inställningar — Integration Verifierad
+
+Verifierat att webbutikens funktionskort ("Handplockat") nu korrekt visar produkter som valts i PIM-appens Hemsida-vy.
+
+#### Vad som fungerar
+
+| Funktion | Status |
+|----------|--------|
+| Klick på "Godast just nu" → Visar PIM-valda produkter | ✅ Fungerar |
+| Fallback till tagg-filtrering om inga produkter valda | ✅ Implementerat |
+| Realtidsuppdatering via Firebase onSnapshot | ✅ Implementerat |
+
+#### Teknisk Implementation
+
+- **Hook:** `useFeaturedContent.ts` — Prenumererar på `organizations/hasselblad_common/settings/homepage`
+- **Filtrering:** `Webshop.tsx` rad 204-220 — Använder `getCardProducts()` för att hämta PIM-valda produkter
+- **Mappning:** `focusCards.ts` — Definierar filterValue och fallbackTag för varje kort
+
+#### Testresultat
+
+- **Kort:** "Godast just nu" (`?tag=godast`)
+- **Visade produkter:** Blodapelsin Dracula (59 kr/kg), Blodapelsin Tarocco (99 kr/kg)
+- **Källa:** PIM-appens Hemsida-inställningar
+
+#### Uppdaterade filer
+
+| Fil | Ändring |
+|-----|---------|
+| `public/HEMSIDA_FUNKTIONSKORT_INTEGRATION.md` | Markerat alla acceptanskriterier som avklarade |
+
+---
+
 ### 🎨 Instagram Embed — Dölj Header/Footer
 
 Fixade Instagram-inbäddningen i "Aktuellt"-sektionen för att endast visa videoinnehållet utan Instagrams UI-element.

@@ -112,9 +112,15 @@ interface HomepageSettings {
 
 ## ✅ Acceptanskriterier
 
-1. [ ] När användare väljer produkt i PIM → Webbutiken visar den produkten under rätt kort
-2. [ ] Om inga produkter valda i PIM → Fallback till tagg-baserad filtrering
-3. [ ] Realtidsuppdatering (Firebase onSnapshot) fungerar
+1. [x] När användare väljer produkt i PIM → Webbutiken visar den produkten under rätt kort ✅ **Verifierat 2026-01-23**
+2. [x] Om inga produkter valda i PIM → Fallback till tagg-baserad filtrering ✅ **Implementerat**
+3. [x] Realtidsuppdatering (Firebase onSnapshot) fungerar ✅ **Implementerat**
+
+---
+
+## 🎉 Status: KOMPLETT
+
+**Integrationen är nu live!** Testat 2026-01-23 med "Godast just nu"-kortet som visade exakt de 2 produkter (Blodapelsin Dracula, Blodapelsin Tarocco) som valts i PIM-appen.
 
 ---
 

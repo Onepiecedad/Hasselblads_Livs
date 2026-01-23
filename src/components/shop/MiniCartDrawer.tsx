@@ -10,22 +10,74 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
+import { Truck, ShoppingBag, X } from "lucide-react";
+
+const FREE_SHIPPING_THRESHOLD = 600;
 
 const MiniCartDrawer = () => {
   const { items, isOpen, subtotal, shippingFee, total, updateQuantity, removeItem, setOpen } = useCart();
   const hasItems = items.length > 0;
 
+  // Free shipping progress
+  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
+  const progressPercent = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
+  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+
   return (
     <Drawer open={isOpen} onOpenChange={setOpen}>
       <DrawerContent className="h-[85vh] max-h-[680px] w-full overflow-hidden border-border/80 bg-background p-0 shadow-2xl sm:mx-auto sm:max-w-lg">
         <div className="flex h-full flex-col">
-          <DrawerHeader className="border-b border-border/60 text-left">
-            <DrawerTitle>Din varukorg</DrawerTitle>
+          <DrawerHeader className="border-b border-border/60 text-left relative">
+            <DrawerTitle className="flex items-center gap-2">
+              <ShoppingBag className="h-5 w-5" />
+              Din varukorg
+              {hasItems && (
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({items.length} {items.length === 1 ? 'vara' : 'varor'})
+                </span>
+              )}
+            </DrawerTitle>
             <DrawerDescription>
               {hasItems ? "Justera antal eller gå direkt till kassan." : "Varukorgen är tom – dags att lägga till något gott."}
             </DrawerDescription>
+
+            {/* Close button for mobile */}
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="absolute right-4 top-4 p-2 rounded-full hover:bg-muted transition-colors"
+              aria-label="Stäng varukorg"
+            >
+              <X className="h-5 w-5 text-muted-foreground" />
+            </button>
           </DrawerHeader>
+
+          {/* Free shipping progress */}
+          {hasItems && (
+            <div className="px-6 py-3 bg-muted/30 border-b border-border/30">
+              {hasFreeShipping ? (
+                <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                  <Truck className="h-4 w-4" />
+                  <span>🎉 Grattis! Du har fri frakt!</span>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      <Truck className="h-4 w-4" />
+                      Fri frakt vid {FREE_SHIPPING_THRESHOLD} kr
+                    </span>
+                    <span className="font-medium text-primary">
+                      {amountToFreeShipping} kr kvar
+                    </span>
+                  </div>
+                  <Progress value={progressPercent} className="h-2" />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex-1 overflow-y-auto px-6 py-4">
             {hasItems ? (
@@ -79,10 +131,13 @@ const MiniCartDrawer = () => {
               </ul>
             ) : (
               <div className="flex h-full flex-col items-center justify-center text-center">
-                <p className="text-muted-foreground">Din varukorg är tom just nu.</p>
-                <Button asChild className="mt-4">
+                <div className="rounded-full bg-muted/50 p-6 mb-4">
+                  <ShoppingBag className="h-12 w-12 text-muted-foreground/50" />
+                </div>
+                <p className="text-muted-foreground mb-4">Din varukorg är tom just nu.</p>
+                <Button asChild>
                   <Link to="/webbutik" onClick={() => setOpen(false)}>
-                    Fortsätt shoppa
+                    Börja handla
                   </Link>
                 </Button>
               </div>
@@ -98,7 +153,9 @@ const MiniCartDrawer = () => {
                 </div>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Frakt</span>
-                  <span>{shippingFee === 0 ? "0 kr (fri frakt över 600 kr)" : `${shippingFee} kr`}</span>
+                  <span className={hasFreeShipping ? "text-green-600 font-medium" : ""}>
+                    {shippingFee === 0 ? "Gratis" : `${shippingFee} kr`}
+                  </span>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-lg font-semibold">
@@ -115,23 +172,36 @@ const MiniCartDrawer = () => {
             </div>
           )}
 
-          <DrawerFooter className="relative border-t border-border/60 bg-background p-4">
-            <div className="hidden w-full sm:block">
-              <Button asChild size="lg" className="w-full" disabled={!hasItems}>
-                <Link to="/kassa" onClick={() => setOpen(false)}>
-                  Till kassan
-                </Link>
-              </Button>
-            </div>
-            <div className="sm:hidden">
-              <div className="sticky bottom-2">
-                <Button asChild size="lg" className="w-full shadow-lg" disabled={!hasItems}>
+          <DrawerFooter className="relative border-t border-border/60 bg-background p-4 space-y-2">
+            {hasItems ? (
+              <>
+                {/* Checkout button */}
+                <Button asChild size="lg" className="w-full">
                   <Link to="/kassa" onClick={() => setOpen(false)}>
-                    Till kassan
+                    Till kassan · {total} kr
                   </Link>
                 </Button>
-              </div>
-            </div>
+
+                {/* Continue shopping button */}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={() => setOpen(false)}
+                >
+                  Fortsätt handla
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                size="lg"
+                className="w-full"
+                onClick={() => setOpen(false)}
+              >
+                Stäng
+              </Button>
+            )}
           </DrawerFooter>
         </div>
       </DrawerContent>

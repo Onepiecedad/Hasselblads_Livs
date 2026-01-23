@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, Leaf } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Leaf } from "lucide-react";
 import FocusFilterCards from "@/components/shop/FocusFilterCards";
 import CategoryFilterCards from "@/components/shop/CategoryFilterCards";
 import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
+import ProductCardSkeleton from "@/components/shop/ProductCardSkeleton";
+import SearchAutocomplete from "@/components/shop/SearchAutocomplete";
 import QuickViewModal from "@/components/shop/QuickViewModal";
 import { sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { focusCards, getFallbackTag } from "@/lib/focusCards";
@@ -13,6 +14,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
 import { useFeaturedContent, type FeatureCardId } from "@/hooks/useFeaturedContent";
+import { toast } from "sonner";
 
 const STORAGE_KEY = "webshop-filters";
 
@@ -292,6 +294,16 @@ const Webshop = () => {
             image: product.image,
             woocommerce_id: product.woocommerce_id
         }, quantity);
+
+        // Show toast notification
+        toast.success(`${quantity > 1 ? quantity + " " : ""}${product.name} tillagd i varukorgen`, {
+            duration: 2500,
+            action: {
+                label: "Visa varukorg",
+                onClick: () => setOpen(true),
+            },
+        });
+
         if (openCart) {
             setOpen(true);
         }
@@ -341,11 +353,25 @@ const Webshop = () => {
 
 
 
-    // Loading state
+    // Loading state - show skeleton loaders
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+            <div className="min-h-screen relative grain-effect bg-[#fdfcf9]">
+                <div className="relative z-10 py-16 md:py-20">
+                    <div className="container mx-auto px-4">
+                        <div className="mb-12">
+                            <div className="max-w-xl">
+                                <div className="h-12 bg-muted/50 rounded-full w-64 animate-pulse" />
+                                <div className="mt-4 h-6 bg-muted/30 rounded-full w-96 animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+                            {Array.from({ length: 8 }).map((_, i) => (
+                                <ProductCardSkeleton key={i} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -425,17 +451,12 @@ const Webshop = () => {
 
                     {/* Search and Sort - under the filter cards, with products */}
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
-                        <div className="relative flex-1 max-w-lg">
-                            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/60" />
-                            <Input
-                                type="search"
-                                placeholder="Sök efter produkter eller ingredienser"
-                                value={searchTerm}
-                                onChange={(event) => handleSearchChange(event.target.value)}
-                                className="pl-12 h-12 rounded-2xl border-border/40 bg-card/50 backdrop-blur-sm text-base placeholder:text-muted-foreground/50"
-                                aria-label="Sök produkter"
-                            />
-                        </div>
+                        <SearchAutocomplete
+                            products={products}
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            onSelectProduct={(product) => handleQuickView(product)}
+                        />
                         <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                     </div>
 
@@ -452,12 +473,12 @@ const Webshop = () => {
                         )}
                     </div>
 
-                    <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
+                    <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
                         {filteredProducts.map((product) => (
                             <ProductCard
                                 key={product.id}
                                 product={product}
-                                onAddToCart={(item) => handleAddToCart(item)}
+                                onAddToCart={(item, qty) => handleAddToCart(item, qty)}
                                 onQuickView={(item) => handleQuickView(item)}
                                 setQuickViewButtonRef={(node) => {
                                     quickViewTriggerRefs.current[product.id] = node;
