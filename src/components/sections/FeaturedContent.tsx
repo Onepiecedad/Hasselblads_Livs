@@ -48,26 +48,15 @@ const FeaturedContent = () => {
 
         switch (embedInfo.type) {
             case 'instagram':
-                // Use clip-path to physically cut off header and footer
-                // Combined with scale to fill the container after clipping
+                // Simple Instagram embed - no transforms to ensure mobile compatibility
+                // The embed will show the full Instagram player including header/footer
                 return (
-                    <div
-                        className="relative w-full h-full overflow-hidden rounded-lg"
-                    >
+                    <div className="relative w-full h-full overflow-hidden rounded-lg bg-black">
                         <iframe
                             src={embedInfo.embedUrl}
-                            className="absolute"
+                            className="absolute inset-0 w-full h-full"
                             style={{
                                 border: 'none',
-                                width: '100%',
-                                height: '100%',
-                                // Clip: top 10%, right 0%, bottom 30%, left 0%
-                                // This removes header and footer
-                                clipPath: 'inset(10% 0 30% 0)',
-                                // Scale up to fill the clipped area
-                                transform: 'scale(1.7)',
-                                transformOrigin: 'center center',
-                                pointerEvents: 'auto',
                             }}
                             scrolling="no"
                             frameBorder="0"
