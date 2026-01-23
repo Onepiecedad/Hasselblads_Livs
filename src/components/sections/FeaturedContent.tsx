@@ -128,27 +128,34 @@ const FeaturedContent = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">Aktuellt</h2>
                 </div>
 
-                {/* Video container - Links to webshop with active focus filter */}
+                {/* Video container - Video can now be played */}
                 <div className="flex justify-center">
-                    <Link
-                        to={`/webbutik?focus=${focusParam}`}
-                        className="group block rounded-2xl overflow-hidden shadow-lg w-[280px] md:w-[340px] transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+                    <div
+                        className="rounded-2xl overflow-hidden shadow-lg w-[280px] md:w-[340px]"
                         style={{ aspectRatio: '9/16' }}
-                        aria-label={`Se ${activeCardId === 'godast' ? 'godast just nu' : activeCardId} i webbutiken`}
                     >
                         {renderVideo()}
-                    </Link>
+                    </div>
                 </div>
 
-                {/* Optional: Show which focus is active */}
-                <p className="text-center mt-4 text-sm text-muted-foreground">
-                    Klicka för att se <span className="font-medium text-primary">{
-                        activeCardId === 'godast' ? 'godast just nu' :
-                            activeCardId === 'nyheter' ? 'nyheter' :
-                                activeCardId === 'isasong' ? 'varor i säsong' :
-                                    'erbjudanden'
-                    }</span> i webbutiken
-                </p>
+                {/* CTA button to webshop */}
+                <div className="flex justify-center mt-6">
+                    <Link
+                        to={`/webbutik?tag=${focusParam}`}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary text-white font-semibold text-base transition-all duration-300 hover:bg-primary/90 hover:scale-105 shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4"
+                        aria-label={`Se ${activeCardId === 'godast' ? 'godast just nu' : activeCardId} i webbutiken`}
+                    >
+                        Se {
+                            activeCardId === 'godast' ? 'godast just nu' :
+                                activeCardId === 'nyheter' ? 'nyheter' :
+                                    activeCardId === 'isasong' ? 'varor i säsong' :
+                                        'erbjudanden'
+                        } i webbutiken
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </Link>
+                </div>
             </div>
         </section>
     );
