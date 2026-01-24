@@ -11,7 +11,6 @@ import About from "./pages/About";
 import CustomerService from "./pages/CustomerService";
 import NotFound from "./pages/NotFound";
 import MiniCartDrawer from "./components/shop/MiniCartDrawer";
-import BottomNav from "./components/BottomNav";
 import { CartProvider } from "./context/CartContext";
 import BreadcrumbSchema from "./components/seo/BreadcrumbSchema";
 import Checkout from "./pages/Checkout";
@@ -46,7 +45,6 @@ const App = () => (
             </Route>
           </Routes>
           <MiniCartDrawer />
-          <BottomNav />
           <ScrollToTop />
         </BrowserRouter>
       </CartProvider>
