@@ -16,11 +16,13 @@ export const NutritionTable = ({ data }: NutritionTableProps) => {
                 </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-                {data.energy && (
+                {data.energy && (data.energy.kcal !== undefined || data.energy.kj !== undefined) && (
                     <tr>
                         <td className="py-0.5">Energi</td>
                         <td className="text-right font-medium">
-                            {data.energy.kcal} kcal / {data.energy.kj} kJ
+                            {data.energy.kcal !== undefined && `${data.energy.kcal} kcal`}
+                            {data.energy.kcal !== undefined && data.energy.kj !== undefined && ' / '}
+                            {data.energy.kj !== undefined && `${data.energy.kj} kJ`}
                         </td>
                     </tr>
                 )}

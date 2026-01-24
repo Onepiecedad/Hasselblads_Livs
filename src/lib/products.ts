@@ -5,7 +5,7 @@ export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko"
 // Typ för näringsvärde
 export type NutritionData = {
   servingSize?: string;
-  energy?: { kj: number; kcal: number };
+  energy?: { kj?: number; kcal?: number };
   fat?: number;
   saturatedFat?: number;
   carbohydrates?: number;

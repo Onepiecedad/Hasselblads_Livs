@@ -25,6 +25,22 @@ interface PIMProduct {
     woocommerce_id?: number; // WooCommerce product ID
     tags?: string[];         // Produkttaggar (sasong, eko, etc.)
     csvData?: Record<string, string>;
+
+    // Baksideinformation (från PIM-appen)
+    backImageUrl?: string;
+    ingredients?: string;
+    allergens?: string[];
+    nutritionData?: {
+        servingSize?: string;
+        energy?: { kj?: number; kcal?: number };
+        fat?: number;
+        saturatedFat?: number;
+        carbohydrates?: number;
+        sugars?: number;
+        protein?: number;
+        fiber?: number;
+        salt?: number;
+    };
 }
 
 // Mappa ursprungsland till flagga
@@ -191,7 +207,13 @@ function transformProduct(pim: PIMProduct): Product {
             flag: FLAG_MAP[country] || '🌍'
         },
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
-        woocommerce_id: pim.woocommerce_id
+        woocommerce_id: pim.woocommerce_id,
+
+        // Baksideinformation (mappa från PIM om det finns)
+        backImageUrl: pim.backImageUrl,
+        ingredients: pim.ingredients,
+        allergens: pim.allergens,
+        nutritionData: pim.nutritionData
     };
 }
 
