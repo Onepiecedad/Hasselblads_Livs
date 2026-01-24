@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { ShoppingCart, Plus, Minus, RotateCcw } from "lucide-react";
 import { Product } from "@/lib/products";
+import { NutritionTable } from "./NutritionTable";
 
 interface ProductCardProps {
   product: Product;
@@ -15,6 +16,10 @@ interface ProductCardProps {
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
   const [showQuantity, setShowQuantity] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  // Kolla om produkten har baksideinformation
+  const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
 
   // Bygg lista av taggar att visa (max 2)
   const displayTags: { label: string; variant: 'default' | 'eco' | 'fair' }[] = [];
@@ -36,7 +41,15 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   }
 
   const handleCardClick = () => {
-    onQuickView(product);
+    // Öppna bara QuickView om kortet inte är flippat
+    if (!isFlipped) {
+      onQuickView(product);
+    }
+  };
+
+  const handleFlip = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsFlipped(!isFlipped);
   };
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -63,124 +76,245 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   };
 
   return (
-    <Card
+    <div
+      className="flip-card-container perspective-1000 h-full"
       ref={setQuickViewButtonRef}
-      className="group flex h-full flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer rounded-2xl"
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleCardClick();
-        }
-      }}
-      aria-label={`Visa ${product.name}`}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-4 flex items-center justify-center">
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110"
-        />
+      <div className={`flip-card-inner ${isFlipped ? 'is-flipped' : ''}`}>
 
-        {/* Tags */}
-        {displayTags.length > 0 && (
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1 z-10">
-            {displayTags.map((tag, i) => (
-              <Badge
-                key={i}
-                className={
-                  tag.variant === "eco"
-                    ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
-                    : tag.variant === "fair"
-                      ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
-                      : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
-                }
+        {/* ===== FRAMSIDA ===== */}
+        <Card
+          className="flip-card-front group flex h-full flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer rounded-2xl"
+          onClick={handleCardClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleCardClick();
+            }
+          }}
+          aria-label={`Visa ${product.name}`}
+        >
+          <div className="relative aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-4 flex items-center justify-center">
+            <img
+              src={product.image}
+              alt={product.name}
+              loading="lazy"
+              className="h-full w-full object-contain transition-transform duration-700 group-hover:scale-110"
+            />
+
+            {/* Flip-knapp (visa endast om produkten har baksideinformation) */}
+            {hasBackInfo && (
+              <button
+                onClick={handleFlip}
+                className="flip-button"
+                aria-label="Visa baksida"
               >
-                {tag.label}
-              </Badge>
-            ))}
-          </div>
-        )}
+                <RotateCcw size={14} className="text-gray-600" />
+              </button>
+            )}
 
-        {/* Origin flag - small badge in corner */}
-        {product.origin?.flag && product.origin.flag !== "🌍" && (
-          <div className="absolute right-2 top-2 z-10">
-            <span
-              className="text-lg drop-shadow-sm"
-              title={product.origin.country}
-              aria-label={`Ursprung: ${product.origin.country}`}
-            >
-              {product.origin.flag}
-            </span>
-          </div>
-        )}
-      </div>
+            {/* Tags */}
+            {displayTags.length > 0 && (
+              <div className="absolute left-3 top-3 flex flex-wrap gap-1 z-10">
+                {displayTags.map((tag, i) => (
+                  <Badge
+                    key={i}
+                    className={
+                      tag.variant === "eco"
+                        ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
+                        : tag.variant === "fair"
+                          ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
+                          : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
+                    }
+                  >
+                    {tag.label}
+                  </Badge>
+                ))}
+              </div>
+            )}
 
-      <CardContent className="flex flex-1 flex-col p-3 sm:p-5">
-        <div className="flex-1 space-y-1.5">
-          <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">{product.name}</h3>
-          {product.description && (
-            <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
+            {/* Origin flag - small badge in corner */}
+            {product.origin?.flag && product.origin.flag !== "🌍" && !hasBackInfo && (
+              <div className="absolute right-2 top-2 z-10">
+                <span
+                  className="text-lg drop-shadow-sm"
+                  title={product.origin.country}
+                  aria-label={`Ursprung: ${product.origin.country}`}
+                >
+                  {product.origin.flag}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <CardContent className="flex flex-1 flex-col p-3 sm:p-5">
+            <div className="flex-1 space-y-1.5">
+              <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">{product.name}</h3>
+              {product.description && (
+                <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
+              )}
+            </div>
+
+            <div className="mt-4 flex items-end justify-between gap-1">
+              <div>
+                <p className="text-lg font-bold text-primary sm:text-xl">{product.price} kr</p>
+                <p className="text-[10px] text-muted-foreground/60 sm:text-xs">{product.unit}</p>
+              </div>
+
+              {/* Quantity selector or Add button */}
+              {showQuantity ? (
+                <div
+                  className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                    onClick={(e) => handleQuantityChange(e, -1)}
+                    aria-label="Minska antal"
+                  >
+                    <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                  <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                    onClick={(e) => handleQuantityChange(e, 1)}
+                    aria-label="Öka antal"
+                  >
+                    <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
+                    onClick={handleConfirmAdd}
+                    aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
+                  >
+                    <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="rounded-full h-8 w-8 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors sm:h-10 sm:w-10"
+                  aria-label={`Lägg ${product.name} i varukorgen`}
+                  onClick={handleAddToCart}
+                >
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* ===== BAKSIDA ===== */}
+        <Card
+          className="flip-card-back flex h-full flex-col overflow-hidden border-0 bg-card/95 backdrop-blur-sm shadow-lg rounded-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Flip-tillbaka-knapp */}
+          <button
+            onClick={handleFlip}
+            className="flip-button"
+            aria-label="Visa framsida"
+          >
+            <RotateCcw size={14} className="text-gray-600" />
+          </button>
+
+          {/* Baksidebild */}
+          {product.backImageUrl && (
+            <div className="aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-3 flex items-center justify-center">
+              <img
+                src={product.backImageUrl}
+                alt={`${product.name} - baksida`}
+                loading="lazy"
+                className="h-full w-full object-contain"
+              />
+            </div>
           )}
-        </div>
 
-        <div className="mt-4 flex items-end justify-between gap-1">
-          <div>
-            <p className="text-lg font-bold text-primary sm:text-xl">{product.price} kr</p>
-            <p className="text-[10px] text-muted-foreground/60 sm:text-xs">{product.unit}</p>
-          </div>
+          {/* Baksideinnehåll */}
+          <CardContent className={`flex-1 ${product.backImageUrl ? 'p-2' : 'p-3'} overflow-y-auto scrollbar-hide`}>
+            <div className="space-y-2.5">
+              {/* Produktnamn på baksidan */}
+              <h4 className="text-xs font-semibold text-foreground/80 border-b border-border/50 pb-1.5 line-clamp-1">
+                {product.name}
+              </h4>
 
-          {/* Quantity selector or Add button */}
-          {showQuantity ? (
-            <div
-              className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5"
-              onClick={(e) => e.stopPropagation()}
-            >
+              {/* Allergener */}
+              {product.allergens && product.allergens.length > 0 && (
+                <div>
+                  <h5 className="font-bold text-amber-600 flex items-center gap-1 text-[11px] mb-1">
+                    ⚠️ Allergener
+                  </h5>
+                  <div className="flex flex-wrap gap-1">
+                    {product.allergens.map((allergen, index) => (
+                      <span key={index} className="allergen-badge">
+                        {allergen}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Ingredienser */}
+              {product.ingredients && (
+                <div>
+                  <h5 className="font-bold text-gray-700 text-[11px] mb-0.5">
+                    📋 Ingredienser
+                  </h5>
+                  <p className="text-gray-600 text-[9px] leading-relaxed line-clamp-4">
+                    {product.ingredients}
+                  </p>
+                </div>
+              )}
+
+              {/* Näringsvärde */}
+              {product.nutritionData && (
+                <div>
+                  <h5 className="font-bold text-gray-700 text-[11px] mb-0.5">
+                    🥗 Näringsvärde
+                  </h5>
+                  <NutritionTable data={product.nutritionData} />
+                </div>
+              )}
+
+              {/* Fallback om ingen data finns */}
+              {!product.allergens?.length && !product.ingredients && !product.nutritionData && product.backImageUrl && (
+                <p className="text-[10px] text-muted-foreground text-center py-4">
+                  Produktinformation från förpackningen
+                </p>
+              )}
+            </div>
+          </CardContent>
+
+          {/* Pris och kundvagnknapp på baksidan */}
+          <div className="p-2 pt-0 border-t border-border/30 bg-card/50">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-bold text-primary">{product.price} kr</p>
               <Button
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                onClick={(e) => handleQuantityChange(e, -1)}
-                aria-label="Minska antal"
+                size="sm"
+                className="h-7 px-3 text-xs rounded-full bg-primary hover:bg-primary/90"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddToCart(product, 1);
+                }}
+                aria-label={`Lägg ${product.name} i varukorgen`}
               >
-                <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              </Button>
-              <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                onClick={(e) => handleQuantityChange(e, 1)}
-                aria-label="Öka antal"
-              >
-                <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              </Button>
-              <Button
-                size="icon"
-                className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
-                onClick={handleConfirmAdd}
-                aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
-              >
-                <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <ShoppingCart className="h-3 w-3 mr-1" />
+                Lägg i varukorg
               </Button>
             </div>
-          ) : (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="rounded-full h-8 w-8 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors sm:h-10 sm:w-10"
-              aria-label={`Lägg ${product.name} i varukorgen`}
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        </Card>
+
+      </div>
+    </div>
   );
 };
 

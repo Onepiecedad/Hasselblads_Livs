@@ -2,6 +2,19 @@ export type ProductCategory = "frukt-gront" | "mejeri-agg" | "ost-chark" | "brod
 
 export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade";
 
+// Typ för näringsvärde
+export type NutritionData = {
+  servingSize?: string;
+  energy?: { kj: number; kcal: number };
+  fat?: number;
+  saturatedFat?: number;
+  carbohydrates?: number;
+  sugars?: number;
+  protein?: number;
+  salt?: number;
+  fiber?: number;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -14,6 +27,12 @@ export type Product = {
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
+
+  // Baksideinformation (från PIM-appen)
+  backImageUrl?: string;        // Bild på förpackningens baksida
+  ingredients?: string;         // Ingredienslista (text)
+  allergens?: string[];         // Allergener som array
+  nutritionData?: NutritionData; // Näringsvärde
 };
 
 
