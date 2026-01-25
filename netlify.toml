@@ -7,8 +7,21 @@
   targetPort = 8080
   port = 8888
 
-# WordPress/WooCommerce proxy is now handled by Edge Function: netlify/edge-functions/wordpress-proxy.ts
-# This proxies /wp-json/*, /wp-admin/*, /checkout/* to the WordPress backend at Pressable (199.16.172.188)
+# WordPress/WooCommerce proxy is handled by Serverless Function: netlify/functions/wordpress-proxy.ts
+# This proxies /wp-json/*, /wp-admin/* to the WordPress backend at Pressable (199.16.172.188)
+
+# Proxy WordPress API to serverless function
+[[redirects]]
+  from = "/wp-json/*"
+  to = "/.netlify/functions/wordpress-proxy/wp-json/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/wp-admin/*"
+  to = "/.netlify/functions/wordpress-proxy/wp-admin/:splat"
+  status = 200
+  force = true
 
 
 [[redirects]]
