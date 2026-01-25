@@ -7,6 +7,31 @@
   targetPort = 8080
   port = 8888
 
+# WooCommerce API Proxy - Forwards requests to Pressable WordPress server
+# This enables WooCommerce REST API and MCP access through Netlify
+[[redirects]]
+  from = "/wp-json/*"
+  to = "https://199.16.172.188/wp-json/:splat"
+  status = 200
+  force = true
+  headers = {Host = "hasselbladslivs.se", X-Forwarded-Host = "hasselbladslivs.se"}
+
+# WooCommerce checkout redirect
+[[redirects]]
+  from = "/checkout/*"
+  to = "https://199.16.172.188/checkout/:splat"
+  status = 200
+  force = true
+  headers = {Host = "hasselbladslivs.se"}
+
+# WordPress admin proxy (for legacy access)
+[[redirects]]
+  from = "/wp-admin/*"
+  to = "https://199.16.172.188/wp-admin/:splat"
+  status = 200
+  force = true
+  headers = {Host = "hasselbladslivs.se"}
+
 [[redirects]]
   from = "/sasong"
   to = "/säsong"
