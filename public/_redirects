@@ -1,4 +1,11 @@
-/*    /index.html   200
+# WordPress/WooCommerce API proxy to serverless function
+/wp-json/*  /.netlify/functions/wordpress-proxy/wp-json/:splat  200
+/wp-admin/* /.netlify/functions/wordpress-proxy/wp-admin/:splat 200
+
+# URL redirects for Swedish characters
 /sasong /säsong 301
 /kundtjanst /kundservice 301
 /checkout /kassa 301
+
+# SPA fallback - MUST be last!
+/*    /index.html   200
