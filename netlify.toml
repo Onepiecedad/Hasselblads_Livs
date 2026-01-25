@@ -52,8 +52,8 @@
   SECRETS_SCAN_OMIT_KEYS = "VITE_FIREBASE_API_KEY"
   SECRETS_SCAN_SMART_DETECTION_ENABLED = "false"
 
-[context.production]
-  [[context.production.redirects]]
-    from = "/*"
-    to = "/index.html"
-    status = 200
+# SPA fallback - MUST be last! Catches all routes not matched above.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
