@@ -4,6 +4,98 @@
 
 ---
 
+## 📅 2026-01-25
+
+### 🔧 WooCommerce MCP Integration & WordPress API Proxy
+
+Fixade WooCommerce MCP-integration så att AI-assistenter kan hantera produkter och ordrar direkt. Lösningen krävde en serverless proxy-funktion på Netlify.
+
+### ✅ Genomfört
+
+#### 1. `/etc/hosts` — Lokalt DNS-problem
+
+- **Symptom:** Användaren såg gamla WordPress-sidan istället för nya React-appen på `hasselbladslivs.se`
+- **Orsak:** Lokala `/etc/hosts`-filen hade manuell mappning till WordPress-IP (`199.16.172.188`)
+- **Åtgärd:** Rensade hosts-filen från hasselbladslivs-rader
+- **Resultat:** Domänen pekar nu korrekt på Netlify (`75.2.60.5`)
+
+#### 2. WooCommerce MCP — Konfigurationsfix
+
+- **Problem:** MCP-servern kunde inte ansluta till WooCommerce
+- **Orsak 1:** URL i `mcp_config.json` saknade fullständig sökväg
+- **Åtgärd:** Ändrade från `https://hasselbladslivs.se` till `https://hasselbladslivs.se/wp-json/woocommerce/mcp`
+- **Orsak 2:** Netlify-proxyn vidarebefordrade inte `/wp-json/*` till WordPress
+- **Resultat:** MCP-initalisering returnerar nu korrekt JSON-RPC-svar
+
+#### 3. Netlify WordPress Proxy — Serverless Function
+
+- **Problem:** Netlify `[[redirects]]` med `headers` fungerade inte för externa proxies
+- **Orsak:** SSL-certifikat på Pressable (`199.16.172.188`) är utfärdat för `pressable.com`, inte `hasselbladslivs.se`
+- **Lösning:** Skapade serverless function med Node.js `https` och `rejectUnauthorized: false`
+
+**Ny fil:** `netlify/functions/wordpress-proxy.ts`
+
+```typescript
+// Proxar /wp-json/* och /wp-admin/* till Pressable WordPress-backend
+// Använder rejectUnauthorized: false för att hantera SSL-mismatch
+```
+
+#### 4. `_redirects` — Ordning spelar roll
+
+- **Problem:** SPA catch-all (`/* /index.html 200`) stod först och fångade alla requests
+- **Åtgärd:** Lade till WordPress-proxy redirects FÖRE SPA-fallback:
+
+```
+/wp-json/*  /.netlify/functions/wordpress-proxy/wp-json/:splat  200
+/wp-admin/* /.netlify/functions/wordpress-proxy/wp-admin/:splat 200
+/*          /index.html   200
+```
+
+### 🔧 Tekniska ändringar
+
+| Fil | Ändring |
+|-----|---------|
+| `~/.gemini/antigravity/mcp_config.json` | Uppdaterad WP_API_URL till fullständig MCP-endpoint |
+| `/etc/hosts` | Rensad från hasselbladslivs-mappningar |
+| `netlify/functions/wordpress-proxy.ts` | NY FIL — Serverless proxy med SSL-bypass |
+| `public/_redirects` | Lade till WordPress proxy-redirects före SPA-fallback |
+| `netlify.toml` | Uppdaterad kommentar om proxy-arkitektur |
+| `package.json` | Installerade `@netlify/functions` |
+
+### 📊 Resultat
+
+| System | Status |
+|--------|--------|
+| `hasselbladslivs.se` → Netlify React-app | ✅ Fungerar |
+| `hasselbladslivs.se/wp-json/*` → WordPress API | ✅ Proxas korrekt |
+| `hasselbladslivs.se/wp-admin/*` → WordPress Admin | ✅ Proxas korrekt |
+| WooCommerce MCP | ✅ Fungerar för AI-assistenter |
+| WooCommerce REST API | ✅ Tillgängligt via proxy |
+
+### 💡 Lärdomar
+
+- **Netlify `[[redirects]]` med headers** stödjer INTE proxy till externa IP-adresser med custom headers på alla planer
+- **Ordning i `_redirects`** är kritisk — första träffen vinner
+- **SSL-certifikat mismatch** kräver serverless function med `rejectUnauthorized: false`
+- **`/etc/hosts`** kan override DNS och orsaka förvirrande beteende
+
+### 🔗 MCP-konfiguration för andra agenter
+
+```json
+{
+  "woocommerce": {
+    "command": "npx",
+    "args": ["-y", "@automattic/mcp-wordpress-remote@latest"],
+    "env": {
+      "WP_API_URL": "https://hasselbladslivs.se/wp-json/woocommerce/mcp",
+      "CUSTOM_HEADERS": "{\"X-MCP-API-Key\": \"ck_xxx:cs_xxx\"}"
+    }
+  }
+}
+```
+
+---
+
 ## 📅 2026-01-23
 
 ### ✅ PIM Hemsida-inställningar — Integration Verifierad
