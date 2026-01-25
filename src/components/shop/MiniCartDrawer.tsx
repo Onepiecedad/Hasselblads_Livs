@@ -12,12 +12,13 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
-import { Truck, ShoppingBag, X } from "lucide-react";
+import { redirectToWooCommerceCheckout } from "@/lib/woocommerce";
+import { Truck, ShoppingBag, X, ExternalLink } from "lucide-react";
 
 const FREE_SHIPPING_THRESHOLD = 600;
 
 const MiniCartDrawer = () => {
-  const { items, isOpen, subtotal, shippingFee, total, updateQuantity, removeItem, setOpen } = useCart();
+  const { items, isOpen, subtotal, shippingFee, total, updateQuantity, removeItem, clearCart, setOpen } = useCart();
   const hasItems = items.length > 0;
 
   // Free shipping progress
@@ -175,11 +176,17 @@ const MiniCartDrawer = () => {
           <DrawerFooter className="relative border-t border-border/60 bg-background p-4 space-y-2">
             {hasItems ? (
               <>
-                {/* Checkout button */}
-                <Button asChild size="lg" className="w-full">
-                  <Link to="/kassa" onClick={() => setOpen(false)}>
-                    Till kassan · {total} kr
-                  </Link>
+                {/* Checkout button - redirects to WooCommerce */}
+                <Button
+                  size="lg"
+                  className="w-full gap-2"
+                  onClick={() => {
+                    setOpen(false);
+                    redirectToWooCommerceCheckout(items, clearCart);
+                  }}
+                >
+                  Till kassan · {total} kr
+                  <ExternalLink className="h-4 w-4" />
                 </Button>
 
                 {/* Continue shopping button */}

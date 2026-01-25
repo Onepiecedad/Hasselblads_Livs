@@ -57,8 +57,11 @@ export function redirectToWooCommerceCheckout(items: CartItem[], clearCart?: () 
     const validItems = items.filter(item => item.woocommerce_id);
 
     if (validItems.length === 0) {
-        // Fallback: Skicka till WooCommerce butik
-        window.location.href = `${WC_URL}/butik/`;
+        // Fallback: Produkterna saknar WooCommerce ID - visa varning och skicka till checkout
+        console.warn('[WooCommerce] Produkter saknar woocommerce_id. Lägg till dessa i PIM-appen.');
+        console.warn('[WooCommerce] Items without WooCommerce ID:', items.map(i => i.id));
+        // Redirect till checkout-sidan istället för /butik/ (som kan ge 404)
+        window.location.href = `${WC_URL}/checkout/`;
         return;
     }
 
