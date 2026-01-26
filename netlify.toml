@@ -23,6 +23,34 @@
   status = 200
   force = true
 
+# WooCommerce checkout - proxy to WordPress
+[[redirects]]
+  from = "/kassa"
+  to = "/.netlify/functions/wordpress-proxy/kassa"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/kassa/*"
+  to = "/.netlify/functions/wordpress-proxy/kassa/:splat"
+  status = 200
+  force = true
+
+# WooCommerce AJAX endpoints
+[[redirects]]
+  from = "/wc-ajax/*"
+  to = "/.netlify/functions/wordpress-proxy/wc-ajax/:splat"
+  status = 200
+  force = true
+
+# WooCommerce cart operations - proxy add-to-cart to WordPress homepage first
+[[redirects]]
+  from = "/wc-add-to-cart"
+  to = "/.netlify/functions/wordpress-proxy/"
+  status = 200
+  force = true
+  query = {add-to-cart = ":product_id"}
+
 
 [[redirects]]
   from = "/sasong"

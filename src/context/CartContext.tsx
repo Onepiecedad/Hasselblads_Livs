@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer } from "react";
+import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
 
 export type CartItem = {
   id: string;
@@ -36,6 +36,36 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
+
+const STORAGE_KEY = "hasselblads-cart";
+
+// Load cart from localStorage
+const loadCartFromStorage = (): CartItem[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Validate that it's an array with expected structure
+      if (Array.isArray(parsed) && parsed.every(item =>
+        item.id && typeof item.name === 'string' && typeof item.price === 'number' && typeof item.quantity === 'number'
+      )) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('[CartContext] Failed to load cart from localStorage:', e);
+  }
+  return [];
+};
+
+// Save cart to localStorage
+const saveCartToStorage = (items: CartItem[]) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch (e) {
+    console.warn('[CartContext] Failed to save cart to localStorage:', e);
+  }
+};
 
 const cartReducer = (state: CartState, action: Action): CartState => {
   switch (action.type) {
@@ -75,17 +105,25 @@ const cartReducer = (state: CartState, action: Action): CartState => {
   }
 };
 
-const INITIAL_STATE: CartState = {
-  items: [],
+// Initialize with data from localStorage
+const getInitialState = (): CartState => ({
+  items: loadCartFromStorage(),
   isOpen: false,
-};
+});
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
-  const [state, dispatch] = useReducer(cartReducer, INITIAL_STATE);
+  // Use lazy initialization to load from localStorage
+  const [state, dispatch] = useReducer(cartReducer, undefined, getInitialState);
+
+  // Persist cart to localStorage whenever items change
+  useEffect(() => {
+    saveCartToStorage(state.items);
+  }, [state.items]);
 
   const subtotal = useMemo(() => state.items.reduce((total, item) => total + item.price * item.quantity, 0), [state.items]);
   const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 39;
   const total = subtotal + shippingFee;
+
 
   const value = useMemo<CartContextValue>(
     () => ({

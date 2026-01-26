@@ -3,7 +3,8 @@ import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Product } from '@/lib/products';
 
-// Firestore collection path för produkter
+// Firestore collection path för produkter (måste matcha PIM-appens path)
+// PIM-appen använder DEFAULT_PROJECT_ID = 'default' i syncService.ts
 const PRODUCTS_PATH = 'organizations/hasselblad_common/projects/default/products';
 
 // PIM-produktens struktur (förenklad)
