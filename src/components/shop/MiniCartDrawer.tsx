@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
-import { redirectToWooCommerceCheckout } from "@/lib/woocommerce";
+import { addItemsAndRedirectToCheckout } from "@/lib/woocommerce";
 import { Truck, ShoppingBag, X, ExternalLink } from "lucide-react";
 
 const FREE_SHIPPING_THRESHOLD = 600;
@@ -182,7 +182,7 @@ const MiniCartDrawer = () => {
                   className="w-full gap-2"
                   onClick={() => {
                     setOpen(false);
-                    redirectToWooCommerceCheckout(items, clearCart);
+                    addItemsAndRedirectToCheckout(items, clearCart);
                   }}
                 >
                   Till kassan · {total} kr
