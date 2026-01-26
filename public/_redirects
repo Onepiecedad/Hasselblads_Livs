@@ -3,8 +3,11 @@
 /wp-admin/* /.netlify/functions/wordpress-proxy/wp-admin/:splat 200
 
 # WooCommerce checkout and cart - proxy to WordPress
+# WordPress uses /kassan (with 'n') as checkout URL
 /kassa      /.netlify/functions/wordpress-proxy/kassa           200
 /kassa/*    /.netlify/functions/wordpress-proxy/kassa/:splat    200
+/kassan     /.netlify/functions/wordpress-proxy/kassan          200
+/kassan/*   /.netlify/functions/wordpress-proxy/kassan/:splat   200
 /wc-ajax/*  /.netlify/functions/wordpress-proxy/wc-ajax/:splat  200
 
 # URL redirects for Swedish characters
