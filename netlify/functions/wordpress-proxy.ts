@@ -61,7 +61,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
             const chunks: Buffer[] = [];
             proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
             proxyRes.on("end", () => {
-                const responseBody = Buffer.concat(chunks).toString("utf-8");
+                const responseBuffer = Buffer.concat(chunks);
                 const responseHeaders: Record<string, string> = {};
 
                 for (const [key, value] of Object.entries(proxyRes.headers)) {
@@ -74,10 +74,23 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 delete responseHeaders["transfer-encoding"];
                 delete responseHeaders["connection"];
 
-                resolve(new Response(responseBody, {
-                    status: proxyRes.statusCode || 200,
-                    headers: responseHeaders,
-                }));
+                // Check if this is a binary response (images, fonts, etc.)
+                const contentType = proxyRes.headers["content-type"] || "";
+                const isBinary = /^(image|audio|video|font|application\/octet-stream|application\/pdf|application\/zip)/i.test(contentType);
+
+                if (isBinary) {
+                    // Return binary data as-is (as Uint8Array)
+                    resolve(new Response(responseBuffer, {
+                        status: proxyRes.statusCode || 200,
+                        headers: responseHeaders,
+                    }));
+                } else {
+                    // Return text-based content (HTML, JSON, CSS, JS)
+                    resolve(new Response(responseBuffer.toString("utf-8"), {
+                        status: proxyRes.statusCode || 200,
+                        headers: responseHeaders,
+                    }));
+                }
             });
         });
 
