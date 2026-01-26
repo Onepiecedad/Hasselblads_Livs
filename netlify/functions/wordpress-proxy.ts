@@ -30,6 +30,10 @@ export default async (request: Request, context: Context): Promise<Response> => 
     const contentType = request.headers.get("content-type");
     if (contentType) headers["Content-Type"] = contentType;
 
+    // Forward cookies (critical for WooCommerce sessions)
+    const cookies = request.headers.get("cookie");
+    if (cookies) headers["Cookie"] = cookies;
+
     // Forward authorization headers
     const auth = request.headers.get("authorization");
     if (auth) headers["Authorization"] = auth;
@@ -65,8 +69,13 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 const responseHeaders: Record<string, string> = {};
 
                 for (const [key, value] of Object.entries(proxyRes.headers)) {
-                    if (value && typeof value === "string") {
-                        responseHeaders[key] = value;
+                    if (value) {
+                        // Handle set-cookie which can be an array
+                        if (Array.isArray(value)) {
+                            responseHeaders[key] = value.join(", ");
+                        } else if (typeof value === "string") {
+                            responseHeaders[key] = value;
+                        }
                     }
                 }
 
