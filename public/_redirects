@@ -2,6 +2,11 @@
 /wp-json/*  /.netlify/functions/wordpress-proxy/wp-json/:splat  200
 /wp-admin/* /.netlify/functions/wordpress-proxy/wp-admin/:splat 200
 
+# WooCommerce checkout and cart - proxy to WordPress
+/kassa      /.netlify/functions/wordpress-proxy/kassa           200
+/kassa/*    /.netlify/functions/wordpress-proxy/kassa/:splat    200
+/wc-ajax/*  /.netlify/functions/wordpress-proxy/wc-ajax/:splat  200
+
 # URL redirects for Swedish characters
 /sasong /säsong 301
 /kundtjanst /kundservice 301
