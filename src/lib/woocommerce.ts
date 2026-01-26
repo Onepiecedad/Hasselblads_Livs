@@ -83,14 +83,14 @@ export async function addItemsAndRedirectToCheckout(
         return;
     }
 
-    // Fallback: Om Store API inte fungerar, använd URL-metoden
-    console.warn('[WooCommerce] Store API fungerade inte, använder URL-fallback...');
+    // Fallback: Om Store API inte fungerar, använd URL-metoden via /varukorg/
+    console.warn('[WooCommerce] Store API fungerade inte, använder URL-fallback via /varukorg/...');
     if (clearLocalCart) clearLocalCart();
 
-    // Använd den första produkten för add-to-cart och redirecta till kassa
-    // WooCommerce process: Startsidan lägger till produkt, sedan navigerar användaren till kassa
+    // Redirect till /varukorg/ med add-to-cart params
+    // Eftersom /varukorg/ proxas till WordPress kommer add-to-cart att fungera
     const firstItem = validItems[0];
-    window.location.href = `${WC_URL}/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
+    window.location.href = `${WC_URL}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
 }
 
 /**
