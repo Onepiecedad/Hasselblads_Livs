@@ -44,6 +44,7 @@ const Webshop = () => {
     const returnFocusRef = useRef<HTMLElement | null>(null);
     const quickViewTriggerRefs = useRef<Record<string, HTMLElement | null>>({});
     const parallaxContainerRef = useRef<HTMLDivElement>(null);
+    const productsGridRef = useRef<HTMLDivElement>(null);
     const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
     // Direct DOM parallax for better performance
@@ -170,12 +171,21 @@ const Webshop = () => {
         setSearchParams(params, { replace: false });
     };
 
+    // Scroll to products when a filter is selected
+    const scrollToProducts = () => {
+        setTimeout(() => {
+            productsGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    };
+
     const handleCategoryChange = (value: string | null) => {
         updateFilters({ category: value });
+        if (value) scrollToProducts();
     };
 
     const handleTagChange = (value: string | null) => {
         updateFilters({ tag: value ?? DEFAULT_FILTERS.tag });
+        if (value) scrollToProducts();
     };
 
     const handleSortChange = (value: string) => {
@@ -471,7 +481,7 @@ const Webshop = () => {
                         )}
                     </div>
 
-                    <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
+                    <div ref={productsGridRef} className="scroll-mt-4 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
                         {filteredProducts.map((product) => (
                             <ProductCard
                                 key={product.id}
