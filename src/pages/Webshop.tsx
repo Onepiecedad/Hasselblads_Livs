@@ -442,7 +442,7 @@ const Webshop = () => {
                         <div className="max-w-xl">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary tracking-tight">Webbutik</h1>
                             <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-                                Handla färska varor online med hemleverans i Mölndal eller upphämtning i butiken på Frejagatan.
+                                Handla dina varor i vår webbutik och få de levererade eller hämta själv.
                             </p>
                         </div>
                     </div>
