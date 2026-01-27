@@ -19,14 +19,14 @@ import { toast } from "sonner";
 const STORAGE_KEY = "webshop-filters";
 
 type FiltersState = {
-    categories: string[]; // Changed to array for multi-select
+    category: string | null; // Single-select category
     tag: string;
     sort: string;
     search: string;
 };
 
 const DEFAULT_FILTERS: FiltersState = {
-    categories: [],
+    category: null,
     tag: "",
     sort: "name-asc",
     search: "",
@@ -75,7 +75,7 @@ const Webshop = () => {
         if (initialized) return;
 
         // Check if URL has any filter params - these take priority
-        const urlKategori = searchParams.get("kategori");
+        const urlKategori = searchParams.get("kategori"); // Now single value
         let urlTag = searchParams.get("tag");
         const urlSort = searchParams.get("sort");
         const urlSok = searchParams.get("sok");
@@ -107,16 +107,16 @@ const Webshop = () => {
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
-                    // Handle migration from old format
-                    const categories = parsed.categories || (parsed.category && parsed.category !== "alla" ? [parsed.category] : []);
+                    // Handle migration from old multi-select format
+                    const category = parsed.category || (parsed.categories && parsed.categories.length > 0 ? parsed.categories[0] : null);
                     const parsedState: FiltersState = {
-                        categories,
+                        category: category && category !== "alla" ? category : null,
                         tag: parsed.tag || "",
                         sort: parsed.sort || DEFAULT_FILTERS.sort,
                         search: parsed.search || "",
                     };
                     const params = new URLSearchParams();
-                    if (parsedState.categories.length > 0) params.set("kategori", parsedState.categories.join(","));
+                    if (parsedState.category) params.set("kategori", parsedState.category);
                     if (parsedState.tag) params.set("tag", parsedState.tag);
                     if (parsedState.sort && parsedState.sort !== DEFAULT_FILTERS.sort) params.set("sort", parsedState.sort);
                     if (parsedState.search) params.set("sok", parsedState.search);
@@ -133,9 +133,9 @@ const Webshop = () => {
 
     useEffect(() => {
         if (!initialized) return;
-        const kategorier = searchParams.get("kategori");
+        const kategori = searchParams.get("kategori");
         const current: FiltersState = {
-            categories: kategorier ? kategorier.split(",").filter(Boolean) : [],
+            category: kategori || null,
             tag: searchParams.get("tag") ?? DEFAULT_FILTERS.tag,
             sort: searchParams.get("sort") ?? DEFAULT_FILTERS.sort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -144,10 +144,9 @@ const Webshop = () => {
         setSearchTerm(current.search);
     }, [searchParams, initialized]);
 
-    // Parse active categories from URL (comma-separated)
-    const activeCategories: string[] = useMemo(() => {
-        const param = searchParams.get("kategori");
-        return param ? param.split(",").filter(Boolean) : [];
+    // Get active category from URL
+    const activeCategory: string | null = useMemo(() => {
+        return searchParams.get("kategori") || null;
     }, [searchParams]);
 
     const activeTag = searchParams.get("tag") ?? DEFAULT_FILTERS.tag;
@@ -155,7 +154,7 @@ const Webshop = () => {
 
     const updateFilters = (updates: Partial<FiltersState>) => {
         const current: FiltersState = {
-            categories: activeCategories,
+            category: activeCategory,
             tag: activeTag,
             sort: activeSort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -163,7 +162,7 @@ const Webshop = () => {
         const next: FiltersState = { ...current, ...updates };
         const params = new URLSearchParams();
 
-        if (next.categories.length > 0) params.set("kategori", next.categories.join(","));
+        if (next.category) params.set("kategori", next.category);
         if (next.tag) params.set("tag", next.tag);
         if (next.sort && next.sort !== DEFAULT_FILTERS.sort) params.set("sort", next.sort);
         if (next.search) params.set("sok", next.search);
@@ -171,8 +170,8 @@ const Webshop = () => {
         setSearchParams(params, { replace: false });
     };
 
-    const handleCategoriesChange = (values: string[]) => {
-        updateFilters({ categories: values });
+    const handleCategoryChange = (value: string | null) => {
+        updateFilters({ category: value });
     };
 
     const handleTagChange = (value: string | null) => {
@@ -190,14 +189,14 @@ const Webshop = () => {
 
     const filteredProducts = useMemo(() => {
         const term = (searchParams.get("sok") ?? "").toLowerCase();
-        const categories = activeCategories;
+        const category = activeCategory;
         const focusCardId = activeTag as FeatureCardId | "";
 
         let result = [...products];
 
-        // Multi-select category filtering
-        if (categories.length > 0) {
-            result = result.filter((product) => categories.includes(product.category));
+        // Single-select category filtering
+        if (category) {
+            result = result.filter((product) => product.category === category);
         }
 
         // Focus card filtering - use PIM products first, fallback to tags
@@ -241,12 +240,11 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategories, activeTag, activeSort, getCardProducts]);
+    }, [products, searchParams, activeCategory, activeTag, activeSort, getCardProducts]);
 
-    // Group products by subcategory when exactly ONE category is selected
     const groupedProducts = useMemo(() => {
         // Only group when exactly one category is selected and there are many products
-        const shouldGroup = activeCategories.length === 1 && filteredProducts.length > 20;
+        const shouldGroup = activeCategory && filteredProducts.length > 20;
 
         if (!shouldGroup) {
             return null; // Return null to indicate "don't group, show flat list"
@@ -283,7 +281,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [filteredProducts, activeCategories]);
+    }, [filteredProducts, activeCategory]);
 
     const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
         addItem({
@@ -444,8 +442,8 @@ const Webshop = () => {
                             onChange={(value) => handleTagChange(value)}
                         />
                         <CategoryFilterCards
-                            activeValues={activeCategories}
-                            onChange={handleCategoriesChange}
+                            activeValue={activeCategory}
+                            onChange={handleCategoryChange}
                         />
                     </div>
 
@@ -462,11 +460,11 @@ const Webshop = () => {
 
                     <div className="flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
                         <span className="font-medium">{filteredProducts.length} produkter</span>
-                        {(activeCategories.length > 0 || activeTag || searchTerm) && (
+                        {(activeCategory || activeTag || searchTerm) && (
                             <button
                                 type="button"
                                 className="text-primary/80 hover:text-primary transition-colors font-medium"
-                                onClick={() => updateFilters({ categories: [], tag: "", search: "" })}
+                                onClick={() => updateFilters({ category: null, tag: "", search: "" })}
                             >
                                 Nollställ filter
                             </button>

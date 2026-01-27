@@ -3,29 +3,26 @@ import { categoryCards } from "@/lib/categoryCards";
 import { Leaf } from "lucide-react";
 
 interface CategoryFilterCardsProps {
-    activeValues: string[]; // Changed to array for multi-select
-    onChange: (values: string[]) => void;
+    activeValue: string | null; // Single-select: one category at a time
+    onChange: (value: string | null) => void;
     className?: string;
 }
 
-const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilterCardsProps) => {
+const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilterCardsProps) => {
     const handleSelect = (filterValue: string) => {
         if (filterValue === "alla") {
-            // "Alla" clears all selections
-            onChange([]);
+            // "Alla" clears the selection
+            onChange(null);
+        } else if (activeValue === filterValue) {
+            // Clicking same category again clears it
+            onChange(null);
         } else {
-            // Toggle the category
-            if (activeValues.includes(filterValue)) {
-                // Remove it
-                onChange(activeValues.filter(v => v !== filterValue));
-            } else {
-                // Add it
-                onChange([...activeValues, filterValue]);
-            }
+            // Select new category
+            onChange(filterValue);
         }
     };
 
-    const isAllaActive = activeValues.length === 0;
+    const isAllaActive = !activeValue;
 
     return (
         <div className={cn("w-full", className)}>
@@ -37,13 +34,13 @@ const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilt
                 role="listbox"
                 aria-label="Filtrera på avdelning"
                 aria-orientation="horizontal"
-                aria-multiselectable="true"
+                aria-multiselectable="false"
             >
                 {/* "Alla" button - solid green background */}
                 <button
                     type="button"
                     role="option"
-                    aria-selected={isAllaActive}
+                    aria-selected={isAllaActive ? "true" : "false"}
                     onClick={() => handleSelect("alla")}
                     className={cn(
                         "flex-shrink-0 flex flex-col items-center justify-center gap-1.5 scroll-snap-start",
@@ -66,15 +63,15 @@ const CategoryFilterCards = ({ activeValues, onChange, className }: CategoryFilt
                     </span>
                 </button>
 
-                {/* Category cards - multi-select enabled */}
+                {/* Category cards - single-select */}
                 {categoryCards.map((card) => {
-                    const isActive = activeValues.includes(card.filterValue || "");
+                    const isActive = activeValue === card.filterValue;
                     return (
                         <button
                             key={card.filterValue}
                             type="button"
                             role="option"
-                            aria-selected={isActive}
+                            aria-selected={isActive ? "true" : "false"}
                             onClick={() => handleSelect(card.filterValue || "")}
                             className={cn(
                                 "flex-shrink-0 relative overflow-hidden rounded-2xl scroll-snap-start",

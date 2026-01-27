@@ -136,7 +136,7 @@ const SearchAutocomplete = ({
                         <li
                             key={product.id}
                             role="option"
-                            aria-selected={index === highlightedIndex ? true : undefined}
+                            aria-selected={index === highlightedIndex ? "true" : "false"}
                             className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${index === highlightedIndex
                                 ? "bg-primary/10"
                                 : "hover:bg-muted/50"

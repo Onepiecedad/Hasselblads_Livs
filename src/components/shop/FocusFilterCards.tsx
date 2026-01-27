@@ -31,7 +31,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                             key={card.filterValue}
                             type="button"
                             role="option"
-                            aria-selected={isActive}
+                            aria-selected={isActive ? "true" : "false"}
                             onClick={() => handleSelect(card.filterValue)}
                             className={cn(
                                 "group relative overflow-hidden",
