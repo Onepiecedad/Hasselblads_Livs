@@ -179,12 +179,14 @@ const Webshop = () => {
     };
 
     const handleCategoryChange = (value: string | null) => {
-        updateFilters({ category: value });
+        // Clear focus/tag filter when selecting a category
+        updateFilters({ category: value, tag: value ? "" : DEFAULT_FILTERS.tag });
         if (value) scrollToProducts();
     };
 
     const handleTagChange = (value: string | null) => {
-        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag });
+        // Clear category filter when selecting a focus card
+        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag, category: value ? null : activeCategory });
         if (value) scrollToProducts();
     };
 
