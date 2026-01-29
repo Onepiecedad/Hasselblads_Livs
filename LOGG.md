@@ -4,6 +4,77 @@
 
 ---
 
+## 📅 2026-01-29
+
+### 🚀 Prestandaoptimering — Bilder & Code Splitting
+
+Omfattande optimering för att förbättra laddningstider och responsivitet.
+
+### ✅ Genomfört
+
+#### 1. Bildoptimering — WebP-konvertering
+
+- **Hero slideshow:** Konverterade 17 bilder från JPG till WebP (kvalitet 80)
+- **Resultat:** 15 MB → 5.5 MB (**63% minskning**)
+- **Största vinsten:** `gemini-hero.jpg` (3.8 MB → ~500 KB)
+- Konverterade även `category-kott.png` till WebP för konsistens
+
+#### 2. Lazy Slideshow Rendering
+
+- **Före:** Alla 11 bilder renderades i DOM samtidigt med `loading="eager"`
+- **Efter:** Endast 3 bilder (aktuell + föregående + nästa) renderas
+- **Resultat:** 73% färre DOM-nodes, snabbare initial load
+
+```tsx
+// Endast ladda bilder som är synliga eller snart synliga
+if (!isActive && !isPrevious && !isNext) return null;
+```
+
+#### 3. Code Splitting med React.lazy()
+
+- **Före:** 820 KB monolitisk JavaScript-bundle
+- **Efter:** Uppdelad i separata chunks som laddas on-demand
+
+| Bundle | Storlek |
+|--------|---------|
+| `index.js` (core) | 384 KB |
+| `Home.js` | 18 KB |
+| `Webshop.js` | 60 KB |
+| `About.js` | 4 KB |
+| `Checkout.js` | 5 KB |
+
+**Main bundle reduktion: 53%**
+
+#### 4. Komponent-memoization
+
+- Lade till `React.memo` på `ProductCard` för att undvika onödiga re-renders vid filter/scroll
+
+### 📊 Resultat
+
+| Mått | Före | Efter | Förbättring |
+|------|------|-------|-------------|
+| Hero-bilder | 15 MB | 5.5 MB | 63% mindre |
+| Main JS bundle | 820 KB | 384 KB | 53% mindre |
+| DOM-bilder (slideshow) | 11 st | 3 st | 73% färre |
+
+### 🔧 Tekniska ändringar
+
+| Fil | Ändring |
+|-----|---------|
+| `src/pages/Home.tsx` | WebP-bilder, lazy slideshow rendering |
+| `src/App.tsx` | React.lazy() för alla routes, Suspense boundary |
+| `src/components/shop/ProductCard.tsx` | React.memo wrapper |
+| `src/lib/categoryCards.ts` | WebP import for category-kott |
+| `public/hero-slideshow/*.webp` | 17 nya WebP-bilder |
+
+### 💡 Nästa steg (valfritt)
+
+1. Optimera `categoryCards`-bundlen (335 KB) — flytta bilder till public
+2. React.memo på fler komponenter (FilterCards)
+3. Virtualisering för produktlistan vid 100+ produkter
+
+---
+
 ## 📅 2026-01-25
 
 ### 🔧 WooCommerce MCP Integration & WordPress API Proxy
