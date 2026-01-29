@@ -6,7 +6,7 @@ import cardOstChark from "@/assets/category-cards/alt1-final/category-ost-chark.
 import cardBrod from "@/assets/category-cards/alt1-final/category-brod.webp";
 import cardNotter from "@/assets/category-cards/alt1-final/category-notter.webp";
 import cardSnacksDryck from "@/assets/category-cards/alt1-final/category-snacks-dryck.webp";
-import cardKott from "@/assets/category-cards/alt1-final/category-kott.png";
+import cardKott from "@/assets/category-cards/alt1-final/category-kott.webp";
 
 export type CategoryCardData = {
   name: string;

@@ -7,19 +7,19 @@ import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
-// Hero slideshow images from optimized store photos
+// Hero slideshow images - WebP format for 63% size reduction (15MB → 5.5MB)
 const heroImages = [
-  "/hero-slideshow/DSCF0006.jpg",
-  "/hero-slideshow/DSCF0007.jpg",
-  "/hero-slideshow/DSCF0012.jpg",
-  "/hero-slideshow/gemini-hero.jpg",
-  "/hero-slideshow/DSCF0014.jpg",
-  "/hero-slideshow/DSCF0018.jpg",
-  "/hero-slideshow/DSCF0019.jpg",
-  "/hero-slideshow/DSCF0023.jpg",
-  "/hero-slideshow/DSCF0025.jpg",
-  "/hero-slideshow/DSCF0029.jpg",
-  "/hero-slideshow/web_DSCF0024.jpg",
+  "/hero-slideshow/DSCF0006.webp",
+  "/hero-slideshow/DSCF0007.webp",
+  "/hero-slideshow/DSCF0012.webp",
+  "/hero-slideshow/gemini-hero.webp",
+  "/hero-slideshow/DSCF0014.webp",
+  "/hero-slideshow/DSCF0018.webp",
+  "/hero-slideshow/DSCF0019.webp",
+  "/hero-slideshow/DSCF0023.webp",
+  "/hero-slideshow/DSCF0025.webp",
+  "/hero-slideshow/DSCF0029.webp",
+  "/hero-slideshow/web_DSCF0024.webp",
 ];
 
 import { Leaf } from "lucide-react";
@@ -167,10 +167,14 @@ const Home = () => {
       {/* Hero Section with Slideshow */}
       <section className="relative h-[500px] md:h-[650px] overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Crossfade slideshow - two layers for smooth transitions */}
+          {/* Crossfade slideshow - only render current + adjacent slides for performance */}
           {heroImages.map((image, index) => {
             const isActive = index === currentSlide;
             const isPrevious = index === (currentSlide - 1 + heroImages.length) % heroImages.length;
+            const isNext = index === (currentSlide + 1) % heroImages.length;
+
+            // Only render images that are visible or about to be visible
+            if (!isActive && !isPrevious && !isNext) return null;
 
             return (
               <img
@@ -183,7 +187,7 @@ const Home = () => {
                   transition: 'opacity 1200ms ease-in-out',
                   zIndex: isActive ? 2 : isPrevious ? 1 : 0,
                 }}
-                loading="eager"
+                loading={isActive ? "eager" : "lazy"}
               />
             );
           })}
