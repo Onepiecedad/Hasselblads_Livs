@@ -158,9 +158,20 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             </div>
 
             <div className="mt-4 flex items-end justify-between gap-1">
-              <div>
-                <p className="text-lg font-bold text-primary sm:text-xl">{product.price} kr</p>
-                <p className="text-[10px] text-muted-foreground/60 sm:text-xs">{product.unit}</p>
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-primary sm:text-xl">
+                  {product.price} kr/{product.priceUnit || 'st'}
+                  {product.priceUnit === 'st' && product.approximateWeight && (
+                    <span className="text-sm font-normal text-amber-600 ml-1">
+                      ≈ {product.approximateWeight}
+                    </span>
+                  )}
+                </p>
+                {product.origin?.country && product.origin.country !== 'Okänt' && (
+                  <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                    {product.origin.flag} {product.origin.country}
+                  </p>
+                )}
               </div>
 
               {/* Quantity selector or Add button */}
@@ -296,7 +307,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           {/* Pris och kundvagnknapp på baksidan */}
           <div className="p-2 pt-0 border-t border-border/30 bg-card/50">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-primary">{product.price} kr</p>
+              <p className="text-sm font-bold text-primary">
+                {product.price} kr/{product.priceUnit || 'st'}
+              </p>
               <Button
                 size="sm"
                 className="h-7 px-3 text-xs rounded-full bg-primary hover:bg-primary/90"

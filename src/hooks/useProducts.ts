@@ -189,10 +189,18 @@ function parseUnit(kgSt?: string): string {
     return '/st';
 }
 
+// Parsa pristyp (kg/st) för ICA-inspirerad visning
+function parsePriceUnit(kgSt?: string): 'kg' | 'st' {
+    if (!kgSt) return 'st';
+    const normalized = kgSt.toLowerCase().trim();
+    return normalized === 'kg' || normalized.includes('kilo') ? 'kg' : 'st';
+}
+
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
     const country = pim.origin_country || pim.csvData?.['Etiketter land'] || '';
     const mainCategory = pim.main_category || pim.csvData?.['Huvudkategori'];
+    const kgSt = pim.csvData?.['Kg/st'];
 
     return {
         id: pim.id,
@@ -202,7 +210,9 @@ function transformProduct(pim: PIMProduct): Product {
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price: pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0'),
-        unit: parseUnit(pim.csvData?.['Kg/st']),
+        unit: parseUnit(kgSt),
+        priceUnit: parsePriceUnit(kgSt),
+        approximateWeight: pim.csvData?.['Vikt'] || undefined,
         origin: {
             country: country || 'Okänt',
             flag: FLAG_MAP[country] || '🌍'

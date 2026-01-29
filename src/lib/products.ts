@@ -24,6 +24,8 @@ export type Product = {
   tags: ProductTag[];
   price: number;
   unit: string;
+  priceUnit?: 'kg' | 'st';       // Raw unit type for display
+  approximateWeight?: string;    // e.g., "ca 150g" for piece items
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
