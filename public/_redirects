@@ -1,21 +1,29 @@
 # WordPress/WooCommerce API proxy to serverless function
-/wp-json/*     /.netlify/functions/wordpress-proxy/wp-json/:splat     200
-/wp-admin/*    /.netlify/functions/wordpress-proxy/wp-admin/:splat    200
-/wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200
-/wp-includes/* /.netlify/functions/wordpress-proxy/wp-includes/:splat 200
+/wp-json/*     /.netlify/functions/wordpress-proxy/wp-json/:splat     200!
+/wp-admin/*    /.netlify/functions/wordpress-proxy/wp-admin/:splat    200!
+/wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200!
+/wp-includes/* /.netlify/functions/wordpress-proxy/wp-includes/:splat 200!
 
 # WooCommerce checkout and cart - proxy to WordPress
 # WordPress uses /kassan and /varukorg for checkout/cart
-/kassa       /.netlify/functions/wordpress-proxy/kassa            200
-/kassa/      /.netlify/functions/wordpress-proxy/kassa/           200
-/kassa/*     /.netlify/functions/wordpress-proxy/kassa/:splat     200
-/kassan      /.netlify/functions/wordpress-proxy/kassan           200
-/kassan/     /.netlify/functions/wordpress-proxy/kassan/          200
-/kassan/*    /.netlify/functions/wordpress-proxy/kassan/:splat    200
-/varukorg    /.netlify/functions/wordpress-proxy/varukorg         200
-/varukorg/   /.netlify/functions/wordpress-proxy/varukorg/        200
-/varukorg/*  /.netlify/functions/wordpress-proxy/varukorg/:splat  200
-/wc-ajax/*   /.netlify/functions/wordpress-proxy/wc-ajax/:splat   200
+/kassa       /.netlify/functions/wordpress-proxy/kassa            200!
+/kassa/      /.netlify/functions/wordpress-proxy/kassa/           200!
+/kassa/*     /.netlify/functions/wordpress-proxy/kassa/:splat     200!
+/kassan      /.netlify/functions/wordpress-proxy/kassan           200!
+/kassan/     /.netlify/functions/wordpress-proxy/kassan/          200!
+/kassan/*    /.netlify/functions/wordpress-proxy/kassan/:splat    200!
+/varukorg    /.netlify/functions/wordpress-proxy/varukorg         200!
+/varukorg/   /.netlify/functions/wordpress-proxy/varukorg/        200!
+/varukorg/*  /.netlify/functions/wordpress-proxy/varukorg/:splat  200!
+/wc-ajax/*   /.netlify/functions/wordpress-proxy/wc-ajax/:splat   200!
+
+# WooCommerce customer account page - proxy to WordPress
+/mitt-konto      /.netlify/functions/wordpress-proxy/mitt-konto         200!
+/mitt-konto/     /.netlify/functions/wordpress-proxy/mitt-konto/        200!
+/mitt-konto/*    /.netlify/functions/wordpress-proxy/mitt-konto/:splat  200!
+/my-account      /.netlify/functions/wordpress-proxy/my-account         200!
+/my-account/     /.netlify/functions/wordpress-proxy/my-account/        200!
+/my-account/*    /.netlify/functions/wordpress-proxy/my-account/:splat  200!
 
 # URL redirects for Swedish characters
 /sasong /säsong 301

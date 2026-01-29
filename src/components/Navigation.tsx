@@ -57,9 +57,13 @@ const Navigation = () => {
             {/* Right Icons */}
             <div className="flex items-center space-x-2 md:space-x-4">
 
-              <Button variant="ghost" size="icon" className="hidden sm:flex rounded-full text-white/80 hover:text-white hover:bg-white/10">
+              <a
+                href="https://hasselbladslivs.se/mitt-konto/"
+                className="hidden sm:flex items-center justify-center h-10 w-10 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Mitt konto"
+              >
                 <User className="h-5 w-5" />
-              </Button>
+              </a>
               <Button
                 variant="ghost"
                 size="icon"
