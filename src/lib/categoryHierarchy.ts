@@ -26,7 +26,6 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Mejeri & Ägg",
         value: "mejeri-agg",
         subcategories: [
-            "Ost",
             "Mjölk & Grädde",
             "Yoghurt",
             "Smör & Margarin",
