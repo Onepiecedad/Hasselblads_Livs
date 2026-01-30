@@ -6,40 +6,39 @@
 
 ## 📅 2026-01-30 (kväll)
 
-### ✅ FIX: Underkategori-chips synkade med Firebase-data
+### 🔄 Komplett kategorisynk med PIM Firebase-data
 
-**Problem:** Underkategori-chipsen visade "0 produkter" för t.ex. "Mejeri" eftersom produkternas faktiska `subcategory`-värden inte matchade chip-namnen i `categoryHierarchy.ts`.
+PIM-agenten körde `splitCompoundCategories()` och fixade **500 produkter**. Alla underkategorier i `categoryHierarchy.ts` är nu synkade med faktiska Firebase-värden.
 
-**Lösning:**
+#### Slutgiltig kategoristruktur
 
-- **Mejeri & Ägg:** Ändrade från `["Ägg", "Mejeri"]` → `["Ost", "Mjölk & Grädde", "Yoghurt", "Smör & Margarin", "Ägg"]`
-- **Frukt & Grönt:** Tog bort "Bär" och "Färska Kryddor" (existerade inte i produktdata)
-- **Skafferi:** Korrigerade stavning för att matcha produktdata exakt
-
-**Verifierat live:**
-
-- ✅ Ost-chippet visar nu 22 produkter (tidigare 0)
-- ✅ Alla underkategorier för Mejeri & Ägg synliga och fungerande
-- ✅ Breadcrumbs och URL-parametrar uppdateras korrekt
-
-**Commit:** `1a95d03` — fix(webshop): sync subcategory chips with actual Firebase data
-
----
-
-### ✅ Nya Firebase-kategorier synkade
-
-PIM-agenten fixade 378 produkter med korrekt `main_category` och `sub_category`. Uppdaterade `categoryHierarchy.ts` för att matcha:
-
-| Ny kategori | Underkategorier |
-|-------------|-----------------|
-| **Snacks & Dryck** | Dryck, Snacks |
-| **Sött & Gott** | Godis, Sött och gott |
+| Kategori | Underkategorier |
+|----------|-----------------|
+| **Bröd & Bageri** | Bröd, Kex & Kakor |
+| **Frukt & Grönt** | Färskvaror, Frukt, Grönsaker |
+| **Mejeri & Ägg** | Mejeri, Ägg |
 | **Nötter & Torkad Frukt** | Nötter, Torkad Frukt |
-| **Ost & Chark** | Ost, Chark ✅ (redan korrekt) |
+| **Ost & Chark** | Chark, Ost |
+| **Skafferi** | Bakning, Café, Kolonial, Konserver, Kryddor, Multiköp, Olja & Vinäger, Pasta & Ris, Såser, Sylt & Marmelad, Övrigt |
+| **Snacks & Dryck** | Dryck, Snacks |
+| **Sött & Gott** | Choklad, Godis, Sött och gott |
 
-**Borttagna kategorier:** `dryck`, `naturgodis-notter`, `snacks` (ersatta av ovan)
+#### Ändringar
 
-**Commit:** `43fae16` — feat(webshop): add new Firebase categories
+1. **Frukt & Grönt:** Lade till "Färskvaror"
+2. **Mejeri & Ägg:** Förenklad till "Mejeri, Ägg" (ost flyttad till Ost & Chark)
+3. **Skafferi:** Lade till "Sylt & Marmelad" (27 produkter)
+4. **Sött & Gott:** Lade till "Choklad"
+5. **Bröd & Bageri:** Ny kategori `brod` ersatte `brod-kex`
+6. **Borttagna:** `dryck`, `naturgodis-notter`, `snacks`, `konfektyr`, `kakor-skorpor`
+
+#### Commits
+
+- `1a95d03` — fix(webshop): sync subcategory chips with actual Firebase data
+- `43fae16` — feat(webshop): add new Firebase categories
+- `dd40980` — fix(webshop): move Ost from Mejeri & Ägg to Ost & Chark
+- `c7f737d` — fix(webshop): sync Skafferi subcategories with Firebase data
+- `5b2bdd8` — fix(webshop): complete category sync with PIM Firebase data
 
 ---
 
