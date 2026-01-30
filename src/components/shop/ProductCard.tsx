@@ -96,7 +96,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           }}
           aria-label={`Visa ${product.name}`}
         >
-          <div className="relative aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-4 flex items-center justify-center">
+          <div className="relative aspect-square sm:aspect-[4/3] overflow-hidden bg-white/50 rounded-t-2xl p-2 sm:p-4 flex items-center justify-center">
             <img
               src={product.image}
               alt={product.name}
@@ -149,11 +149,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             )}
           </div>
 
-          <CardContent className="flex flex-1 flex-col p-3 sm:p-5">
+          <CardContent className="flex flex-1 flex-col p-2 sm:p-5">
             <div className="flex-1 space-y-1.5">
               <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">{product.name}</h3>
               {product.description && (
-                <p className="text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
+                <p className="hidden sm:block text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
               )}
             </div>
 

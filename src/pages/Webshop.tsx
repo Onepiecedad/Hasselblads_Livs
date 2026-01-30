@@ -461,9 +461,9 @@ const Webshop = () => {
                 ))}
             </div>
 
-            <div className="relative z-10 py-16 md:py-20">
+            <div className="relative z-10 py-8 md:py-20">
                 <div className="container mx-auto px-4">
-                    <div className="mb-12">
+                    <div className="mb-6 md:mb-12">
                         <div className="max-w-xl">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary tracking-tight">Webbutik</h1>
                             <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
@@ -473,7 +473,7 @@ const Webshop = () => {
                     </div>
 
                     {/* Visual Filter Cards - Focus first, then Categories */}
-                    <div className="space-y-6 mb-10">
+                    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-10">
                         <FocusFilterCards
                             activeValue={activeTag || null}
                             onChange={(value) => handleTagChange(value)}

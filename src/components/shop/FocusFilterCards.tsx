@@ -35,8 +35,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                             onClick={() => handleSelect(card.filterValue)}
                             className={cn(
                                 "group relative overflow-hidden",
-                                // Same aspect ratio as homepage (2:1)
-                                "aspect-[2/1]",
+                                "aspect-[2.5/1] sm:aspect-[2/1]",
                                 "transition-all duration-300 ease-out",
                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                 isActive
