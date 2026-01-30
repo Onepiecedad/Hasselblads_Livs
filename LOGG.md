@@ -4,7 +4,90 @@
 
 ---
 
-## 📅 2026-01-29
+## 📅 2026-01-30
+
+### 🎯 Webshop Navigation — Underkategori-chips & Filtrering
+
+ICA-inspirerad navigationsförbättring med elegant kategori- och underkategori-filtrering.
+
+### ✅ Genomfört
+
+#### 1. Underkategori-chips (SubcategoryChips.tsx)
+
+- **Visas automatiskt** när en kategori väljs (t.ex. "Frukt & Grönt")
+- **Innehåll:** "Alla" + alla underkategorier (Frukt, Grönsaker, Bär, Färska Kryddor)
+- **Interaktion:** Klicka för att filtrera, aktiv chip highlightas i primärfärg
+- **Reset:** "Alla"-chip återställer till hela kategorin
+
+#### 2. Breadcrumbs (Breadcrumbs.tsx)
+
+- Visar navigationsstig: **Hem > Webbutik > Kategori > Underkategori**
+- Uppdateras automatiskt vid filter-ändringar
+
+#### 3. Filter-badges (ActiveFilterBadges.tsx)
+
+- Visar aktiva filter som klickbara taggar
+- **X-knapp** för att ta bort enskilda filter
+- **"Rensa alla"** för att nollställa allt
+
+#### 4. Kategori-hierarki (categoryHierarchy.ts)
+
+- **13 huvudkategorier** med underkategorier definierade
+- Stödjer expansiv filtrering på två nivåer
+
+### 🔧 Tekniska ändringar
+
+| Fil | Ändring |
+|-----|---------|
+| `src/components/shop/SubcategoryChips.tsx` | **NY** — Underkategori-chips |
+| `src/components/shop/Breadcrumbs.tsx` | **NY** — Breadcrumb-navigation |
+| `src/components/shop/ActiveFilterBadges.tsx` | **NY** — Filter-badges med clear |
+| `src/lib/categoryHierarchy.ts` | **NY** — 13 kategorier + underkategorier |
+| `src/pages/Webshop.tsx` | Integrerat alla nya komponenter |
+
+### 📊 URL-parametrar
+
+Filtret stöder nu URL-parametrar för delning/bokmärken:
+
+```
+/webbutik?kategori=frukt-gront&underkategori=Frukt
+/webbutik?tag=godast&sok=apelsin
+```
+
+---
+
+### 📋 HANDOVER TILL PIM-AGENTEN
+
+#### Vad som behövs i produktdata
+
+För att underkategori-filtreringen ska fungera behöver produkter ha:
+
+1. **`category`** (obligatoriskt) — Slug-format, t.ex. `"frukt-gront"`, `"mejeri-agg"`
+2. **`subcategory`** (valfritt) — Exakt matchning mot hierarkin, t.ex. `"Frukt"`, `"Grönsaker"`
+
+#### Kategori-värden som stöds
+
+| category (slug) | subcategories |
+|-----------------|---------------|
+| `frukt-gront` | Frukt, Grönsaker, Bär, Färska Kryddor |
+| `mejeri-agg` | Ägg, Mejeri |
+| `skafferi` | Oliver, Kryddor & Smaksättare, Flingor, Socker & Honung, Oljor, Kaffe & Te, Sylt & Marmelad, Bakning, Pasta/ris/nudlar, Böner/linser/fröer, Konserver, Inläggningar, Ketchup/Senap/Dressing |
+| `ost-chark` | Ost, Chark |
+| `konfektyr` | Choklad, Lakrits, Övrig konfekt |
+| `kakor-skorpor` | Kakor, Söta skorpor & matskorpor |
+| `brod-kex` | Hårt bröd, Kex, Övrigt bröd |
+| `dryck` | Öl, Vatten, Kolsyrade söta drickor, Saft, Råsaft, Kombucha, Tonic, Övrig dryck |
+| `naturgodis-notter` | Torkad frukt sötad, Torkad frukt osötad, Naturgodis |
+| `snacks` | Chips, Nötter, Övrig snacks |
+| `farskvaror` | Inläggningar färska, Oliver, Cannoli & Bakverk |
+| `hogtidsvaror` | Jul, Påsk, Midsommar |
+| `ovrigt` | (inga underkategorier) |
+
+#### Referensfil
+
+Komplett hierarki finns i: `src/lib/categoryHierarchy.ts`
+
+---
 
 ### 🚀 Prestandaoptimering — Bilder & Code Splitting
 
