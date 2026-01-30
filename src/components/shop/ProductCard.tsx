@@ -160,7 +160,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             <div className="mt-4 flex items-end justify-between gap-1">
               <div className="min-w-0">
                 <p className="text-lg font-bold text-primary sm:text-xl">
-                  {product.price} kr/{product.priceUnit || 'st'}
+                  {product.price.toFixed(2)} kr/{product.priceUnit || 'st'}
                   {product.priceUnit === 'st' && product.approximateWeight && (
                     <span className="text-sm font-normal text-amber-600 ml-1">
                       ≈ {product.approximateWeight}
@@ -308,7 +308,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           <div className="p-2 pt-0 border-t border-border/30 bg-card/50">
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-primary">
-                {product.price} kr/{product.priceUnit || 'st'}
+                {product.price.toFixed(2)} kr/{product.priceUnit || 'st'}
               </p>
               <Button
                 size="sm"
