@@ -193,8 +193,8 @@ const Webshop = () => {
     };
 
     const handleCategoryChange = (value: string | null) => {
-        // Clear focus/tag filter when selecting a category
-        updateFilters({ category: value, tag: value ? "" : DEFAULT_FILTERS.tag });
+        // Clear subcategory and focus/tag filter when selecting a new category
+        updateFilters({ category: value, subcategory: null, tag: value ? "" : DEFAULT_FILTERS.tag });
         if (value) scrollToProducts();
     };
 
