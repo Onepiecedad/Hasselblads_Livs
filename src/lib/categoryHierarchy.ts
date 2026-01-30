@@ -36,19 +36,16 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Skafferi",
         value: "skafferi",
         subcategories: [
-            "Oliver",
-            "Kryddor & Smaksättare",
-            "Flingor",
-            "Socker & Honung",
-            "Oljor",
-            "Kaffe & Te",
-            "Sylt & Marmelad",
             "Bakning",
-            "Pasta ris & nudlar",
-            "Bönor linser och fröer",
+            "Café",
+            "Kolonial",
             "Konserver",
-            "Inläggningar",
-            "Ketchup Senap & Dressing"
+            "Kryddor",
+            "Multiköp",
+            "Olja & Vinäger",
+            "Pasta & Ris",
+            "Såser",
+            "Övrigt"
         ]
     },
     "ost-chark": {
