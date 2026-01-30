@@ -26,6 +26,23 @@
 
 ---
 
+### ✅ Nya Firebase-kategorier synkade
+
+PIM-agenten fixade 378 produkter med korrekt `main_category` och `sub_category`. Uppdaterade `categoryHierarchy.ts` för att matcha:
+
+| Ny kategori | Underkategorier |
+|-------------|-----------------|
+| **Snacks & Dryck** | Dryck, Snacks |
+| **Sött & Gott** | Godis, Sött och gott |
+| **Nötter & Torkad Frukt** | Nötter, Torkad Frukt |
+| **Ost & Chark** | Ost, Chark ✅ (redan korrekt) |
+
+**Borttagna kategorier:** `dryck`, `naturgodis-notter`, `snacks` (ersatta av ovan)
+
+**Commit:** `43fae16` — feat(webshop): add new Firebase categories
+
+---
+
 ## 📅 2026-01-30
 
 ### 🎯 Webshop Navigation — Underkategori-chips & Filtrering
