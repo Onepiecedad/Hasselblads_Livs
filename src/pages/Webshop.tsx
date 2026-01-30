@@ -3,6 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { Leaf } from "lucide-react";
 import FocusFilterCards from "@/components/shop/FocusFilterCards";
 import CategoryFilterCards from "@/components/shop/CategoryFilterCards";
+import SubcategoryChips from "@/components/shop/SubcategoryChips";
+import Breadcrumbs from "@/components/shop/Breadcrumbs";
+import ActiveFilterBadges from "@/components/shop/ActiveFilterBadges";
 import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductCardSkeleton from "@/components/shop/ProductCardSkeleton";
@@ -20,6 +23,7 @@ const STORAGE_KEY = "webshop-filters";
 
 type FiltersState = {
     category: string | null; // Single-select category
+    subcategory: string | null; // Subcategory within category
     tag: string;
     sort: string;
     search: string;
@@ -27,6 +31,7 @@ type FiltersState = {
 
 const DEFAULT_FILTERS: FiltersState = {
     category: null,
+    subcategory: null,
     tag: "",
     sort: "name-asc",
     search: "",
@@ -112,6 +117,7 @@ const Webshop = () => {
                     const category = parsed.category || (parsed.categories && parsed.categories.length > 0 ? parsed.categories[0] : null);
                     const parsedState: FiltersState = {
                         category: category && category !== "alla" ? category : null,
+                        subcategory: parsed.subcategory || null,
                         tag: parsed.tag || "",
                         sort: parsed.sort || DEFAULT_FILTERS.sort,
                         search: parsed.search || "",
@@ -137,6 +143,7 @@ const Webshop = () => {
         const kategori = searchParams.get("kategori");
         const current: FiltersState = {
             category: kategori || null,
+            subcategory: searchParams.get("underkategori") || null,
             tag: searchParams.get("tag") ?? DEFAULT_FILTERS.tag,
             sort: searchParams.get("sort") ?? DEFAULT_FILTERS.sort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -150,12 +157,18 @@ const Webshop = () => {
         return searchParams.get("kategori") || null;
     }, [searchParams]);
 
+    // Get active subcategory from URL
+    const activeSubcategory: string | null = useMemo(() => {
+        return searchParams.get("underkategori") || null;
+    }, [searchParams]);
+
     const activeTag = searchParams.get("tag") ?? DEFAULT_FILTERS.tag;
     const activeSort = searchParams.get("sort") ?? DEFAULT_FILTERS.sort;
 
     const updateFilters = (updates: Partial<FiltersState>) => {
         const current: FiltersState = {
             category: activeCategory,
+            subcategory: activeSubcategory,
             tag: activeTag,
             sort: activeSort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -164,6 +177,7 @@ const Webshop = () => {
         const params = new URLSearchParams();
 
         if (next.category) params.set("kategori", next.category);
+        if (next.subcategory) params.set("underkategori", next.subcategory);
         if (next.tag) params.set("tag", next.tag);
         if (next.sort && next.sort !== DEFAULT_FILTERS.sort) params.set("sort", next.sort);
         if (next.search) params.set("sok", next.search);
@@ -186,7 +200,12 @@ const Webshop = () => {
 
     const handleTagChange = (value: string | null) => {
         // Clear category filter when selecting a focus card
-        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag, category: value ? null : activeCategory });
+        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag, category: value ? null : activeCategory, subcategory: null });
+        if (value) scrollToProducts();
+    };
+
+    const handleSubcategoryChange = (value: string | null) => {
+        updateFilters({ subcategory: value });
         if (value) scrollToProducts();
     };
 
@@ -209,6 +228,12 @@ const Webshop = () => {
         // Single-select category filtering
         if (category) {
             result = result.filter((product) => product.category === category);
+        }
+
+        // Subcategory filtering (if a subcategory is selected)
+        const subcategory = activeSubcategory;
+        if (subcategory) {
+            result = result.filter((product) => product.subcategory === subcategory);
         }
 
         // Focus card filtering - use PIM products first, fallback to tags
@@ -252,7 +277,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategory, activeTag, activeSort, getCardProducts]);
+    }, [products, searchParams, activeCategory, activeSubcategory, activeTag, activeSort, getCardProducts]);
 
     const groupedProducts = useMemo(() => {
         // Only group when exactly one category is selected and there are many products
@@ -459,7 +484,44 @@ const Webshop = () => {
                         />
                     </div>
 
-                    {/* Search and Sort - under the filter cards, with products */}
+                    {/* Subcategory Chips - shows when a category is selected */}
+                    <SubcategoryChips
+                        category={activeCategory}
+                        activeSubcategory={activeSubcategory}
+                        onSubcategoryChange={handleSubcategoryChange}
+                        className="mb-6"
+                    />
+
+                    {/* Breadcrumbs - shows current navigation path */}
+                    <Breadcrumbs
+                        category={activeCategory}
+                        subcategory={activeSubcategory}
+                        searchTerm={searchTerm}
+                        focusTag={activeTag || null}
+                        className="mb-4"
+                    />
+
+                    {/* Active Filter Badges - clickable to remove filters */}
+                    <ActiveFilterBadges
+                        category={activeCategory}
+                        subcategory={activeSubcategory}
+                        focusTag={activeTag || null}
+                        searchTerm={searchTerm}
+                        onClearCategory={() => updateFilters({ category: null, subcategory: null })}
+                        onClearSubcategory={() => updateFilters({ subcategory: null })}
+                        onClearFocusTag={() => updateFilters({ tag: "" })}
+                        onClearSearch={() => {
+                            setSearchTerm("");
+                            updateFilters({ search: "" });
+                        }}
+                        onClearAll={() => {
+                            setSearchTerm("");
+                            updateFilters({ category: null, subcategory: null, tag: "", search: "" });
+                        }}
+                        className="mb-4"
+                    />
+
+                    {/* Search and Sort */}
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
                         <SearchAutocomplete
                             products={products}
@@ -476,7 +538,10 @@ const Webshop = () => {
                             <button
                                 type="button"
                                 className="text-primary/80 hover:text-primary transition-colors font-medium"
-                                onClick={() => updateFilters({ category: null, tag: "", search: "" })}
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    updateFilters({ category: null, subcategory: null, tag: "", search: "" });
+                                }}
                             >
                                 Nollställ filter
                             </button>
@@ -520,3 +585,4 @@ const Webshop = () => {
 };
 
 export default Webshop;
+

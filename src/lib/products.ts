@@ -1,4 +1,23 @@
-export type ProductCategory = "frukt-gront" | "mejeri-agg" | "ost-chark" | "brod" | "skafferi" | "sott-gott" | "notter-torkad-frukt" | "snacks-dryck" | "kott";
+export type ProductCategory =
+  | "frukt-gront"
+  | "mejeri-agg"
+  | "ost-chark"
+  | "brod"
+  | "brod-kex"
+  | "skafferi"
+  | "sott-gott"
+  | "konfektyr"
+  | "kakor-skorpor"
+  | "notter-torkad-frukt"
+  | "naturgodis-notter"
+  | "snacks-dryck"
+  | "snacks"
+  | "dryck"
+  | "kott"
+  | "farskvaror"
+  | "hogtidsvaror"
+  | "ovrigt";
+
 
 export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade";
 
