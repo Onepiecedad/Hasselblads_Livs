@@ -4,6 +4,28 @@
 
 ---
 
+## 📅 2026-01-30 (kväll)
+
+### ✅ FIX: Underkategori-chips synkade med Firebase-data
+
+**Problem:** Underkategori-chipsen visade "0 produkter" för t.ex. "Mejeri" eftersom produkternas faktiska `subcategory`-värden inte matchade chip-namnen i `categoryHierarchy.ts`.
+
+**Lösning:**
+
+- **Mejeri & Ägg:** Ändrade från `["Ägg", "Mejeri"]` → `["Ost", "Mjölk & Grädde", "Yoghurt", "Smör & Margarin", "Ägg"]`
+- **Frukt & Grönt:** Tog bort "Bär" och "Färska Kryddor" (existerade inte i produktdata)
+- **Skafferi:** Korrigerade stavning för att matcha produktdata exakt
+
+**Verifierat live:**
+
+- ✅ Ost-chippet visar nu 22 produkter (tidigare 0)
+- ✅ Alla underkategorier för Mejeri & Ägg synliga och fungerande
+- ✅ Breadcrumbs och URL-parametrar uppdateras korrekt
+
+**Commit:** `1a95d03` — fix(webshop): sync subcategory chips with actual Firebase data
+
+---
+
 ## 📅 2026-01-30
 
 ### 🎯 Webshop Navigation — Underkategori-chips & Filtrering
