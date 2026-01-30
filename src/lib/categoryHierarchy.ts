@@ -86,36 +86,28 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             "Övrigt bröd"
         ]
     },
-    "dryck": {
-        label: "Dryck",
-        value: "dryck",
+    "snacks-dryck": {
+        label: "Snacks & Dryck",
+        value: "snacks-dryck",
         subcategories: [
-            "Öl",
-            "Vatten",
-            "Kolsyrade söta drickor",
-            "Saft",
-            "Råsaft",
-            "Kombucha",
-            "Tonic",
-            "Övrig dryck"
+            "Dryck",
+            "Snacks"
         ]
     },
-    "naturgodis-notter": {
-        label: "Naturgodis & Nötter",
-        value: "naturgodis-notter",
+    "notter-torkad-frukt": {
+        label: "Nötter & Torkad Frukt",
+        value: "notter-torkad-frukt",
         subcategories: [
-            "Torkad frukt sötad",
-            "Torkad frukt osötad",
-            "Naturgodis"
-        ]
-    },
-    "snacks": {
-        label: "Snacks",
-        value: "snacks",
-        subcategories: [
-            "Chips",
             "Nötter",
-            "Övrig snacks"
+            "Torkad Frukt"
+        ]
+    },
+    "sott-gott": {
+        label: "Sött & Gott",
+        value: "sott-gott",
+        subcategories: [
+            "Godis",
+            "Sött och gott"
         ]
     },
     "farskvaror": {
