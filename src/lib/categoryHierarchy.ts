@@ -18,6 +18,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Frukt & Grönt",
         value: "frukt-gront",
         subcategories: [
+            "Färskvaror",
             "Frukt",
             "Grönsaker"
         ]
@@ -26,9 +27,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Mejeri & Ägg",
         value: "mejeri-agg",
         subcategories: [
-            "Mjölk & Grädde",
-            "Yoghurt",
-            "Smör & Margarin",
+            "Mejeri",
             "Ägg"
         ]
     },
@@ -45,6 +44,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             "Olja & Vinäger",
             "Pasta & Ris",
             "Såser",
+            "Sylt & Marmelad",
             "Övrigt"
         ]
     },
@@ -73,13 +73,11 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             "Söta skorpor & matskorpor"
         ]
     },
-    "brod-kex": {
-        label: "Bröd & Kex",
-        value: "brod-kex",
+    "brod": {
+        label: "Bröd & Bageri",
+        value: "brod",
         subcategories: [
-            "Hårt bröd",
-            "Kex",
-            "Övrigt bröd"
+            "Bröd, Kex & Kakor"
         ]
     },
     "snacks-dryck": {
@@ -102,6 +100,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Sött & Gott",
         value: "sott-gott",
         subcategories: [
+            "Choklad",
             "Godis",
             "Sött och gott"
         ]
