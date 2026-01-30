@@ -19,17 +19,18 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         value: "frukt-gront",
         subcategories: [
             "Frukt",
-            "Grönsaker",
-            "Bär",
-            "Färska Kryddor"
+            "Grönsaker"
         ]
     },
     "mejeri-agg": {
         label: "Mejeri & Ägg",
         value: "mejeri-agg",
         subcategories: [
-            "Ägg",
-            "Mejeri"
+            "Ost",
+            "Mjölk & Grädde",
+            "Yoghurt",
+            "Smör & Margarin",
+            "Ägg"
         ]
     },
     "skafferi": {
@@ -44,11 +45,11 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             "Kaffe & Te",
             "Sylt & Marmelad",
             "Bakning",
-            "Pasta, ris & nudlar",
-            "Böner, linser och fröer",
+            "Pasta ris & nudlar",
+            "Bönor linser och fröer",
             "Konserver",
             "Inläggningar",
-            "Ketchup, Senap & Dressing"
+            "Ketchup Senap & Dressing"
         ]
     },
     "ost-chark": {
