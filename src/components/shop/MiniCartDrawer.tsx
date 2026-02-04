@@ -7,13 +7,25 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
 import { addItemsAndRedirectToCheckout } from "@/lib/woocommerce";
-import { Truck, ShoppingBag, X, ExternalLink } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
+import { Truck, ShoppingBag, X, ExternalLink, Trash2 } from "lucide-react";
 
 const FREE_SHIPPING_THRESHOLD = 600;
 
@@ -44,6 +56,35 @@ const MiniCartDrawer = () => {
               {hasItems ? "Justera antal eller gå direkt till kassan." : "Varukorgen är tom – dags att lägga till något gott."}
             </DrawerDescription>
 
+            {/* Clear cart button */}
+            {hasItems && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="absolute right-14 top-4 p-2 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                    aria-label="Töm varukorg"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Töm varukorgen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Alla produkter kommer tas bort. Detta går inte att ångra.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Avbryt</AlertDialogCancel>
+                    <AlertDialogAction onClick={clearCart}>
+                      Töm varukorg
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+
             {/* Close button for mobile */}
             <button
               type="button"
@@ -71,7 +112,7 @@ const MiniCartDrawer = () => {
                       Fri frakt vid {FREE_SHIPPING_THRESHOLD} kr
                     </span>
                     <span className="font-medium text-primary">
-                      {amountToFreeShipping} kr kvar
+                      {formatPrice(amountToFreeShipping)} kr kvar
                     </span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
@@ -80,20 +121,22 @@ const MiniCartDrawer = () => {
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
             {hasItems ? (
-              <ul className="space-y-4">
+              <ul className="divide-y divide-border/40">
                 {items.map((item) => (
-                  <li key={item.id} className="flex gap-4">
-                    <div className="h-20 w-20 overflow-hidden rounded-xl border border-border/60 bg-muted">
+                  <li key={item.id} className="grid grid-cols-[64px_1fr] sm:grid-cols-[80px_1fr_auto_auto] gap-3 sm:gap-4 py-4 first:pt-0 last:pb-0">
+                    {/* Product image */}
+                    <div className="h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-xl border border-border/60 bg-muted flex-shrink-0">
                       <img src={item.image} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
                     </div>
-                    <div className="flex flex-1 flex-col justify-between">
-                      <div>
-                        <h3 className="font-semibold leading-tight">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground">{item.unit}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
+
+                    {/* Product info */}
+                    <div className="flex flex-col justify-center min-w-0">
+                      <h3 className="text-base md:text-lg font-semibold leading-snug line-clamp-2">{item.name}</h3>
+                      <p className="text-sm md:text-base text-muted-foreground mt-0.5">{item.unit}</p>
+                      {/* Mobile: quantity and price inline */}
+                      <div className="flex items-center justify-between mt-2 sm:hidden">
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
@@ -104,7 +147,7 @@ const MiniCartDrawer = () => {
                           >
                             −
                           </Button>
-                          <span className="min-w-[2rem] text-center text-sm font-semibold">{item.quantity}</span>
+                          <span className="min-w-[2.5rem] text-center text-base font-semibold">{item.quantity}</span>
                           <Button
                             variant="outline"
                             size="icon"
@@ -116,7 +159,7 @@ const MiniCartDrawer = () => {
                           </Button>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-semibold">{item.price * item.quantity} kr</p>
+                          <p className="text-base font-bold tabular-nums">{formatPrice(item.price * item.quantity)} kr</p>
                           <button
                             type="button"
                             onClick={() => removeItem(item.id)}
@@ -126,6 +169,41 @@ const MiniCartDrawer = () => {
                           </button>
                         </div>
                       </div>
+                    </div>
+
+                    {/* Desktop: Quantity controls */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 rounded-full"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        aria-label={`Minska ${item.name}`}
+                      >
+                        −
+                      </Button>
+                      <span className="min-w-[2.5rem] text-center text-base font-semibold">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-9 w-9 rounded-full"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        aria-label={`Öka ${item.name}`}
+                      >
+                        +
+                      </Button>
+                    </div>
+
+                    {/* Desktop: Price and remove */}
+                    <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px]">
+                      <p className="text-base md:text-lg font-bold tabular-nums whitespace-nowrap">{formatPrice(item.price * item.quantity)} kr</p>
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="text-xs text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-primary mt-1"
+                      >
+                        Ta bort
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -150,18 +228,18 @@ const MiniCartDrawer = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Delsumma</span>
-                  <span>{subtotal} kr</span>
+                  <span>{formatPrice(subtotal)} kr</span>
                 </div>
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Frakt</span>
                   <span className={hasFreeShipping ? "text-green-600 font-medium" : ""}>
-                    {shippingFee === 0 ? "Gratis" : `${shippingFee} kr`}
+                    {shippingFee === 0 ? "Gratis" : `${formatPrice(shippingFee)} kr`}
                   </span>
                 </div>
                 <Separator />
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span>Att betala</span>
-                  <span>{total} kr</span>
+                  <span>{formatPrice(total)} kr</span>
                 </div>
                 <div>
                   <label htmlFor="discount" className="text-sm text-muted-foreground">
@@ -185,7 +263,7 @@ const MiniCartDrawer = () => {
                     addItemsAndRedirectToCheckout(items, clearCart);
                   }}
                 >
-                  Till kassan · {total} kr
+                  Till kassan · {formatPrice(total)} kr
                   <ExternalLink className="h-4 w-4" />
                 </Button>
 

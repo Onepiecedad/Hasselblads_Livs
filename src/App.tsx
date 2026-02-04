@@ -20,6 +20,7 @@ import BreadcrumbSchema from "./components/seo/BreadcrumbSchema";
 import LegacyRedirects from "./components/seo/LegacyRedirects";
 import RootLayout from "./layouts/RootLayout";
 import ScrollToTop from "./components/ScrollToTop";
+import { useScrollRestoration } from "./hooks/useScrollRestoration";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,12 @@ const PageLoader = () => (
   </div>
 );
 
+// Auto-scroll to top on route changes
+function ScrollRestoration() {
+  useScrollRestoration();
+  return null;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -37,6 +44,7 @@ const App = () => (
       <Sonner />
       <CartProvider>
         <BrowserRouter>
+          <ScrollRestoration />
           <LegacyRedirects />
           <BreadcrumbSchema />
           <Suspense fallback={<PageLoader />}>
@@ -65,3 +73,4 @@ const App = () => (
 );
 
 export default App;
+

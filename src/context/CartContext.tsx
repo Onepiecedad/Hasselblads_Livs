@@ -121,7 +121,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [state.items]);
 
   const subtotal = useMemo(() => state.items.reduce((total, item) => total + item.price * item.quantity, 0), [state.items]);
-  const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 39;
+  const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 49;
   const total = subtotal + shippingFee;
 
 

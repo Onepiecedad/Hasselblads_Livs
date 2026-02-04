@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 export type QuickViewProduct = {
   id: string;
@@ -103,7 +104,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
                     {/* Price */}
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-primary">{product.price}</span>
+                      <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
                       <span className="text-xl text-muted-foreground">kr</span>
                     </div>
 
@@ -191,7 +192,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {product.price * quantity} kr
+                  {formatPrice(product.price * quantity)} kr
                 </Button>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Product } from "@/lib/products";
+import { formatPrice } from "@/lib/utils";
 
 interface SearchAutocompleteProps {
     products: Product[];
@@ -152,7 +153,7 @@ const SearchAutocomplete = ({
                             <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm truncate">{product.name}</p>
                                 <p className="text-xs text-muted-foreground truncate">
-                                    {product.origin?.flag} {product.category} · {product.price} kr
+                                    {product.origin?.flag} {product.category} · {formatPrice(product.price)} kr
                                 </p>
                             </div>
                         </li>
