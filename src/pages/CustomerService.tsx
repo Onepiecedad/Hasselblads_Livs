@@ -1,11 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
 
+type FormStatus = "idle" | "submitting" | "success" | "error";
+
 const CustomerService = () => {
+  const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
   const structuredData = useMemo(
@@ -30,9 +33,28 @@ const CustomerService = () => {
     [origin],
   );
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // Form handling here
+    setFormStatus("submitting");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    formData.append("form-name", "contact");
+
+    try {
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData as unknown as Record<string, string>).toString(),
+      });
+
+      if (!response.ok) throw new Error("Submission failed");
+
+      setFormStatus("success");
+      form.reset();
+    } catch {
+      setFormStatus("error");
+    }
   };
 
   usePageMetadata({
@@ -136,16 +158,41 @@ const CustomerService = () => {
               <div className="lg:pl-8">
                 <div className="rounded-3xl bg-card border border-border/60 p-8 shadow-sm">
                   <h3 className="text-xl font-bold mb-6">Skicka ett meddelande</h3>
+                  {formStatus === "success" ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                      </div>
+                      <h4 className="text-xl font-semibold">Tack för ditt meddelande!</h4>
+                      <p className="text-muted-foreground">
+                        Vi återkommer inom 24 timmar.
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => setFormStatus("idle")}
+                        className="mt-4"
+                      >
+                        Skicka ett till meddelande
+                      </Button>
+                    </div>
+                  ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
+                    <p className="hidden">
+                      <label>
+                        Fyll inte i detta fält: <input name="bot-field" />
+                      </label>
+                    </p>
                     <div>
                       <label className="block text-sm font-medium mb-2" htmlFor="contact-name">
                         Namn
                       </label>
                       <Input
                         id="contact-name"
+                        name="name"
                         type="text"
                         placeholder="Ditt namn"
                         required
+                        disabled={formStatus === "submitting"}
                         className="h-12"
                       />
                     </div>
@@ -155,9 +202,11 @@ const CustomerService = () => {
                       </label>
                       <Input
                         id="contact-email"
+                        name="email"
                         type="email"
                         placeholder="din@email.se"
                         required
+                        disabled={formStatus === "submitting"}
                         className="h-12"
                       />
                     </div>
@@ -167,8 +216,10 @@ const CustomerService = () => {
                       </label>
                       <Input
                         id="contact-phone"
+                        name="phone"
                         type="tel"
                         placeholder="070-123 45 67"
+                        disabled={formStatus === "submitting"}
                         className="h-12"
                       />
                     </div>
@@ -178,16 +229,39 @@ const CustomerService = () => {
                       </label>
                       <Textarea
                         id="contact-message"
+                        name="message"
                         placeholder="Hur kan vi hjälpa dig?"
                         rows={4}
                         required
+                        disabled={formStatus === "submitting"}
                         className="resize-none"
                       />
                     </div>
-                    <Button type="submit" size="lg" className="w-full h-12 text-base">
-                      Skicka meddelande
+
+                    {formStatus === "error" && (
+                      <div className="flex items-center gap-2 text-red-600 bg-red-50 rounded-lg p-3 text-sm">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        <p>Något gick fel. Försök igen eller ring oss på 031-87 63 50.</p>
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full h-12 text-base"
+                      disabled={formStatus === "submitting"}
+                    >
+                      {formStatus === "submitting" ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Skickar...
+                        </>
+                      ) : (
+                        "Skicka meddelande"
+                      )}
                     </Button>
                   </form>
+                  )}
                 </div>
               </div>
             </div>
