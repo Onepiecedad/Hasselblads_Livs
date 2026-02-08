@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
 import { addItemsAndRedirectToCheckout } from "@/lib/woocommerce";
@@ -240,12 +239,6 @@ const MiniCartDrawer = () => {
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span>Att betala</span>
                   <span>{formatPrice(total)} kr</span>
-                </div>
-                <div>
-                  <label htmlFor="discount" className="text-sm text-muted-foreground">
-                    Rabattkod
-                  </label>
-                  <Input id="discount" name="discount" placeholder="Ex. SOMMAR" className="mt-2" />
                 </div>
               </div>
             </div>
