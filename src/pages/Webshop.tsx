@@ -50,6 +50,7 @@ const Webshop = () => {
     const quickViewTriggerRefs = useRef<Record<string, HTMLElement | null>>({});
     const parallaxContainerRef = useRef<HTMLDivElement>(null);
     const productsGridRef = useRef<HTMLDivElement>(null);
+    const searchDebounceRef = useRef<ReturnType<typeof setTimeout>>();
     const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
 
     // Direct DOM parallax for better performance
@@ -215,7 +216,10 @@ const Webshop = () => {
 
     const handleSearchChange = (value: string) => {
         setSearchTerm(value);
-        updateFilters({ search: value.trim() });
+        clearTimeout(searchDebounceRef.current);
+        searchDebounceRef.current = setTimeout(() => {
+            updateFilters({ search: value.trim() });
+        }, 300);
     };
 
     const filteredProducts = useMemo(() => {

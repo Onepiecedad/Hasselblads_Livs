@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CircularGallery } from "@/components/ui/circular-gallery";
 import DeliverySection from "@/components/sections/DeliverySection";
 import FeaturedContent from "@/components/sections/FeaturedContent";
+import ErrorBoundary from "@/components/ui/error-boundary";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
@@ -258,9 +259,11 @@ const Home = () => {
       </section>
 
       {/* Aktuellt - Video Section */}
-      <section className="bg-transparent">
-        <FeaturedContent />
-      </section>
+      <ErrorBoundary>
+        <section className="bg-transparent">
+          <FeaturedContent />
+        </section>
+      </ErrorBoundary>
 
       {/* Kategorier - 3D Circular Gallery */}
       <section className="py-10 md:py-14 bg-transparent overflow-hidden">
