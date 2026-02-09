@@ -388,29 +388,6 @@ const Webshop = () => {
 
 
 
-    // Loading state - show skeleton loaders
-    if (isLoading) {
-        return (
-            <div className="min-h-screen relative grain-effect bg-[#fdfcf9]">
-                <div className="relative z-10 py-16 md:py-20">
-                    <div className="container mx-auto px-4">
-                        <div className="mb-12">
-                            <div className="max-w-xl">
-                                <div className="h-12 bg-muted/50 rounded-full w-64 animate-pulse" />
-                                <div className="mt-4 h-6 bg-muted/30 rounded-full w-96 animate-pulse" />
-                            </div>
-                        </div>
-                        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4">
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <ProductCardSkeleton key={i} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     // Error state
     if (error) {
         return (
@@ -533,7 +510,7 @@ const Webshop = () => {
                     </div>
 
                     <div className="flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
-                        <span className="font-medium">{filteredProducts.length} produkter</span>
+                        <span className="font-medium">{isLoading ? 'Laddar produkter…' : `${filteredProducts.length} produkter`}</span>
                         {(activeCategory || activeTag || searchTerm) && (
                             <button
                                 type="button"
@@ -549,20 +526,26 @@ const Webshop = () => {
                     </div>
 
                     <div ref={productsGridRef} className="scroll-mt-4 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
-                        {filteredProducts.map((product) => (
-                            <ProductCard
-                                key={product.id}
-                                product={product}
-                                onAddToCart={(item, qty) => handleAddToCart(item, qty)}
-                                onQuickView={(item) => handleQuickView(item)}
-                                setQuickViewButtonRef={(node) => {
-                                    quickViewTriggerRefs.current[product.id] = node;
-                                }}
-                            />
-                        ))}
+                        {isLoading ? (
+                            Array.from({ length: 8 }).map((_, i) => (
+                                <ProductCardSkeleton key={i} />
+                            ))
+                        ) : (
+                            filteredProducts.map((product) => (
+                                <ProductCard
+                                    key={product.id}
+                                    product={product}
+                                    onAddToCart={(item, qty) => handleAddToCart(item, qty)}
+                                    onQuickView={(item) => handleQuickView(item)}
+                                    setQuickViewButtonRef={(node) => {
+                                        quickViewTriggerRefs.current[product.id] = node;
+                                    }}
+                                />
+                            ))
+                        )}
                     </div>
 
-                    {filteredProducts.length === 0 && (
+                    {!isLoading && filteredProducts.length === 0 && (
                         <div className="py-24 text-center">
                             <p className="text-lg text-muted-foreground">Inga produkter matchar vald filtrering just nu.</p>
                         </div>

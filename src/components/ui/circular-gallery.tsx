@@ -30,6 +30,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
         const [touchStartX, setTouchStartX] = useState<number | null>(null);
         const [velocity, setVelocity] = useState(0);
         const [isDragging, setIsDragging] = useState(false);
+        const [isVisible, setIsVisible] = useState(false);
         const animationFrameRef = useRef<number | null>(null);
         const containerRef = useRef<HTMLDivElement>(null);
         const galleryRef = useRef<HTMLDivElement>(null);
@@ -46,11 +47,26 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
             return () => window.removeEventListener('resize', checkMobile);
         }, []);
 
+        // Track visibility with IntersectionObserver - pause animation when off-screen
+        useEffect(() => {
+            const el = galleryRef.current;
+            if (!el) return;
+            const observer = new IntersectionObserver(
+                ([entry]) => setIsVisible(entry.isIntersecting),
+                { threshold: 0.1 }
+            );
+            observer.observe(el);
+            return () => observer.disconnect();
+        }, []);
+
         // Use mobileRadius on small screens
         const effectiveRadius = isMobile && mobileRadius ? mobileRadius : radius;
 
         // Rotation effect - hover-based on desktop, momentum on mobile
+        // Only runs when gallery is visible in viewport
         useEffect(() => {
+            if (!isVisible) return;
+
             const animate = () => {
                 // Desktop: rotate on hover
                 if (!isMobile && isHovering && hoverDirection !== 0) {
@@ -73,7 +89,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                     cancelAnimationFrame(animationFrameRef.current);
                 }
             };
-        }, [isHovering, hoverDirection, autoRotateSpeed, isMobile, velocity, isDragging]);
+        }, [isVisible, isHovering, hoverDirection, autoRotateSpeed, isMobile, velocity, isDragging]);
 
         // Handle mouse position to determine rotation direction
         const handleMouseMove = (e: React.MouseEvent) => {

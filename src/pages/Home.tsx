@@ -85,34 +85,53 @@ const Home = () => {
     description:
       "Handla färska frukter, grönsaker och delikatesser från Hasselblads Livs i Mölndal. Hemleverans, säsongens favoriter och aktuella erbjudanden.",
     canonicalPath: "/",
-    ogImage: "/hero-slideshow/DSCF0003.jpg",
+    ogImage: "/hero-slideshow/DSCF0003.webp",
     structuredData,
   });
+
+  // Preload adjacent slides in the background (not in DOM)
+  useEffect(() => {
+    const next = (currentSlide + 1) % heroImages.length;
+    const prev = (currentSlide - 1 + heroImages.length) % heroImages.length;
+    [next, prev].forEach((i) => {
+      const img = new Image();
+      img.src = heroImages[i];
+    });
+  }, [currentSlide]);
+
+  const [readySlides, setReadySlides] = useState<Set<number>>(() => new Set([0]));
+
+  // Track which slides are loaded so crossfade works smoothly
+  useEffect(() => {
+    if (!readySlides.has(currentSlide)) {
+      setReadySlides((prev) => new Set(prev).add(currentSlide));
+    }
+  }, [currentSlide, readySlides]);
 
   const highlightCards = [
     {
       title: "Godast\njust nu",
       href: "/webbutik?tag=godast",
       image: "/Puffar_startsida_Stora_Rityta%201.jpg",
-      textPosition: "center-right" as const, // Decoration is on left
+      textPosition: "center-right" as const,
     },
     {
       title: "Säsongs-\npremiärer\n& nyheter",
       href: "/webbutik?tag=nyheter",
       image: "/Puffar_startsida_Stora-02.jpg",
-      textPosition: "center-left" as const, // Decoration is on right
+      textPosition: "center-left" as const,
     },
     {
       title: "Varor i\nsäsong",
       href: "/webbutik?tag=isasong",
       image: "/Puffar_startsida_Stora-03.jpg",
-      textPosition: "center-right" as const, // Decoration is on left
+      textPosition: "center-right" as const,
     },
     {
       title: "Erbjudanden",
       href: "/webbutik?tag=erbjudanden",
       image: "/Puffar_startsida_Stora-04.jpg",
-      textPosition: "center-left" as const, // Decoration is on right
+      textPosition: "center-left" as const,
     },
   ];
 
@@ -167,14 +186,13 @@ const Home = () => {
       {/* Hero Section with Slideshow */}
       <section className="relative h-[500px] md:h-[650px] overflow-hidden">
         <div className="absolute inset-0 z-0 overflow-hidden">
-          {/* Crossfade slideshow - only render current + adjacent slides for performance */}
+          {/* Crossfade slideshow - only render slides that have been visited */}
           {heroImages.map((image, index) => {
             const isActive = index === currentSlide;
             const isPrevious = index === (currentSlide - 1 + heroImages.length) % heroImages.length;
-            const isNext = index === (currentSlide + 1) % heroImages.length;
 
-            // Only render images that are visible or about to be visible
-            if (!isActive && !isPrevious && !isNext) return null;
+            // Only render slides we've seen (for crossfade) or are about to show
+            if (!readySlides.has(index) && !isActive) return null;
 
             return (
               <img
@@ -187,7 +205,7 @@ const Home = () => {
                   transition: 'opacity 1200ms ease-in-out',
                   zIndex: isActive ? 2 : isPrevious ? 1 : 0,
                 }}
-                loading={isActive ? "eager" : "lazy"}
+                loading={index === 0 ? "eager" : "lazy"}
               />
             );
           })}

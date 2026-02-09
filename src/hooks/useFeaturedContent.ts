@@ -107,24 +107,40 @@ const DEFAULT_SETTINGS: HomepageSettings = {
     updatedAt: new Date(),
 };
 
+// Module-level cache to persist settings across navigations (singleton pattern)
+let cachedSettings: HomepageSettings | null = null;
+let featuredUnsubscribeRef: (() => void) | null = null;
+
 /**
  * Hook to subscribe to homepage settings from Firebase in real-time.
- * Used on the public website to display dynamic content.
+ * Uses singleton subscription pattern to avoid duplicate Firestore listeners.
  */
 export function useFeaturedContent() {
-    const [settings, setSettings] = useState<HomepageSettings>(DEFAULT_SETTINGS);
-    const [isLoading, setIsLoading] = useState(true);
+    const [settings, setSettings] = useState<HomepageSettings>(cachedSettings || DEFAULT_SETTINGS);
+    const [isLoading, setIsLoading] = useState(!cachedSettings);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
+        // If we already have cached settings, use them immediately
+        if (cachedSettings) {
+            setSettings(cachedSettings);
+            setIsLoading(false);
+        }
+
+        // If we already have an active subscription, don't create another
+        if (featuredUnsubscribeRef) {
+            return;
+        }
+
         const docRef = doc(db, 'organizations/hasselblad_common/settings/homepage');
 
-        const unsubscribe = onSnapshot(
+        featuredUnsubscribeRef = onSnapshot(
             docRef,
             (snapshot) => {
+                let newSettings: HomepageSettings;
                 if (snapshot.exists()) {
                     const data = snapshot.data();
-                    setSettings({
+                    newSettings = {
                         featuredVideo: {
                             type: data.featuredVideo?.type || 'url',
                             url: data.featuredVideo?.url || DEFAULT_VIDEO.url,
@@ -140,11 +156,13 @@ export function useFeaturedContent() {
                             erbjudanden: data.featureCards?.erbjudanden || DEFAULT_FEATURE_CARDS.erbjudanden,
                         },
                         updatedAt: data.updatedAt?.toDate?.() || new Date(),
-                    });
+                    };
                 } else {
-                    // Document doesn't exist yet, use defaults
-                    setSettings(DEFAULT_SETTINGS);
+                    newSettings = DEFAULT_SETTINGS;
                 }
+                // Update cache
+                cachedSettings = newSettings;
+                setSettings(newSettings);
                 setIsLoading(false);
                 setError(null);
             },
@@ -152,11 +170,10 @@ export function useFeaturedContent() {
                 console.error('Error fetching homepage settings:', err);
                 setError(err);
                 setIsLoading(false);
-                // Keep using defaults on error
             }
         );
 
-        return () => unsubscribe();
+        // Don't unsubscribe - keep the subscription active for real-time updates
     }, []);
 
     // Computed: get active card based on video settings

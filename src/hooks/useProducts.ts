@@ -250,14 +250,17 @@ export function useProducts() {
         }
 
         const productsRef = collection(db, PRODUCTS_PATH);
-        const q = query(productsRef, where('status', '==', 'completed'));
+        const q = query(
+            productsRef,
+            where('status', '==', 'completed'),
+            where('is_published', '==', true)
+        );
 
         unsubscribeRef = onSnapshot(
             q,
             (snapshot) => {
                 const productList = snapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
-                    .filter(p => p.status === 'completed' && p.is_published === true)
                     .map(p => transformProduct(p));
 
                 // Update cache
