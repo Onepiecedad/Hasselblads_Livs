@@ -24,7 +24,18 @@ export default async (request: Request, context: Context): Promise<Response> => 
         "Host": WORDPRESS_HOST,
         "X-Forwarded-Host": WORDPRESS_HOST,
         "X-Forwarded-Proto": "https",
+        "X-Forwarded-For": request.headers.get("x-forwarded-for") || request.headers.get("x-nf-client-connection-ip") || "127.0.0.1",
     };
+
+    // Forward User-Agent (critical: Pressable blocks requests without it)
+    const userAgent = request.headers.get("user-agent");
+    headers["User-Agent"] = userAgent || "Mozilla/5.0 (compatible; HasselbladsProxy/1.0)";
+
+    // Forward Accept headers
+    const accept = request.headers.get("accept");
+    if (accept) headers["Accept"] = accept;
+    const acceptLang = request.headers.get("accept-language");
+    if (acceptLang) headers["Accept-Language"] = acceptLang;
 
     // Forward content-type
     const contentType = request.headers.get("content-type");
