@@ -46,9 +46,16 @@ const Delivery = () => {
           alt="Hasselblads Livs leverans"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" /> */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
 
-
+        {/* Hemleverans Badge */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <img
+            src="/Hemleverans.png"
+            alt="Hemleverans – Hasselblads Livs"
+            className="w-48 h-48 md:w-64 md:h-64 lg:w-72 lg:h-72 drop-shadow-2xl"
+          />
+        </div>
       </section>
 
       {/* Main Content */}

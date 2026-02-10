@@ -65,7 +65,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                                 <h3
                                     className={cn(
                                         "text-[#2F5852] font-semibold leading-tight tracking-tight",
-                                        "text-lg sm:text-2xl md:text-3xl lg:text-4xl",
+                                        "text-sm sm:text-2xl md:text-3xl lg:text-4xl",
                                         card.textPosition === "right" && "text-center",
                                         card.textPosition === "left" && "text-left",
                                         isActive && "underline underline-offset-4 decoration-2"
