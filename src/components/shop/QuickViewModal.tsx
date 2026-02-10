@@ -18,6 +18,8 @@ export type QuickViewProduct = {
   description: string;
   price: number;
   unit: string;
+  priceUnit?: 'kg' | 'st';
+  approximateWeight?: string;
   origin: { country: string; flag: string };
   image: string;
   tags: string[];
@@ -31,8 +33,49 @@ interface QuickViewModalProps {
   returnFocusRef?: RefObject<HTMLElement> | null;
 }
 
+// Parse "ca 150g" or "250g" → number in grams
+function parseWeight(w: string): number | null {
+  const match = w.match(/(\d+)\s*(g|kg)/i);
+  if (!match) return null;
+  const val = parseInt(match[1], 10);
+  return match[2].toLowerCase() === 'kg' ? val * 1000 : val;
+}
+
+function formatWeight(grams: number): string {
+  return grams >= 1000 ? `${(grams / 1000).toFixed(1).replace('.0', '')} kg` : `${grams} g`;
+}
+
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
+
+  // Browser back button support: push history state when opening
+  useEffect(() => {
+    if (!open) return;
+
+    const handlePopState = () => {
+      onOpenChange(false);
+    };
+
+    window.history.pushState({ quickView: true }, '');
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [open, onOpenChange]);
+
+  // When closing via X or overlay click, pop the history entry we pushed
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      if (window.history.state?.quickView) {
+        window.history.back();
+      }
+      if (returnFocusRef?.current) {
+        returnFocusRef.current.focus();
+      }
+    }
+    onOpenChange(nextOpen);
+  };
 
   useEffect(() => {
     if (open) {
@@ -55,16 +98,18 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     }
   };
 
+  // Calculate estimated weight/price for per-piece items
+  const isPieceItem = product?.priceUnit === 'st';
+  const weightPerUnit = product?.approximateWeight ? parseWeight(product.approximateWeight) : null;
+  const showEstimate = isPieceItem && weightPerUnit && quantity > 1;
+  const estimatedTotalWeight = weightPerUnit ? weightPerUnit * quantity : 0;
+  const estimatedTotalPrice = product ? product.price * quantity : 0;
+
+  // Unit display label
+  const unitLabel = product?.priceUnit === 'kg' ? 'per kg' : 'per st';
+
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        if (!nextOpen && returnFocusRef?.current) {
-          returnFocusRef.current.focus();
-        }
-        onOpenChange(nextOpen);
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-2xl gap-0 p-0 sm:max-h-[85vh] sm:rounded-3xl overflow-hidden flex flex-col">
         {product && (
           <>
@@ -98,15 +143,22 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                         {product.origin.country}
                       </Badge>
                       <Badge variant="outline" className="text-muted-foreground text-sm px-3 py-1">
-                        {product.unit}
+                        {unitLabel}
                       </Badge>
                     </div>
 
                     {/* Price */}
                     <div className="flex items-baseline gap-2">
                       <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
-                      <span className="text-xl text-muted-foreground">kr</span>
+                      <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
                     </div>
+
+                    {/* Approximate weight for per-piece items */}
+                    {isPieceItem && product.approximateWeight && (
+                      <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
+                        ≈ {product.approximateWeight} per styck
+                      </p>
+                    )}
 
                     {/* Quantity selector - hidden on mobile (shown in sticky footer) */}
                     <div className="hidden sm:flex items-center gap-3">
@@ -143,6 +195,23 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       </div>
                     </div>
 
+                    {/* Estimated total for per-piece items (quantity > 1) */}
+                    {showEstimate && (
+                      <div className="bg-muted/60 rounded-xl p-3 space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{quantity} st × {formatPrice(product.price)} kr</span>
+                          <span className="font-semibold">Cirka {formatPrice(estimatedTotalPrice)} kr</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Uppskattad vikt</span>
+                          <span className="font-semibold">Cirka {formatWeight(estimatedTotalWeight)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground/80 mt-1 italic">
+                          Vikten varierar per styck – slutpriset kan justeras vid leverans.
+                        </p>
+                      </div>
+                    )}
+
                     {/* Desktop add to cart button */}
                     <Button
                       className="hidden sm:flex w-full gap-2"
@@ -159,6 +228,13 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
             {/* STICKY Mobile footer - always visible at bottom */}
             <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border/60 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-50 safe-area-pb">
+              {/* Estimate line for mobile */}
+              {showEstimate && (
+                <div className="flex justify-between text-xs text-muted-foreground mb-2 px-1">
+                  <span>Cirka {formatWeight(estimatedTotalWeight)}</span>
+                  <span className="italic">Vikten varierar per styck</span>
+                </div>
+              )}
               <div className="flex items-center gap-3">
                 {/* Quantity controls */}
                 <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
@@ -192,7 +268,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {formatPrice(product.price * quantity)} kr
+                  {showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(product.price * quantity)} kr`}
                 </Button>
               </div>
             </div>
@@ -204,4 +280,3 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 };
 
 export default QuickViewModal;
-

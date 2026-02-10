@@ -4,9 +4,15 @@
  * Hanterar integration med WooCommerce för checkout.
  * Använder WooCommerce Store API för att lägga produkter i varukorgen
  * och sedan redirecta till /kassa.
+ * 
+ * Alla API-anrop går via Netlify proxy (netlify.toml → wordpress-proxy.ts)
+ * för att undvika CORS-problem.
  */
 
-const WC_URL = import.meta.env.VITE_WOOCOMMERCE_URL || 'https://hasselbladslivs.se';
+// Use relative URLs → routes through Netlify proxy (avoids CORS)
+// In production: /wp-json/* → netlify proxy → WordPress backend
+// Fallback to direct URL only if explicitly set
+const WC_URL = import.meta.env.VITE_WOOCOMMERCE_URL || '';
 
 interface CartItem {
     id: string;
@@ -58,9 +64,8 @@ export async function addItemsAndRedirectToCheckout(
     const validItems = items.filter(item => item.woocommerce_id);
 
     if (validItems.length === 0) {
-        console.warn('[WooCommerce] Inga produkter har woocommerce_id');
-        // Visa varning till användaren - checkout kommer vara tom
-        window.location.href = `${WC_URL}/kassa`;
+        console.warn('[WooCommerce] Inga produkter har woocommerce_id – visar checkout-sida');
+        // Let Checkout.tsx handle the missing_ids state with helpful UI
         return;
     }
 
@@ -79,7 +84,8 @@ export async function addItemsAndRedirectToCheckout(
     if (successCount > 0) {
         console.log(`[WooCommerce] ✅ ${successCount}/${validItems.length} produkter tillagda via API`);
         if (clearLocalCart) clearLocalCart();
-        window.location.href = `${WC_URL}/kassa`;
+        // Redirect to WooCommerce checkout via proxy
+        window.location.href = `${WC_URL || 'https://hasselbladslivs.se'}/kassa`;
         return;
     }
 
@@ -87,10 +93,10 @@ export async function addItemsAndRedirectToCheckout(
     console.warn('[WooCommerce] Store API fungerade inte, använder URL-fallback via /varukorg/...');
     if (clearLocalCart) clearLocalCart();
 
-    // Redirect till /varukorg/ med add-to-cart params
-    // Eftersom /varukorg/ proxas till WordPress kommer add-to-cart att fungera
+    // Fallback: redirect to WooCommerce directly with add-to-cart params
     const firstItem = validItems[0];
-    window.location.href = `${WC_URL}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
+    const fallbackUrl = WC_URL || 'https://hasselbladslivs.se';
+    window.location.href = `${fallbackUrl}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
 }
 
 /**

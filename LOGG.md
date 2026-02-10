@@ -4,6 +4,68 @@
 
 ---
 
+## 📅 2026-02-09
+
+### 🚀 Prestandaoptimering — Deploy till produktion
+
+Deployade 8 prestandaoptimeringar som löser det rapporterade 8-sekunders laddningsproblemet på webbutiken.
+
+**Commit:** `acb1035` — 25 filer ändrade, 224 tillägg, 63 borttag
+
+#### Kritisk fix — Webshop blockerande laddning
+
+- **Problem:** Hela sidan gömdes bakom `if (isLoading)` tills alla 1075 produkter laddats (~8 sek)
+- **Lösning:** Sidans skal (rubrik, filter, sök, sortering) renderas **direkt**. Skeleton-kort visas i produktrutnätet medan data laddas.
+
+#### Övriga optimeringar
+
+| # | Optimering | Påverkan |
+|---|-----------|----------|
+| 1 | Server-side `is_published` filter i Firestore | Mindre data över nätverket |
+| 2 | Singleton-subscription för `useFeaturedContent` | Inga dubbla lyssnare |
+| 3 | Firestore offline persistence (IndexedDB) | Återbesök nästintill omedelbara |
+| 4 | Hero slideshow: renderar bara aktiv slide | Färre DOM-noder |
+| 5 | Preload/preconnect hints i `index.html` | Snabbare LCP |
+| 6 | CircularGallery: IntersectionObserver pausar rAF | Sparar CPU off-screen |
+| 7 | Raderade 17 oanvända JPG-original | -15 MB deploy-storlek |
+
+#### Ändrade filer
+
+| Fil | Ändring |
+|-----|---------|
+| `src/pages/Webshop.tsx` | Progressiv rendering, skeleton-kort inline |
+| `src/hooks/useProducts.ts` | Server-side `is_published` filter |
+| `src/hooks/useFeaturedContent.ts` | Singleton-pattern |
+| `src/lib/firebase.ts` | Offline persistence |
+| `src/pages/Home.tsx` | Lazy slideshow, OG-bild → WebP |
+| `src/components/ui/circular-gallery.tsx` | IntersectionObserver |
+| `index.html` | Preload + preconnect |
+| `public/hero-slideshow/` | 17 JPG borttagna |
+
+---
+
+### ⏳ Kommande: Multiköp-produkter (väntar på Annette)
+
+**Uppgift:** Skapa multiköp-produkter som variabla produkter i WooCommerce.
+
+**Exempel:** "Italienska praliner 10 för 125:-" med ~15 sorter att välja bland.
+
+**Lösning — Variabel produkt med attribut "Mix":**
+
+| Variant | Beskrivning |
+|---------|-------------|
+| Blandad mix (vårt val) | Standardval |
+| Chokladmix | Urval av chokladsorter |
+| Fruktmix | Urval av fruktsorter |
+| Valfri mix | Kunden skriver önskemål i orderkommentar |
+
+**Prissättning:** Per paket (t.ex. 125:-), samma för alla varianter.
+**Produktbeskrivning:** Lista alla tillgängliga sorter så kunden vet vad som ingår.
+
+> **Status:** ⏳ Väntar på Annettes exakta lista med multiköp-produkter och sorter (måndag 10 feb).
+
+---
+
 ## 📅 2026-01-30 (kväll)
 
 ### 🔄 Komplett kategorisynk med PIM Firebase-data

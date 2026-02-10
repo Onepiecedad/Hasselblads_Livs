@@ -77,7 +77,8 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Bröd & Bageri",
         value: "brod",
         subcategories: [
-            "Bröd, Kex & Kakor"
+            "Bröd",
+            "Kex & Kakor"
         ]
     },
     "snacks-dryck": {
