@@ -1,12 +1,11 @@
-# WordPress/WooCommerce API proxy to serverless function
-/wp-login.php  /.netlify/functions/wordpress-proxy/wp-login.php       200!
-/wp-json/*     /.netlify/functions/wordpress-proxy/wp-json/:splat     200!
-/wp-admin/*    /.netlify/functions/wordpress-proxy/wp-admin/:splat    200!
+# WordPress admin – redirect directly to WordPress
+/wp-login.php  https://hasselbladslivs.se/wp-login.php  301!
+/wp-admin/*    https://hasselbladslivs.se/wp-admin/:splat  301!
+/wp-json/*     https://hasselbladslivs.se/wp-json/:splat  301!
+
+# WooCommerce checkout and cart - proxy to WordPress (kept for checkout flow)
 /wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200!
 /wp-includes/* /.netlify/functions/wordpress-proxy/wp-includes/:splat 200!
-
-# WooCommerce checkout and cart - proxy to WordPress
-# WordPress uses /kassan and /varukorg for checkout/cart
 /kassa       /.netlify/functions/wordpress-proxy/kassa            200!
 /kassa/      /.netlify/functions/wordpress-proxy/kassa/           200!
 /kassa/*     /.netlify/functions/wordpress-proxy/kassa/:splat     200!

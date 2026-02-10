@@ -7,30 +7,26 @@
   targetPort = 8080
   port = 8888
 
-# WordPress/WooCommerce proxy is handled by Serverless Function: netlify/functions/wordpress-proxy.ts
-# This proxies /wp-json/*, /wp-admin/* to the WordPress backend at Pressable (199.16.172.188)
-
-# Proxy WordPress login page to serverless function
+# WordPress admin – redirect directly to WordPress at Pressable
 [[redirects]]
   from = "/wp-login.php"
-  to = "/.netlify/functions/wordpress-proxy/wp-login.php"
-  status = 200
-  force = true
-
-# Proxy WordPress API to serverless function
-[[redirects]]
-  from = "/wp-json/*"
-  to = "/.netlify/functions/wordpress-proxy/wp-json/:splat"
-  status = 200
+  to = "https://hasselbladslivs.se/wp-login.php"
+  status = 301
   force = true
 
 [[redirects]]
   from = "/wp-admin/*"
-  to = "/.netlify/functions/wordpress-proxy/wp-admin/:splat"
-  status = 200
+  to = "https://hasselbladslivs.se/wp-admin/:splat"
+  status = 301
   force = true
 
-# WooCommerce checkout - proxy to WordPress
+[[redirects]]
+  from = "/wp-json/*"
+  to = "https://hasselbladslivs.se/wp-json/:splat"
+  status = 301
+  force = true
+
+# WooCommerce checkout - proxy to WordPress (kept for checkout flow)
 [[redirects]]
   from = "/kassa"
   to = "/.netlify/functions/wordpress-proxy/kassa"
