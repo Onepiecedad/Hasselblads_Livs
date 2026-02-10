@@ -1,4 +1,5 @@
 # WordPress/WooCommerce API proxy to serverless function
+/wp-login.php  /.netlify/functions/wordpress-proxy/wp-login.php       200!
 /wp-json/*     /.netlify/functions/wordpress-proxy/wp-json/:splat     200!
 /wp-admin/*    /.netlify/functions/wordpress-proxy/wp-admin/:splat    200!
 /wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200!

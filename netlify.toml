@@ -10,6 +10,13 @@
 # WordPress/WooCommerce proxy is handled by Serverless Function: netlify/functions/wordpress-proxy.ts
 # This proxies /wp-json/*, /wp-admin/* to the WordPress backend at Pressable (199.16.172.188)
 
+# Proxy WordPress login page to serverless function
+[[redirects]]
+  from = "/wp-login.php"
+  to = "/.netlify/functions/wordpress-proxy/wp-login.php"
+  status = 200
+  force = true
+
 # Proxy WordPress API to serverless function
 [[redirects]]
   from = "/wp-json/*"
