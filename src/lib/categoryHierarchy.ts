@@ -1,6 +1,6 @@
 /**
  * Category Hierarchy for Hasselblads Livs webshop
- * Based on ICA-inspired navigation patterns
+ * Synkad med PIM (Feb 2026) — 12 huvudkategorier
  * 
  * This defines the complete category tree with subcategories
  * for the expandable sidebar navigation.
@@ -18,17 +18,18 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Frukt & Grönt",
         value: "frukt-gront",
         subcategories: [
-            "Färskvaror",
             "Frukt",
-            "Grönsaker"
+            "Bär",
+            "Grönsaker",
+            "Färska Kryddor"
         ]
     },
-    "mejeri-agg": {
-        label: "Mejeri & Ägg",
-        value: "mejeri-agg",
+    "agg-mejeri": {
+        label: "Ägg & Mejeri",
+        value: "agg-mejeri",
         subcategories: [
-            "Mejeri",
-            "Ägg"
+            "Ägg",
+            "Mejeri"
         ]
     },
     "skafferi": {
@@ -36,16 +37,20 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         value: "skafferi",
         subcategories: [
             "Bakning",
+            "Böner, linser och fröer",
             "Café",
+            "Flingor",
+            "Inläggningar",
             "Kolonial",
             "Konserver",
             "Kryddor",
             "Multiköp",
+            "Oljor",
             "Olja & Vinäger",
             "Pasta & Ris",
             "Såser",
             "Sylt & Marmelad",
-            "Övrigt"
+            "Övrigt skafferi"
         ]
     },
     "ost-chark": {
@@ -53,6 +58,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         value: "ost-chark",
         subcategories: [
             "Ost",
+            "Ost, kex och marmelad",
             "Chark"
         ]
     },
@@ -65,45 +71,37 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             "Övrig konfekt"
         ]
     },
-    "kakor-skorpor": {
-        label: "Kakor & Skorpor",
-        value: "kakor-skorpor",
-        subcategories: [
-            "Kakor",
-            "Söta skorpor & matskorpor"
-        ]
-    },
     "brod": {
-        label: "Bröd & Bageri",
+        label: "Bröd",
         value: "brod",
         subcategories: [
             "Bröd",
-            "Kex & Kakor"
+            "Kakor",
+            "Söta skorpor & matskorpor"
         ]
     },
     "snacks-dryck": {
         label: "Snacks & Dryck",
         value: "snacks-dryck",
         subcategories: [
-            "Dryck",
-            "Snacks"
+            "Chips",
+            "Öl",
+            "Vatten",
+            "Kolsyrade drycker",
+            "Tonic",
+            "Saft",
+            "Råsaft",
+            "Kombucha",
+            "Övriga snacks",
+            "Övriga drycker"
         ]
     },
     "notter-torkad-frukt": {
-        label: "Nötter & Torkad Frukt",
+        label: "Nötter & Torkad frukt",
         value: "notter-torkad-frukt",
         subcategories: [
             "Nötter",
             "Torkad Frukt"
-        ]
-    },
-    "sott-gott": {
-        label: "Sött & Gott",
-        value: "sott-gott",
-        subcategories: [
-            "Choklad",
-            "Godis",
-            "Sött och gott"
         ]
     },
     "farskvaror": {
@@ -111,18 +109,13 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         value: "farskvaror",
         subcategories: [
             "Inläggningar färska",
-            "Oliver",
-            "Cannoli & Bakverk"
+            "Oliver"
         ]
     },
     "hogtidsvaror": {
         label: "Högtidsvaror",
         value: "hogtidsvaror",
-        subcategories: [
-            "Jul",
-            "Påsk",
-            "Midsommar"
-        ]
+        subcategories: []
     },
     "ovrigt": {
         label: "Övrigt",
@@ -131,9 +124,36 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
     }
 };
 
+/**
+ * Legacy slug aliases — mappar gamla kategorinamn/slugs till nya.
+ * Används för bakåtkompatibilitet med produkter från PIM.
+ */
+const LEGACY_SLUG_MAP: Record<string, string> = {
+    // Omdöpta
+    "mejeri-agg": "agg-mejeri",
+    "brod-kex": "brod",
+    "naturgodis-notter": "notter-torkad-frukt",
+    // Ihopslagen
+    "snacks": "snacks-dryck",
+    "dryck": "snacks-dryck",
+    "kakor-skorpor": "brod",
+    // Borttagna → bästa matchning
+    "sott-gott": "konfektyr",
+    "kott": "ovrigt",
+};
+
+/**
+ * Resolve a category slug, handling legacy aliases.
+ * Returns the canonical slug.
+ */
+export function resolveCategorySlug(slug: string): string {
+    return LEGACY_SLUG_MAP[slug] || slug;
+}
+
 // Helper to get category label from value
 export function getCategoryLabel(value: string): string {
-    return CATEGORY_HIERARCHY[value]?.label || value;
+    const resolved = resolveCategorySlug(value);
+    return CATEGORY_HIERARCHY[resolved]?.label || value;
 }
 
 // Helper to get all categories as array for iteration
@@ -143,10 +163,12 @@ export function getAllCategories(): CategoryHierarchyItem[] {
 
 // Helper to check if a category has subcategories
 export function hasSubcategories(categoryValue: string): boolean {
-    return (CATEGORY_HIERARCHY[categoryValue]?.subcategories.length ?? 0) > 0;
+    const resolved = resolveCategorySlug(categoryValue);
+    return (CATEGORY_HIERARCHY[resolved]?.subcategories.length ?? 0) > 0;
 }
 
 // Helper to get subcategories for a category
 export function getSubcategories(categoryValue: string): string[] {
-    return CATEGORY_HIERARCHY[categoryValue]?.subcategories || [];
+    const resolved = resolveCategorySlug(categoryValue);
+    return CATEGORY_HIERARCHY[resolved]?.subcategories || [];
 }

@@ -84,16 +84,33 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                                     : "hover:shadow-lg hover:scale-[1.02]"
                             )}
                         >
-                            {/* Background Image - no text overlay, illustrations have text */}
-                            <img
-                                src={card.image}
-                                alt={card.name}
-                                className={cn(
-                                    "absolute inset-0 w-full h-full object-cover transition-transform duration-500",
-                                    isActive ? "scale-105" : "hover:scale-105"
-                                )}
-                                loading="lazy"
-                            />
+                            {card.image ? (
+                                /* Background Image - illustrations have text baked in */
+                                <img
+                                    src={card.image}
+                                    alt={card.name}
+                                    className={cn(
+                                        "absolute inset-0 w-full h-full object-cover transition-transform duration-500",
+                                        isActive ? "scale-105" : "hover:scale-105"
+                                    )}
+                                    loading="lazy"
+                                />
+                            ) : (
+                                /* Text-based fallback for categories without illustrations */
+                                <div
+                                    className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-0.5 p-2"
+                                    style={{ backgroundColor: card.bgColor || '#2F5852' }}
+                                >
+                                    {card.titleLines.map((line, i) => (
+                                        <span
+                                            key={i}
+                                            className="text-xs sm:text-sm font-bold text-[#2F5852] leading-tight tracking-wide"
+                                        >
+                                            {line}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
 
                             {/* Active indicator - checkmark */}
                             {isActive && (

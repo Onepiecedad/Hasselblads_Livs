@@ -71,29 +71,40 @@ const FLAG_MAP: Record<string, string> = {
     'Cypern': '🇨🇾',
 };
 
+// Legacy-aliasnamn som PIM kan skicka (gamla kategorinamn)
+const LEGACY_CATEGORY_NAMES: Record<string, Product['category']> = {
+    'mejeri & ägg': 'agg-mejeri',
+    'bröd & kex': 'brod',
+    'naturgodis & nötter': 'notter-torkad-frukt',
+    'naturgodis': 'notter-torkad-frukt',
+};
+
 // Mappa PIM-kategori till hemsidans nya kombinerade kategorier
 // Hanterar hierarkiska kategorier från Firestore, t.ex. "Frukt & Grönt > Frukt"
+// Synkad med PIM Feb 2026 — 12 huvudkategorier
 function mapCategory(pimCategory?: string): Product['category'] {
     if (!pimCategory) return 'skafferi';
 
     // Normalisera och extrahera huvudkategori från hierarki
     const normalized = pimCategory.toLowerCase().trim();
 
-    // Extrahera första delen före ">" om den finns
+    // Kolla legacy-alias först (exakt matchning på huvudkategori-namn)
     const mainPart = normalized.split('>')[0].trim();
+    const legacyMatch = LEGACY_CATEGORY_NAMES[mainPart];
+    if (legacyMatch) return legacyMatch;
 
     // Kolla både huvuddelen och hela strängen för bäst matchning
     const checkParts = [mainPart, normalized];
 
     for (const part of checkParts) {
-        // Frukt & Grönt (inklusive frukt och grönsaker)
-        if (part.includes('frukt') || part.includes('grönt') || part.includes('grönsak') || part.includes('grön')) {
+        // Frukt & Grönt (inklusive frukt, grönsaker, färska kryddor)
+        if (part.includes('frukt') || part.includes('grönt') || part.includes('grönsak') || part.includes('grön') || part.includes('färska kryddor')) {
             return 'frukt-gront';
         }
 
-        // Mejeri & Ägg
+        // Ägg & Mejeri
         if (part.includes('mejeri') || part.includes('ägg')) {
-            return 'mejeri-agg';
+            return 'agg-mejeri';
         }
 
         // Ost & Chark
@@ -101,9 +112,14 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'ost-chark';
         }
 
-        // Kött
-        if (part.includes('kött') || part.includes('köttfärs')) {
-            return 'kott';
+        // Konfektyr (choklad, lakrits, godis, konfekt)
+        if (part.includes('konfektyr') || part.includes('choklad') || part.includes('lakrits') || part.includes('godis') || part.includes('konfekt')) {
+            return 'konfektyr';
+        }
+
+        // Kakor & Skorpor
+        if (part.includes('kakor') || part.includes('skorpor') || part.includes('kaka')) {
+            return 'kakor-skorpor';
         }
 
         // Bröd
@@ -111,23 +127,28 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'brod';
         }
 
-        // Sött & Gott (godis, kakor, desserter, choklad, etc.)
-        if (part.includes('sött') || part.includes('gott') || part.includes('godis') || part.includes('choklad') || part.includes('kaka') || part.includes('dessert') || part.includes('glass')) {
-            return 'sott-gott';
-        }
-
         // Nötter & Torkad Frukt
         if (part.includes('nöt') || part.includes('torkad') || part.includes('russin') || part.includes('mandel')) {
             return 'notter-torkad-frukt';
         }
 
-        // Snacks & Dryck
-        if (part.includes('snacks') || part.includes('chips') || part.includes('dryck') || part.includes('läsk') || part.includes('juice') || part.includes('vatten') || part.includes('öl') || part.includes('vin')) {
+        // Snacks & Dryck (ihopslagen)
+        if (part.includes('snacks') || part.includes('chips') || part.includes('dryck') || part.includes('läsk') || part.includes('juice') || part.includes('vatten') || part.includes('öl') || part.includes('vin') || part.includes('tonic') || part.includes('saft') || part.includes('kombucha') || part.includes('cola')) {
             return 'snacks-dryck';
         }
 
+        // Färskvaror
+        if (part.includes('färskvar') || part.includes('färsk') && (part.includes('inlägg') || part.includes('oliver'))) {
+            return 'farskvaror';
+        }
+
+        // Högtidsvaror
+        if (part.includes('högtid') || part.includes('jul') || part.includes('påsk') || part.includes('midsommar')) {
+            return 'hogtidsvaror';
+        }
+
         // Skafferi (fallback for pantry items)
-        if (part.includes('skafferi') || part.includes('kolonial') || part.includes('konserv') || part.includes('pasta') || part.includes('ris') || part.includes('sås') || part.includes('olja') || part.includes('krydda')) {
+        if (part.includes('skafferi') || part.includes('kolonial') || part.includes('konserv') || part.includes('pasta') || part.includes('ris') || part.includes('sås') || part.includes('olja') || part.includes('krydda') || part.includes('flingor') || part.includes('sylt') || part.includes('marmelad') || part.includes('bakning')) {
             return 'skafferi';
         }
     }

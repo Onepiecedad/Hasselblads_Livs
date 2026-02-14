@@ -234,7 +234,7 @@ const Home = () => {
           <div className="mx-auto max-w-7xl">
             <div className="text-center mb-10 relative">
               <h2 className="text-4xl md:text-6xl font-bold text-primary tracking-tight">
-                Handplockat ur <br className="hidden md:block" /> sortimentet
+                Handplockat
               </h2>
             </div>
 

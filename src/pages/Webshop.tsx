@@ -135,6 +135,13 @@ const Webshop = () => {
             }
         }
         setInitialized(true);
+
+        // Scroll to products when arriving with a tag/focus filter (e.g. from homepage)
+        if (urlTag || urlFocus) {
+            setTimeout(() => {
+                productsGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialized, setSearchParams]);
 
@@ -525,7 +532,7 @@ const Webshop = () => {
                         )}
                     </div>
 
-                    <div ref={productsGridRef} className="scroll-mt-4 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
+                    <div ref={productsGridRef} className="scroll-mt-24 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
                         {isLoading ? (
                             Array.from({ length: 8 }).map((_, i) => (
                                 <ProductCardSkeleton key={i} />

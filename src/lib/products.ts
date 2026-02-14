@@ -1,19 +1,13 @@
 export type ProductCategory =
   | "frukt-gront"
-  | "mejeri-agg"
-  | "ost-chark"
-  | "brod"
-  | "brod-kex"
+  | "agg-mejeri"
   | "skafferi"
-  | "sott-gott"
+  | "ost-chark"
   | "konfektyr"
   | "kakor-skorpor"
-  | "notter-torkad-frukt"
-  | "naturgodis-notter"
+  | "brod"
   | "snacks-dryck"
-  | "snacks"
-  | "dryck"
-  | "kott"
+  | "notter-torkad-frukt"
   | "farskvaror"
   | "hogtidsvaror"
   | "ovrigt";
@@ -63,14 +57,17 @@ export type Product = {
 export const categories: { label: string; value: string }[] = [
   { label: "Alla", value: "alla" },
   { label: "Frukt & Grönt", value: "frukt-gront" },
-  { label: "Mejeri & Ägg", value: "mejeri-agg" },
-  { label: "Ost & Chark", value: "ost-chark" },
-  { label: "Bröd", value: "brod" },
+  { label: "Ägg & Mejeri", value: "agg-mejeri" },
   { label: "Skafferi", value: "skafferi" },
-  { label: "Sött & Gott", value: "sott-gott" },
-  { label: "Nötter & Torkad Frukt", value: "notter-torkad-frukt" },
+  { label: "Ost & Chark", value: "ost-chark" },
+  { label: "Konfektyr", value: "konfektyr" },
+  { label: "Kakor & Skorpor", value: "kakor-skorpor" },
+  { label: "Bröd", value: "brod" },
   { label: "Snacks & Dryck", value: "snacks-dryck" },
-  { label: "Kött", value: "kott" },
+  { label: "Nötter & Torkad frukt", value: "notter-torkad-frukt" },
+  { label: "Färskvaror", value: "farskvaror" },
+  { label: "Högtidsvaror", value: "hogtidsvaror" },
+  { label: "Övrigt", value: "ovrigt" },
 ];
 
 export const tagFilters: { label: string; value: string; tag: ProductTag }[] = [

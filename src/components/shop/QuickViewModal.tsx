@@ -110,14 +110,14 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl gap-0 p-0 sm:max-h-[85vh] sm:rounded-3xl overflow-hidden flex flex-col">
+      <DialogContent className="max-w-2xl gap-0 p-0 max-h-[100dvh] sm:max-h-[85vh] rounded-t-2xl sm:rounded-3xl overflow-hidden flex flex-col inset-x-0 bottom-0 top-auto translate-x-0 translate-y-0 left-0 sm:left-[50%] sm:top-[50%] sm:bottom-auto sm:translate-x-[-50%] sm:translate-y-[-50%]">
         {product && (
           <>
             {/* Scrollable content area */}
             <div className="flex-1 overflow-y-auto">
-              <div className="grid gap-6 p-6 sm:grid-cols-[1.2fr_1fr] sm:p-8 pb-24 sm:pb-8">
+              <div className="grid gap-4 p-4 sm:gap-6 sm:grid-cols-[1.2fr_1fr] sm:p-8 pb-4 sm:pb-8">
                 {/* Product image */}
-                <div className="overflow-hidden rounded-2xl bg-muted aspect-square sm:aspect-auto">
+                <div className="overflow-hidden rounded-2xl bg-muted max-h-[35vh] sm:max-h-none aspect-auto sm:aspect-auto">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -227,7 +227,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
             </div>
 
             {/* STICKY Mobile footer - always visible at bottom */}
-            <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border/60 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-50 safe-area-pb">
+            <div className="sm:hidden sticky bottom-0 left-0 right-0 bg-background border-t border-border/60 p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-50 safe-area-pb">
               {/* Estimate line for mobile */}
               {showEstimate && (
                 <div className="flex justify-between text-xs text-muted-foreground mb-2 px-1">
