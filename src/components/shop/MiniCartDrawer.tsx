@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Drawer,
   DrawerContent,
@@ -23,13 +23,13 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
-import { addItemsAndRedirectToCheckout } from "@/lib/woocommerce";
 import { formatPrice } from "@/lib/utils";
-import { Truck, ShoppingBag, X, ExternalLink, Trash2 } from "lucide-react";
+import { Truck, ShoppingBag, X, ArrowRight, Trash2 } from "lucide-react";
 
 const FREE_SHIPPING_THRESHOLD = 600;
 
 const MiniCartDrawer = () => {
+  const navigate = useNavigate();
   const { items, isOpen, subtotal, shippingFee, total, updateQuantity, removeItem, clearCart, setOpen } = useCart();
   const hasItems = items.length > 0;
 
@@ -260,11 +260,11 @@ const MiniCartDrawer = () => {
                   className="w-full gap-2"
                   onClick={() => {
                     setOpen(false);
-                    addItemsAndRedirectToCheckout(items, clearCart);
+                    navigate('/kassa');
                   }}
                 >
                   Till kassan · {formatPrice(total)} kr
-                  <ExternalLink className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
 
                 {/* Continue shopping button */}
