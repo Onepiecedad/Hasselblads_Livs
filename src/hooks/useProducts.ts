@@ -97,6 +97,20 @@ function mapCategory(pimCategory?: string): Product['category'] {
     const checkParts = [mainPart, normalized];
 
     for (const part of checkParts) {
+        // ── Specifika kategorier FÖRST (undviker att breda matchningar "äter" dem) ──
+
+        // Nötter & Torkad Frukt (FÖRE "frukt" — "Torkad Frukt" innehåller "frukt")
+        if (part.includes('nöt') || part.includes('torkad') || part.includes('russin') || part.includes('mandel')) {
+            return 'notter-torkad-frukt';
+        }
+
+        // Kakor & Skorpor → tillhör Bröd (FÖRE "bröd" för tydlighet)
+        if (part.includes('kakor') || part.includes('skorpor') || part.includes('kaka')) {
+            return 'brod';
+        }
+
+        // ── Breda kategorier ──
+
         // Frukt & Grönt (inklusive frukt, grönsaker, färska kryddor)
         if (part.includes('frukt') || part.includes('grönt') || part.includes('grönsak') || part.includes('grön') || part.includes('färska kryddor')) {
             return 'frukt-gront';
@@ -107,8 +121,8 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'agg-mejeri';
         }
 
-        // Ost & Chark
-        if (part.includes('ost') || part.includes('chark')) {
+        // Ost & Chark (ordgräns-medveten matchning för "ost")
+        if (/\bost\b/.test(part) || part.includes('chark')) {
             return 'ost-chark';
         }
 
@@ -117,19 +131,9 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'konfektyr';
         }
 
-        // Kakor & Skorpor
-        if (part.includes('kakor') || part.includes('skorpor') || part.includes('kaka')) {
-            return 'kakor-skorpor';
-        }
-
         // Bröd
         if (part.includes('bröd') || part.includes('brod') || part.includes('bageri')) {
             return 'brod';
-        }
-
-        // Nötter & Torkad Frukt
-        if (part.includes('nöt') || part.includes('torkad') || part.includes('russin') || part.includes('mandel')) {
-            return 'notter-torkad-frukt';
         }
 
         // Snacks & Dryck (ihopslagen)
@@ -137,8 +141,8 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'snacks-dryck';
         }
 
-        // Färskvaror
-        if (part.includes('färskvar') || part.includes('färsk') && (part.includes('inlägg') || part.includes('oliver'))) {
+        // Färskvaror (fixad parentes-logik)
+        if (part.includes('färskvar') || (part.includes('färsk') && (part.includes('inlägg') || part.includes('oliver')))) {
             return 'farskvaror';
         }
 

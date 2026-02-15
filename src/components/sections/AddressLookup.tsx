@@ -53,12 +53,12 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="address" className="text-sm font-medium text-muted-foreground">
-            Ange din adress i Mölndal för att kontrollera hemleverans
+            Ange din adress för att kontrollera om vi levererar till dig
           </label>
           <Input
             id="address"
             type="text"
-            placeholder="Ex. Frejagatan 9, 431 45 Mölndal"
+            placeholder="Ex. Fjällvägen 10, Solängen"
             value={inputValue}
             onChange={(event) => {
               setInputValue(event.target.value);
@@ -72,7 +72,7 @@ const AddressLookup = ({ areas, onStatusChange, className }: AddressLookupProps)
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm text-muted-foreground">
-            Leverans inom Mölndal måndag–lördag kl. 16.00–20.00
+            Leverans till Solängen kl 12–15 & Malevik kl 15–18
           </div>
           <Button type="submit">Kontrollera adress</Button>
         </div>

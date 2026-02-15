@@ -456,6 +456,12 @@ const Webshop = () => {
                         </div>
                     </div>
 
+                    {/* Beställningsinfo – banner */}
+                    <div className="rounded-2xl bg-amber-50 border border-amber-200 px-5 py-3 mb-6 text-sm text-amber-900">
+                        <strong>OBS:</strong> Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
+                        Vid tidigare beställning kan pris och sortiment ändras.
+                    </div>
+
                     {/* Visual Filter Cards - Focus first, then Categories */}
                     <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-10">
                         <FocusFilterCards

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
-import { Truck, MapPin, ArrowRight } from "lucide-react";
+import { Truck, MapPin, ArrowRight, Clock } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
+import AddressLookup from "@/components/sections/AddressLookup";
 
 const Delivery = () => {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
@@ -18,10 +19,10 @@ const Delivery = () => {
             name: "Hasselblads Livs",
             url: `${origin}/hemleverans`,
             telephone: "+46-31-123-45-67",
-            areaServed: {
-              "@type": "Place",
-              name: "Malevik",
-            },
+            areaServed: [
+              { "@type": "Place", name: "Solängen" },
+              { "@type": "Place", name: "Malevik" },
+            ],
           },
         },
       },
@@ -77,9 +78,37 @@ const Delivery = () => {
                   <h2 className="text-2xl font-bold">Hemleverans</h2>
                 </div>
 
-                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">
-                  Vi levererar till er dörr i området Malevik. Bekvämt och enkelt – vi kommer till dig.
+                <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
+                  Vi levererar hem till dig i områdena Solängen och Malevik.
+                  Vill du veta om vi kan leverera till just din adress?
                 </p>
+
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                  Beställ innan klockan 19:00, så får du dina varor redan dagen efter.
+                </p>
+
+                <div className="space-y-2 mb-5 text-sm">
+                  <div className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span className="text-muted-foreground">
+                      <strong className="text-foreground">Solängen</strong> – leverans kl 12–15 (eller hämta i butiken från kl 12)
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span className="text-muted-foreground">
+                      <strong className="text-foreground">Malevik</strong> – leverans kl 15–18 (eller hämta på Gamla Särövägen 153A från kl 15)
+                    </span>
+                  </div>
+                </div>
+
+                <AddressLookup
+                  areas={[
+                    { label: "Solängen", value: "solängen" },
+                    { label: "Malevik", value: "malevik" },
+                  ]}
+                  className="mb-5 border-0 p-0 shadow-none"
+                />
 
                 <div className="flex items-baseline gap-2 mb-6">
                   <span className="text-4xl font-bold text-primary">49</span>
@@ -110,7 +139,7 @@ const Delivery = () => {
                 </div>
 
                 <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
-                  Hämta era varor kostnadsfritt på något av våra två hämtställen:
+                  Välkommen att hämta dina varor kostnadsfritt på ett av våra upphämtningsställen:
                 </p>
 
                 <ul className="space-y-3 mb-6">
@@ -153,19 +182,12 @@ const Delivery = () => {
             </div>
 
             <h3 className="text-2xl md:text-3xl font-bold mb-4">
-              Just nu: Malevik
+              Solängen & Malevik
             </h3>
 
-            <p className="text-lg text-muted-foreground leading-relaxed mb-8">
-              Vi börjar leverera till området Malevik. Ambitionen är att kunna leverera längs med hela 158:an, från Askim till Onsala.
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Nu startar vi med hemleverans i Solängen och Malevik. Vi utökar successivt vårt leveransområde med ambitionen att nå hela vägen längs Säröleden – från Askim till Särö.
             </p>
-
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-card border border-border/70">
-              <span className="flex h-3 w-3 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-medium text-muted-foreground">
-                Fler områden kommer snart
-              </span>
-            </div>
           </div>
 
         </div>

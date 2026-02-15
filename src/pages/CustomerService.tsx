@@ -69,8 +69,7 @@ const CustomerService = () => {
                     Hör av dig
                   </h2>
                   <p className="text-muted-foreground text-lg leading-relaxed">
-                    Har du frågor om våra produkter eller vill lägga en beställning?
-                    Ring oss eller skicka ett meddelande – vi återkommer alltid inom 24 timmar.
+                    Ring eller skriv till oss – vi svarar alltid inom 24 timmar.
                   </p>
                 </div>
 
