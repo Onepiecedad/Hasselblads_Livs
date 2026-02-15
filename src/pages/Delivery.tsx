@@ -103,10 +103,6 @@ const Delivery = () => {
                 </div>
 
                 <AddressLookup
-                  areas={[
-                    { label: "Solängen", value: "solängen" },
-                    { label: "Malevik", value: "malevik" },
-                  ]}
                   className="mb-5 border-0 p-0 shadow-none"
                 />
 
