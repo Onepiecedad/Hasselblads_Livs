@@ -532,10 +532,10 @@ const Webshop = () => {
                                 Nollställ filter
                             </button>
                         )}
-                        <span className="hidden sm:inline ml-auto text-xs text-amber-700">
-                            OBS: Beställ dagen före önskad leverans. Vid tidigare beställning kan pris och sortiment ändras.
-                        </span>
                     </div>
+                    <p className="text-[11px] text-muted-foreground/50 mt-2 tracking-wide">
+                        ℹ︎ Beställ dagen före önskad leverans. Pris och sortiment kan ändras vid tidigare beställning.
+                    </p>
 
                     <div ref={productsGridRef} className="scroll-mt-24 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
                         {isLoading ? (
