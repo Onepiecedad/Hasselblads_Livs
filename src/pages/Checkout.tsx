@@ -63,10 +63,10 @@ function StepIndicator({ currentStep, method }: { currentStep: number; method?: 
                     <div key={step.key} className="flex items-center gap-1 sm:gap-2">
                         <div
                             className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-all ${isCurrent
-                                    ? "bg-primary text-primary-foreground shadow-md"
-                                    : isCompleted
-                                        ? "bg-primary/20 text-primary"
-                                        : "bg-muted text-muted-foreground"
+                                ? "bg-primary text-primary-foreground shadow-md"
+                                : isCompleted
+                                    ? "bg-primary/20 text-primary"
+                                    : "bg-muted text-muted-foreground"
                                 }`}
                         >
                             {isCompleted ? <Check className="h-4 w-4" /> : i + 1}
@@ -170,14 +170,7 @@ const Checkout = () => {
         }
         const deliveryNote = lines.join("\n");
 
-        // Store note in sessionStorage for WooCommerce
-        try {
-            sessionStorage.setItem("hasselblads-delivery-note", deliveryNote);
-        } catch {
-            // silent
-        }
-
-        await addItemsAndRedirectToCheckout(items, clearCart);
+        await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
     }, [selection, items, clearCart]);
 
     // ─── Empty cart ───
@@ -248,8 +241,8 @@ const Checkout = () => {
                                     setSelection((prev) => ({ ...prev, method: "delivery" }));
                                 }}
                                 className={`w-full rounded-2xl border-2 p-5 text-left transition-all hover:shadow-md ${selection.method === "delivery"
-                                        ? "border-primary bg-primary/5 shadow-sm"
-                                        : "border-border/70 bg-card hover:border-primary/30"
+                                    ? "border-primary bg-primary/5 shadow-sm"
+                                    : "border-border/70 bg-card hover:border-primary/30"
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
@@ -281,8 +274,8 @@ const Checkout = () => {
                                     setSelection((prev) => ({ ...prev, method: "pickup" }));
                                 }}
                                 className={`w-full rounded-2xl border-2 p-5 text-left transition-all hover:shadow-md ${selection.method === "pickup"
-                                        ? "border-primary bg-primary/5 shadow-sm"
-                                        : "border-border/70 bg-card hover:border-primary/30"
+                                    ? "border-primary bg-primary/5 shadow-sm"
+                                    : "border-border/70 bg-card hover:border-primary/30"
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
@@ -403,8 +396,8 @@ const Checkout = () => {
                                                 setSelection((prev) => ({ ...prev, date }))
                                             }
                                             className={`w-full rounded-2xl border-2 p-4 text-left transition-all hover:shadow-md ${isSelected
-                                                    ? "border-primary bg-primary/5 shadow-sm"
-                                                    : "border-border/70 bg-card hover:border-primary/30"
+                                                ? "border-primary bg-primary/5 shadow-sm"
+                                                : "border-border/70 bg-card hover:border-primary/30"
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between">
