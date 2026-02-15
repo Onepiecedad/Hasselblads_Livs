@@ -2,16 +2,8 @@ import { useEffect, useState } from "react";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
-// Type definitions matching the implementation plan
+// Type definitions matching PIM data model
 export type FeatureCardId = 'godast' | 'nyheter' | 'isasong' | 'erbjudanden';
-
-export interface FeatureCard {
-    id: FeatureCardId;
-    title: string;
-    productIds: string[];
-    isActive: boolean;
-    updatedAt: Date;
-}
 
 export interface FeaturedVideo {
     type: 'url' | 'uploaded';
@@ -22,8 +14,17 @@ export interface FeaturedVideo {
     updatedBy: string;
 }
 
+export interface FeatureCard {
+    id: FeatureCardId;
+    title: string;
+    productIds: string[];
+    isActive?: boolean;
+    video?: FeaturedVideo;
+    updatedAt: Date;
+}
+
 export interface HomepageSettings {
-    featuredVideo: FeaturedVideo;
+    featuredVideo?: FeaturedVideo; // Legacy field — kept for backward compat
     featureCards: {
         godast: FeatureCard;
         nyheter: FeatureCard;
@@ -62,16 +63,9 @@ export function getVideoEmbedInfo(url: string): VideoEmbedInfo {
         };
     }
 
-    // Facebook Reel/Video - supports multiple URL formats
-    // Examples: 
-    // - facebook.com/reel/850613071270264
-    // - facebook.com/share/v/abc123
-    // - facebook.com/watch?v=123
-    // - facebook.com/user/videos/123
+    // Facebook Reel/Video
     const isFacebookUrl = url.includes('facebook.com');
     if (isFacebookUrl) {
-        // For Facebook, always use the plugins/video.php embed format
-        // This works for most Facebook video types
         return {
             type: 'facebook',
             embedUrl: `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=267&height=476`,
@@ -85,84 +79,113 @@ export function getVideoEmbedInfo(url: string): VideoEmbedInfo {
     };
 }
 
-// Default settings for fallback
-const DEFAULT_VIDEO: FeaturedVideo = {
-    type: 'url',
-    url: 'https://www.facebook.com/reel/850613071270264/',
-    activeCardId: 'godast',
-    updatedAt: new Date(),
-    updatedBy: 'system',
-};
+// Card metadata
+const CARD_IDS: FeatureCardId[] = ['godast', 'nyheter', 'isasong', 'erbjudanden'];
 
+export function getCardTitle(cardId: FeatureCardId): string {
+    const titles: Record<FeatureCardId, string> = {
+        godast: 'Godast just nu',
+        nyheter: 'Nyheter',
+        isasong: 'I säsong',
+        erbjudanden: 'Erbjudanden',
+    };
+    return titles[cardId];
+}
+
+// Default settings for fallback
 const DEFAULT_FEATURE_CARDS: HomepageSettings['featureCards'] = {
-    godast: { id: 'godast', title: 'Godast just nu', productIds: [], isActive: true, updatedAt: new Date() },
-    nyheter: { id: 'nyheter', title: 'Nyheter', productIds: [], isActive: false, updatedAt: new Date() },
-    isasong: { id: 'isasong', title: 'I säsong', productIds: [], isActive: false, updatedAt: new Date() },
-    erbjudanden: { id: 'erbjudanden', title: 'Erbjudanden', productIds: [], isActive: false, updatedAt: new Date() },
+    godast: { id: 'godast', title: 'Godast just nu', productIds: [], updatedAt: new Date() },
+    nyheter: { id: 'nyheter', title: 'Nyheter', productIds: [], updatedAt: new Date() },
+    isasong: { id: 'isasong', title: 'I säsong', productIds: [], updatedAt: new Date() },
+    erbjudanden: { id: 'erbjudanden', title: 'Erbjudanden', productIds: [], updatedAt: new Date() },
 };
 
 const DEFAULT_SETTINGS: HomepageSettings = {
-    featuredVideo: DEFAULT_VIDEO,
     featureCards: DEFAULT_FEATURE_CARDS,
     updatedAt: new Date(),
 };
 
-// Module-level cache to persist settings across navigations (singleton pattern)
-let cachedSettings: HomepageSettings | null = null;
-let featuredUnsubscribeRef: (() => void) | null = null;
+/**
+ * Represents a card that has a video configured.
+ * Used by the carousel to render only cards with videos.
+ */
+export interface CardWithVideo {
+    cardId: FeatureCardId;
+    title: string;
+    video: FeaturedVideo;
+    embedInfo: VideoEmbedInfo;
+    productIds: string[];
+}
 
 /**
  * Hook to subscribe to homepage settings from Firebase in real-time.
- * Uses singleton subscription pattern to avoid duplicate Firestore listeners.
+ * Returns all cards that have videos configured, plus helpers.
  */
 export function useFeaturedContent() {
-    const [settings, setSettings] = useState<HomepageSettings>(cachedSettings || DEFAULT_SETTINGS);
-    const [isLoading, setIsLoading] = useState(!cachedSettings);
+    const [settings, setSettings] = useState<HomepageSettings>(DEFAULT_SETTINGS);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
-        // If we already have cached settings, use them immediately
-        if (cachedSettings) {
-            setSettings(cachedSettings);
-            setIsLoading(false);
-        }
-
-        // If we already have an active subscription, don't create another
-        if (featuredUnsubscribeRef) {
-            return;
-        }
-
         const docRef = doc(db, 'organizations/hasselblad_common/settings/homepage');
 
-        featuredUnsubscribeRef = onSnapshot(
+        const unsubscribe = onSnapshot(
             docRef,
             (snapshot) => {
-                let newSettings: HomepageSettings;
                 if (snapshot.exists()) {
                     const data = snapshot.data();
-                    newSettings = {
-                        featuredVideo: {
-                            type: data.featuredVideo?.type || 'url',
-                            url: data.featuredVideo?.url || DEFAULT_VIDEO.url,
-                            thumbnailUrl: data.featuredVideo?.thumbnailUrl,
-                            activeCardId: data.featuredVideo?.activeCardId || 'godast',
-                            updatedAt: data.featuredVideo?.updatedAt?.toDate?.() || new Date(),
-                            updatedBy: data.featuredVideo?.updatedBy || 'system',
-                        },
+
+                    // Parse feature cards, reading video from each card
+                    const parseCard = (cardId: FeatureCardId): FeatureCard => {
+                        const rawCard = data.featureCards?.[cardId];
+                        if (!rawCard) return DEFAULT_FEATURE_CARDS[cardId];
+
+                        const card: FeatureCard = {
+                            id: cardId,
+                            title: rawCard.title || getCardTitle(cardId),
+                            productIds: rawCard.productIds || [],
+                            isActive: rawCard.isActive,
+                            updatedAt: rawCard.updatedAt?.toDate?.() || new Date(),
+                        };
+
+                        // Read video from card if present
+                        if (rawCard.video && rawCard.video.url) {
+                            card.video = {
+                                type: rawCard.video.type || 'url',
+                                url: rawCard.video.url,
+                                thumbnailUrl: rawCard.video.thumbnailUrl,
+                                activeCardId: cardId,
+                                updatedAt: rawCard.video.updatedAt?.toDate?.() || new Date(),
+                                updatedBy: rawCard.video.updatedBy || 'system',
+                            };
+                        }
+                        // Backward compat: if no card videos exist, fall back to global featuredVideo
+                        else if (data.featuredVideo?.url && data.featuredVideo.activeCardId === cardId) {
+                            card.video = {
+                                type: data.featuredVideo.type || 'url',
+                                url: data.featuredVideo.url,
+                                thumbnailUrl: data.featuredVideo.thumbnailUrl,
+                                activeCardId: cardId,
+                                updatedAt: data.featuredVideo.updatedAt?.toDate?.() || new Date(),
+                                updatedBy: data.featuredVideo.updatedBy || 'system',
+                            };
+                        }
+
+                        return card;
+                    };
+
+                    setSettings({
                         featureCards: {
-                            godast: data.featureCards?.godast || DEFAULT_FEATURE_CARDS.godast,
-                            nyheter: data.featureCards?.nyheter || DEFAULT_FEATURE_CARDS.nyheter,
-                            isasong: data.featureCards?.isasong || DEFAULT_FEATURE_CARDS.isasong,
-                            erbjudanden: data.featureCards?.erbjudanden || DEFAULT_FEATURE_CARDS.erbjudanden,
+                            godast: parseCard('godast'),
+                            nyheter: parseCard('nyheter'),
+                            isasong: parseCard('isasong'),
+                            erbjudanden: parseCard('erbjudanden'),
                         },
                         updatedAt: data.updatedAt?.toDate?.() || new Date(),
-                    };
+                    });
                 } else {
-                    newSettings = DEFAULT_SETTINGS;
+                    setSettings(DEFAULT_SETTINGS);
                 }
-                // Update cache
-                cachedSettings = newSettings;
-                setSettings(newSettings);
                 setIsLoading(false);
                 setError(null);
             },
@@ -173,14 +196,25 @@ export function useFeaturedContent() {
             }
         );
 
-        // Don't unsubscribe - keep the subscription active for real-time updates
+        return () => unsubscribe();
     }, []);
 
-    // Computed: get active card based on video settings
-    const activeCard = settings.featureCards[settings.featuredVideo.activeCardId];
-
-    // Computed: get embed info for current video
-    const videoEmbedInfo = getVideoEmbedInfo(settings.featuredVideo.url);
+    // Compute: cards that have a video configured
+    const cardsWithVideo: CardWithVideo[] = CARD_IDS
+        .filter(cardId => {
+            const card = settings.featureCards[cardId];
+            return card?.video?.url;
+        })
+        .map(cardId => {
+            const card = settings.featureCards[cardId];
+            return {
+                cardId,
+                title: card.title || getCardTitle(cardId),
+                video: card.video!,
+                embedInfo: getVideoEmbedInfo(card.video!.url),
+                productIds: card.productIds || [],
+            };
+        });
 
     // Helper function to get product IDs for a specific feature card
     const getCardProducts = (cardId: FeatureCardId): string[] => {
@@ -188,14 +222,17 @@ export function useFeaturedContent() {
         return card?.productIds || [];
     };
 
+    // Helper to get video for a specific card
+    const getCardVideo = (cardId: FeatureCardId): FeaturedVideo | undefined => {
+        return settings.featureCards[cardId]?.video;
+    };
+
     return {
         settings,
-        featuredVideo: settings.featuredVideo,
         featureCards: settings.featureCards,
-        activeCard,
-        activeCardId: settings.featuredVideo.activeCardId,
-        videoEmbedInfo,
+        cardsWithVideo,
         getCardProducts,
+        getCardVideo,
         isLoading,
         error,
     };
