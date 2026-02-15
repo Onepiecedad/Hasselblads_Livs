@@ -251,6 +251,7 @@ function transformProduct(pim: PIMProduct): Product {
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price,
+        salePrice: pim.sale_price || undefined,
         unit: parseUnit(kgSt),
         priceUnit: isWeightBased ? 'st' : parsePriceUnit(kgSt),
         pricingType: pim.pricing_type,

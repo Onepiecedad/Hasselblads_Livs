@@ -36,6 +36,7 @@ export type Product = {
   subcategory?: string; // For grouping within large categories
   tags: ProductTag[];
   price: number;
+  salePrice?: number;            // Rabatterat pris (extrapris/rea)
   unit: string;
   priceUnit?: 'kg' | 'st';       // Raw unit type for display
   pricingType?: 'unit_based' | 'weight_based'; // Pristyp från PIM

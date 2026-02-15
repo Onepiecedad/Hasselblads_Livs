@@ -328,9 +328,12 @@ const Webshop = () => {
     }, [filteredProducts, activeCategory]);
 
     const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize) => {
-        const portionPrice = portion
-            ? Math.round(product.price * PORTION_MULTIPLIERS[portion])
+        const basePrice = (product.salePrice && product.salePrice < product.price)
+            ? product.salePrice
             : product.price;
+        const portionPrice = portion
+            ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
+            : basePrice;
 
         addItem({
             id: product.id,

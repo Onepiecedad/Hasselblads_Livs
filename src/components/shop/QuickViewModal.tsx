@@ -18,6 +18,7 @@ export type QuickViewProduct = {
   name: string;
   description: string;
   price: number;
+  salePrice?: number;
   unit: string;
   priceUnit?: 'kg' | 'st';
   pricingType?: 'unit_based' | 'weight_based';
@@ -198,6 +199,13 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                           {hasPortions && selectedPortion !== 'hel' && (
                             <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                           )}
+                        </>
+                      ) : product.salePrice && product.salePrice < product.price ? (
+                        <>
+                          <span className="text-3xl font-bold text-rose-600">{formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)}</span>
+                          <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                          <span className="ml-2 text-xs font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded-full">REA</span>
+                          <span className="text-base text-muted-foreground line-through ml-2">Ord. {formatPrice(displayPrice)} kr</span>
                         </>
                       ) : (
                         <>

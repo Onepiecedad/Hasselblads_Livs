@@ -206,19 +206,33 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   </>
                 ) : (
                   <>
-                    <p className="text-lg font-bold text-primary sm:text-xl">
-                      {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
-                      {hasPortions && selectedPortion !== 'hel' && (
-                        <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
-                          ({PORTION_LABELS[selectedPortion].toLowerCase()})
-                        </span>
-                      )}
-                      {!hasPortions && product.priceUnit === 'st' && product.approximateWeight && (
-                        <span className="text-sm font-normal text-amber-600 ml-1">
-                          ≈ {product.approximateWeight}
-                        </span>
-                      )}
-                    </p>
+                    {product.salePrice && product.salePrice < product.price ? (
+                      <div>
+                        <p className="text-lg font-bold text-rose-600 sm:text-xl">
+                          {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
+                          <span className="ml-1.5 text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full align-middle">
+                            REA
+                          </span>
+                        </p>
+                        <p className="text-xs text-muted-foreground line-through">
+                          Ord. {formatPrice(hasPortions ? portionPrice : product.price)} kr
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-lg font-bold text-primary sm:text-xl">
+                        {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
+                        {hasPortions && selectedPortion !== 'hel' && (
+                          <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
+                            ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                          </span>
+                        )}
+                        {!hasPortions && product.priceUnit === 'st' && product.approximateWeight && (
+                          <span className="text-sm font-normal text-amber-600 ml-1">
+                            ≈ {product.approximateWeight}
+                          </span>
+                        )}
+                      </p>
+                    )}
                     {product.weightInGrams && (
                       <p className="text-[10px] text-muted-foreground/70 sm:text-xs">{product.weightInGrams} g</p>
                     )}
