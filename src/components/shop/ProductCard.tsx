@@ -1,4 +1,4 @@
-import { useState, memo } from "react";
+import { useState, memo, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,10 +6,11 @@ import { ShoppingCart, Plus, Minus, RotateCcw } from "lucide-react";
 import { Product } from "@/lib/products";
 import { NutritionTable } from "./NutritionTable";
 import { formatPrice } from "@/lib/utils";
+import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product, quantity?: number) => void;
+  onAddToCart: (product: Product, quantity?: number, portion?: PortionSize) => void;
   onQuickView: (product: Product) => void;
   setQuickViewButtonRef?: (node: HTMLElement | null) => void;
 }
@@ -18,6 +19,16 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const [quantity, setQuantity] = useState(1);
   const [showQuantity, setShowQuantity] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+
+  // Portionsval
+  const hasPortions = product.sold_as && product.sold_as.length > 1;
+  const defaultPortion = product.sold_as?.[0] ?? 'hel';
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
+
+  const portionPrice = useMemo(() => {
+    if (!hasPortions) return product.price;
+    return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
+  }, [product.price, selectedPortion, hasPortions]);
 
   // Kolla om produkten har baksideinformation
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
@@ -56,7 +67,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (showQuantity) {
-      onAddToCart(product, quantity);
+      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
       setQuantity(1);
       setShowQuantity(false);
     } else {
@@ -71,7 +82,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart(product, quantity);
+    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
     setQuantity(1);
     setShowQuantity(false);
   };
@@ -158,18 +169,60 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
               )}
             </div>
 
-            <div className="mt-4 flex items-end justify-between gap-1">
+            {/* Portionsväljare (pill-knappar) */}
+            {hasPortions && (
+              <div className="mt-3 flex gap-1" onClick={(e) => e.stopPropagation()}>
+                {product.sold_as!.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setSelectedPortion(p); }}
+                    className={`px-2.5 py-1 text-[11px] sm:text-xs font-medium rounded-full border transition-colors ${selectedPortion === p
+                      ? 'bg-primary text-primary-foreground border-primary'
+                      : 'bg-muted/40 text-muted-foreground border-border/50 hover:bg-muted'
+                      }`}
+                  >
+                    {PORTION_LABELS[p]}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-2 flex items-end justify-between gap-1">
               <div className="min-w-0">
-                <p className="text-lg font-bold text-primary sm:text-xl">
-                  {formatPrice(product.price)} kr/{product.priceUnit || 'st'}
-                  {product.priceUnit === 'st' && product.approximateWeight && (
-                    <span className="text-sm font-normal text-amber-600 ml-1">
-                      ≈ {product.approximateWeight}
-                    </span>
-                  )}
-                </p>
-                {product.weightInGrams && (
-                  <p className="text-[10px] text-muted-foreground/70 sm:text-xs">{product.weightInGrams} g</p>
+                {product.pricingType === 'weight_based' ? (
+                  <>
+                    <p className="text-lg font-bold text-primary sm:text-xl">
+                      ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
+                      {hasPortions && selectedPortion !== 'hel' && (
+                        <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
+                          ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                      {formatPrice(product.pricePerKg!)} kr/kg · ca {product.estimatedWeightG} g
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-bold text-primary sm:text-xl">
+                      {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
+                      {hasPortions && selectedPortion !== 'hel' && (
+                        <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
+                          ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                        </span>
+                      )}
+                      {!hasPortions && product.priceUnit === 'st' && product.approximateWeight && (
+                        <span className="text-sm font-normal text-amber-600 ml-1">
+                          ≈ {product.approximateWeight}
+                        </span>
+                      )}
+                    </p>
+                    {product.weightInGrams && (
+                      <p className="text-[10px] text-muted-foreground/70 sm:text-xs">{product.weightInGrams} g</p>
+                    )}
+                  </>
                 )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
                   <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
@@ -312,14 +365,17 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           <div className="p-2 pt-0 border-t border-border/30 bg-card/50">
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-primary">
-                {formatPrice(product.price)} kr/{product.priceUnit || 'st'}
+                {product.pricingType === 'weight_based'
+                  ? <>ca {formatPrice(product.price)} kr/st</>
+                  : <>{formatPrice(product.price)} kr/{product.priceUnit || 'st'}</>
+                }
               </p>
               <Button
                 size="sm"
                 className="h-7 px-3 text-xs rounded-full bg-primary hover:bg-primary/90"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddToCart(product, 1);
+                  onAddToCart(product, 1, hasPortions ? selectedPortion : undefined);
                 }}
                 aria-label={`Lägg ${product.name} i varukorgen`}
               >

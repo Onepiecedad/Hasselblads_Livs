@@ -38,11 +38,15 @@ export type Product = {
   price: number;
   unit: string;
   priceUnit?: 'kg' | 'st';       // Raw unit type for display
+  pricingType?: 'unit_based' | 'weight_based'; // Pristyp från PIM
+  pricePerKg?: number;           // Kg-pris (visas som sekundär info för viktbaserade)
+  estimatedWeightG?: number;     // Uppskattad vikt i gram (för viktbaserade produkter)
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
   weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
+  sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar (t.ex. halv ost)
 
   // Baksideinformation (från PIM-appen)
   backImageUrl?: string;        // Bild på förpackningens baksida

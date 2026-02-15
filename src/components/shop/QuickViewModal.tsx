@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject } from "react";
+import { useEffect, useState, useMemo, type RefObject } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
+import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
 
 export type QuickViewProduct = {
   id: string;
@@ -19,17 +20,21 @@ export type QuickViewProduct = {
   price: number;
   unit: string;
   priceUnit?: 'kg' | 'st';
+  pricingType?: 'unit_based' | 'weight_based';
+  pricePerKg?: number;
+  estimatedWeightG?: number;
   approximateWeight?: string;
   origin: { country: string; flag: string };
   image: string;
   tags: string[];
+  sold_as?: ('hel' | 'halv' | 'kvart')[];
 };
 
 interface QuickViewModalProps {
   product: QuickViewProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddToCart: (product: QuickViewProduct, quantity: number) => void;
+  onAddToCart: (product: QuickViewProduct, quantity: number, portion?: PortionSize) => void;
   returnFocusRef?: RefObject<HTMLElement> | null;
 }
 
@@ -47,6 +52,19 @@ function formatWeight(grams: number): string {
 
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
+
+  // Portionsval
+  const hasPortions = product?.sold_as && product.sold_as.length > 1;
+  const defaultPortion = product?.sold_as?.[0] ?? 'hel';
+  const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
+
+  const portionPrice = useMemo(() => {
+    if (!product) return 0;
+    if (!hasPortions) return product.price;
+    return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
+  }, [product, selectedPortion, hasPortions]);
+
+  const displayPrice = hasPortions ? portionPrice : (product?.price ?? 0);
 
   // Browser back button support: push history state when opening
   useEffect(() => {
@@ -80,8 +98,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   useEffect(() => {
     if (open) {
       setQuantity(1);
+      if (product?.sold_as?.[0]) {
+        setSelectedPortion(product.sold_as[0]);
+      }
     }
-  }, [open]);
+  }, [open, product]);
 
   const handleQuantityChange = (value: string) => {
     const next = Number.parseInt(value, 10);
@@ -94,7 +115,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   const handleAddToCart = () => {
     if (product) {
-      onAddToCart(product, quantity);
+      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
     }
   };
 
@@ -103,10 +124,12 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const weightPerUnit = product?.approximateWeight ? parseWeight(product.approximateWeight) : null;
   const showEstimate = isPieceItem && weightPerUnit && quantity > 1;
   const estimatedTotalWeight = weightPerUnit ? weightPerUnit * quantity : 0;
-  const estimatedTotalPrice = product ? product.price * quantity : 0;
+  const estimatedTotalPrice = product ? displayPrice * quantity : 0;
 
   // Unit display label
-  const unitLabel = product?.priceUnit === 'kg' ? 'per kg' : 'per st';
+  const unitLabel = product?.pricingType === 'weight_based'
+    ? 'per st (viktpris)'
+    : product?.priceUnit === 'kg' ? 'per kg' : 'per st';
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -147,14 +170,55 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       </Badge>
                     </div>
 
+                    {/* Portionsväljare (pill-knappar) */}
+                    {hasPortions && (
+                      <div className="flex gap-1.5">
+                        {product.sold_as!.map((p) => (
+                          <button
+                            key={p}
+                            type="button"
+                            onClick={() => setSelectedPortion(p)}
+                            className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${selectedPortion === p
+                              ? 'bg-primary text-primary-foreground border-primary'
+                              : 'bg-muted/40 text-muted-foreground border-border/50 hover:bg-muted'
+                              }`}
+                          >
+                            {PORTION_LABELS[p]}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
                     {/* Price */}
                     <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
-                      <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                      {product.pricingType === 'weight_based' ? (
+                        <>
+                          <span className="text-3xl font-bold text-primary">ca {formatPrice(displayPrice)}</span>
+                          <span className="text-xl text-muted-foreground">kr/st</span>
+                          {hasPortions && selectedPortion !== 'hel' && (
+                            <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-3xl font-bold text-primary">{formatPrice(displayPrice)}</span>
+                          <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                          {hasPortions && selectedPortion !== 'hel' && (
+                            <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
+                          )}
+                        </>
+                      )}
                     </div>
 
+                    {/* Weight-based price info */}
+                    {product.pricingType === 'weight_based' && product.pricePerKg && (
+                      <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
+                        {formatPrice(product.pricePerKg)} kr/kg · ca {product.estimatedWeightG} g
+                      </p>
+                    )}
+
                     {/* Approximate weight for per-piece items */}
-                    {isPieceItem && product.approximateWeight && (
+                    {product.pricingType !== 'weight_based' && isPieceItem && product.approximateWeight && !hasPortions && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
                         ≈ {product.approximateWeight} per styck
                       </p>
@@ -199,7 +263,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     {showEstimate && (
                       <div className="bg-muted/60 rounded-xl p-3 space-y-1 text-sm">
                         <div className="flex justify-between">
-                          <span className="text-muted-foreground">{quantity} st × {formatPrice(product.price)} kr</span>
+                          <span className="text-muted-foreground">{quantity} st × {formatPrice(displayPrice)} kr</span>
                           <span className="font-semibold">Cirka {formatPrice(estimatedTotalPrice)} kr</span>
                         </div>
                         <div className="flex justify-between">
@@ -268,7 +332,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(product.price * quantity)} kr`}
+                  {showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
                 </Button>
               </div>
             </div>

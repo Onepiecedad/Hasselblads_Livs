@@ -25,7 +25,14 @@ interface PIMProduct {
     is_published?: boolean;  // true = visas på hemsidan
     woocommerce_id?: number; // WooCommerce product ID
     tags?: string[];         // Produkttaggar (sasong, eko, etc.)
+    sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar
     csvData?: Record<string, string>;
+
+    // Viktbaserad prissättning (från PIM)
+    pricing_type?: 'unit_based' | 'weight_based';
+    price_per_kg?: number;
+    estimated_weight_g?: number;
+    estimated_piece_price?: number;
 
     // Baksideinformation (från PIM-appen)
     backImageUrl?: string;
@@ -227,6 +234,15 @@ function transformProduct(pim: PIMProduct): Product {
     const mainCategory = pim.main_category || pim.csvData?.['Huvudkategori'];
     const kgSt = pim.csvData?.['Kg/st'];
 
+    // Viktbaserad prissättning: beräkna uppskattat styckepris
+    const isWeightBased = pim.pricing_type === 'weight_based';
+    let price: number;
+    if (isWeightBased && (pim.estimated_piece_price || (pim.price_per_kg && pim.estimated_weight_g))) {
+        price = pim.estimated_piece_price ?? (pim.price_per_kg! * pim.estimated_weight_g! / 1000);
+    } else {
+        price = pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0');
+    }
+
     return {
         id: pim.id,
         name: pim.display_name || pim.product_name,
@@ -234,9 +250,12 @@ function transformProduct(pim: PIMProduct): Product {
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
-        price: pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0'),
+        price,
         unit: parseUnit(kgSt),
-        priceUnit: parsePriceUnit(kgSt),
+        priceUnit: isWeightBased ? 'st' : parsePriceUnit(kgSt),
+        pricingType: pim.pricing_type,
+        pricePerKg: isWeightBased ? pim.price_per_kg : undefined,
+        estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
         origin: {
@@ -245,6 +264,7 @@ function transformProduct(pim: PIMProduct): Product {
         },
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
         woocommerce_id: pim.woocommerce_id,
+        sold_as: pim.sold_as,
 
         // Baksideinformation (mappa från PIM om det finns)
         backImageUrl: pim.backImageUrl,
