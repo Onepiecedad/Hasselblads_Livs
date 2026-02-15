@@ -23,6 +23,11 @@ export type QuickViewProduct = {
   origin: { country: string; flag: string };
   image: string;
   tags: string[];
+  // Viktbaserad prissättning
+  pricing_type?: 'fixed' | 'weight_based' | 'bulk_weight';
+  price_per_kg?: number;
+  estimated_weight_g?: number;
+  estimated_piece_price?: number;
 };
 
 interface QuickViewModalProps {
@@ -106,7 +111,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const estimatedTotalPrice = product ? product.price * quantity : 0;
 
   // Unit display label
-  const unitLabel = product?.priceUnit === 'kg' ? 'per kg' : 'per st';
+  const isWeightBased = product?.pricing_type === 'weight_based' && !!product?.estimated_piece_price;
+  const unitLabel = isWeightBased ? 'per st' : (product?.priceUnit === 'kg' ? 'per kg' : 'per st');
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -148,16 +154,31 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     </div>
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
-                      <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
-                    </div>
+                    {isWeightBased ? (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-bold text-primary">ca {formatPrice(product.estimated_piece_price!)}</span>
+                          <span className="text-xl text-muted-foreground">kr/st</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {product.price_per_kg ? `${formatPrice(product.price_per_kg)} kr/kg` : ''}
+                          {product.estimated_weight_g ? ` · ca ${product.estimated_weight_g} g` : ''}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
+                          <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                        </div>
 
-                    {/* Approximate weight for per-piece items */}
-                    {isPieceItem && product.approximateWeight && (
-                      <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
-                        ≈ {product.approximateWeight} per styck
-                      </p>
+                        {/* Approximate weight for per-piece items */}
+                        {isPieceItem && product.approximateWeight && (
+                          <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
+                            ≈ {product.approximateWeight} per styck
+                          </p>
+                        )}
+                      </>
                     )}
 
                     {/* Quantity selector - hidden on mobile (shown in sticky footer) */}
@@ -268,7 +289,10 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(product.price * quantity)} kr`}
+                  {isWeightBased
+                    ? `ca ${formatPrice(product.price * quantity)} kr`
+                    : showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(product.price * quantity)} kr`
+                  }
                 </Button>
               </div>
             </div>
