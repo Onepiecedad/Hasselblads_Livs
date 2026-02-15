@@ -14,7 +14,7 @@ import QuickViewModal from "@/components/shop/QuickViewModal";
 import { sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { focusCards, getFallbackTag } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
-import { useCart } from "@/context/CartContext";
+import { useCart, type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
 import usePageMetadata from "@/hooks/usePageMetadata";
 import { useFeaturedContent, type FeatureCardId } from "@/hooks/useFeaturedContent";
 import { toast } from "sonner";
@@ -327,28 +327,31 @@ const Webshop = () => {
         return result;
     }, [filteredProducts, activeCategory]);
 
-    const handleAddToCart = (product: Product, quantity = 1, openCart = false) => {
+    const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize) => {
+        const portionPrice = portion
+            ? Math.round(product.price * PORTION_MULTIPLIERS[portion])
+            : product.price;
+
         addItem({
             id: product.id,
+            productId: product.id,
             name: product.name,
-            price: product.price,
+            price: portionPrice,
             unit: product.unit,
             image: product.image,
-            woocommerce_id: product.woocommerce_id
+            woocommerce_id: product.woocommerce_id,
+            portion,
+            portionLabel: portion ? PORTION_LABELS[portion] : undefined,
         }, quantity);
 
-        // Show toast notification
-        toast.success(`${quantity > 1 ? quantity + " " : ""}${product.name} tillagd i varukorgen`, {
+        const label = portion && portion !== 'hel' ? ` (${PORTION_LABELS[portion].toLowerCase()})` : '';
+        toast.success(`${quantity > 1 ? quantity + " " : ""}${product.name}${label} tillagd i varukorgen`, {
             duration: 2500,
             action: {
                 label: "Visa varukorg",
                 onClick: () => setOpen(true),
             },
         });
-
-        if (openCart) {
-            setOpen(true);
-        }
     };
 
     const productSchemaGraph = useMemo(
@@ -569,9 +572,10 @@ const Webshop = () => {
                 product={quickViewProduct}
                 open={quickViewOpen}
                 onOpenChange={setQuickViewOpen}
-                onAddToCart={(product, quantity) => {
-                    handleAddToCart(product as Product, quantity, true);
+                onAddToCart={(product, quantity, portion) => {
+                    handleAddToCart(product as Product, quantity, portion);
                     setQuickViewOpen(false);
+                    setOpen(true);
                 }}
                 returnFocusRef={returnFocusRef}
             />

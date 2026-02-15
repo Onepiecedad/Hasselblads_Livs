@@ -133,7 +133,12 @@ const MiniCartDrawer = () => {
 
                     {/* Product info */}
                     <div className="flex flex-col justify-center min-w-0">
-                      <h3 className="text-base md:text-lg font-semibold leading-snug line-clamp-2">{item.name}</h3>
+                      <h3 className="text-base md:text-lg font-semibold leading-snug line-clamp-2">
+                        {item.name}
+                        {item.portionLabel && item.portionLabel !== 'Hel' && (
+                          <span className="text-sm font-normal text-muted-foreground ml-1">({item.portionLabel.toLowerCase()})</span>
+                        )}
+                      </h3>
                       <p className="text-sm md:text-base text-muted-foreground mt-0.5">{item.unit}</p>
                       {/* Mobile: quantity and price inline */}
                       <div className="flex items-center justify-between mt-2 sm:hidden">

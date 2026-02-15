@@ -1,12 +1,29 @@
 import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
 
+export type PortionSize = 'hel' | 'halv' | 'kvart';
+
+export const PORTION_LABELS: Record<PortionSize, string> = {
+  hel: 'Hel',
+  halv: 'Halv',
+  kvart: 'Kvart',
+};
+
+export const PORTION_MULTIPLIERS: Record<PortionSize, number> = {
+  hel: 1,
+  halv: 0.5,
+  kvart: 0.25,
+};
+
 export type CartItem = {
-  id: string;
+  id: string;         // Unik id: productId eller productId__portion
+  productId: string;  // Original produkt-id (utan portion-suffix)
   name: string;
   price: number;
   unit: string;
   image: string;
   quantity: number;
+  portion?: PortionSize;
+  portionLabel?: string; // T.ex. "Halv"
   woocommerce_id?: number; // WooCommerce product ID for checkout
 };
 
@@ -49,7 +66,11 @@ const loadCartFromStorage = (): CartItem[] => {
       if (Array.isArray(parsed) && parsed.every(item =>
         item.id && typeof item.name === 'string' && typeof item.price === 'number' && typeof item.quantity === 'number'
       )) {
-        return parsed;
+        // Backward compat: backfill productId for old cart items
+        return parsed.map((item: CartItem) => ({
+          ...item,
+          productId: item.productId || item.id.split('__')[0],
+        }));
       }
     }
   } catch (e) {
