@@ -533,9 +533,9 @@ const Webshop = () => {
                             </button>
                         )}
                     </div>
-                    <p className="text-[11px] text-muted-foreground/50 mt-2 tracking-wide">
-                        ℹ︎ Beställ dagen före önskad leverans. Pris och sortiment kan ändras vid tidigare beställning.
-                    </p>
+                    <div className="mt-4 rounded-xl bg-primary/5 border border-primary/10 px-4 py-2.5 text-[13px] text-primary/70 text-center">
+                        🌿 Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
+                    </div>
 
                     <div ref={productsGridRef} className="scroll-mt-24 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
                         {isLoading ? (
