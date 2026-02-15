@@ -106,7 +106,35 @@ export default async (request: Request, context: Context): Promise<Response> => 
                     }));
                 } else {
                     // Return text-based content (HTML, JSON, CSS, JS)
-                    resolve(new Response(responseBuffer.toString("utf-8"), {
+                    let textBody = responseBuffer.toString("utf-8");
+
+                    // Inject delivery-note script into WooCommerce checkout pages
+                    const isCheckoutPage = /^\/(kassa|kassan)(\/|$)/.test(targetPath);
+                    const deliveryNote = url.searchParams.get("delivery_note");
+                    const isHtml = /text\/html/i.test(contentType);
+
+                    if (isCheckoutPage && deliveryNote && isHtml && textBody.includes("</body>")) {
+                        const safeNote = deliveryNote
+                            .replace(/\\/g, "\\\\")
+                            .replace(/'/g, "\\'")
+                            .replace(/\n/g, "\\n");
+                        const injectScript = `
+<script>
+(function(){
+  var note = decodeURIComponent('${safeNote}');
+  function fill() {
+    var f = document.getElementById('order_comments');
+    if (f) { f.value = note; f.dispatchEvent(new Event('change',{bubbles:true})); }
+    else { setTimeout(fill, 500); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill);
+  else fill();
+})();
+</script>`;
+                        textBody = textBody.replace("</body>", injectScript + "\n</body>");
+                    }
+
+                    resolve(new Response(textBody, {
                         status: proxyRes.statusCode || 200,
                         headers: responseHeaders,
                     }));

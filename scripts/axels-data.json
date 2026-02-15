@@ -1,0 +1,1802 @@
+[
+  {
+    "name": "Banan Eko Fairtrade I morgon",
+    "vikt_gram": "134-220",
+    "kg_st": "st",
+    "active": 1,
+    "price": null,
+    "sale_price": null
+  },
+  {
+    "name": "Banan Eko Fairtrade i övermorgon",
+    "vikt_gram": "134-220",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Banan Eko Fairtrade Idag",
+    "vikt_gram": "134-220",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Banan Eko I morgon",
+    "vikt_gram": "134-120",
+    "kg_st": "st",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": 29.0
+  },
+  {
+    "name": "Banan Eko I övermorgon",
+    "vikt_gram": "134-120",
+    "kg_st": "st",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": 29.0
+  },
+  {
+    "name": "Banan Eko Idag",
+    "vikt_gram": "134-120",
+    "kg_st": "st",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": 29.0
+  },
+  {
+    "name": "Apelsin",
+    "vikt_gram": "294-320",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": 35.0
+  },
+  {
+    "name": "Pomerans",
+    "vikt_gram": "69-142",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Apelsin",
+    "vikt_gram": "280-412",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Apelsin",
+    "vikt_gram": "294-320",
+    "kg_st": "st",
+    "active": 0,
+    "price": 35.0,
+    "sale_price": null
+  },
+  {
+    "name": "Apelsin",
+    "vikt_gram": "294-320",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": 35.0
+  },
+  {
+    "name": "Blodapelsin",
+    "vikt_gram": "138-182",
+    "kg_st": "st",
+    "active": 0,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blodapelsin",
+    "vikt_gram": "138-182",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blodapelsin Gyllene korset",
+    "vikt_gram": "138-182",
+    "kg_st": "st",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blodapelsin Dracula",
+    "vikt_gram": "138-182",
+    "kg_st": "st",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Citron",
+    "vikt_gram": "150-200",
+    "kg_st": "st",
+    "active": 1,
+    "price": 8.9,
+    "sale_price": null
+  },
+  {
+    "name": "Citron Eko",
+    "vikt_gram": "110-140",
+    "kg_st": "st",
+    "active": 1,
+    "price": 14.9,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 1,
+    "price": 69.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Clementin",
+    "vikt_gram": "78-106",
+    "kg_st": "st",
+    "active": 1,
+    "price": 44.9,
+    "sale_price": null
+  },
+  {
+    "name": "Grapefrukt Röd",
+    "vikt_gram": "250-300",
+    "kg_st": "st",
+    "active": 1,
+    "price": 16.9,
+    "sale_price": null
+  },
+  {
+    "name": "Lime",
+    "vikt_gram": "60-85",
+    "kg_st": "st",
+    "active": 1,
+    "price": 6.9,
+    "sale_price": null
+  },
+  {
+    "name": "Satsumas",
+    "vikt_gram": "90-103",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": 29.0
+  },
+  {
+    "name": "Druvor Gröna i ask kärnfria",
+    "vikt_gram": "500",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": 45.0
+  },
+  {
+    "name": "Druvor röda i ask kärnfria",
+    "vikt_gram": "500",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": 49.0
+  },
+  {
+    "name": "Gröna druvor lösvikt kärnfria",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 149.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röda druvor lösvikt kärnfria",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Avokado I övermorgon Dubbellägga?",
+    "vikt_gram": "140-160",
+    "kg_st": "St",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Ananas Super Sweet",
+    "vikt_gram": "1265-1315",
+    "kg_st": "st",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Ananas Super Sweet Delad Halv/kvart",
+    "vikt_gram": "1265-1315",
+    "kg_st": "st",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Färska fikon",
+    "vikt_gram": "30-50",
+    "kg_st": "St",
+    "active": 0,
+    "price": 11.9,
+    "sale_price": null
+  },
+  {
+    "name": "Granatäpple",
+    "vikt_gram": "200-300",
+    "kg_st": "St",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Kaki",
+    "vikt_gram": "175-225",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Kiwi Grön",
+    "vikt_gram": "125-175",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Kiwi Gul",
+    "vikt_gram": "125-175",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Mango ätmogen",
+    "vikt_gram": "425-500",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Passionsfrukt",
+    "vikt_gram": "25-35",
+    "kg_st": "St",
+    "active": 1,
+    "price": 11.9,
+    "sale_price": null
+  },
+  {
+    "name": "Persimon",
+    "vikt_gram": "175-225",
+    "kg_st": "St",
+    "active": 0,
+    "price": 12.9,
+    "sale_price": null
+  },
+  {
+    "name": "Physalis",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Sharon",
+    "vikt_gram": "75-125",
+    "kg_st": "St",
+    "active": 0,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Stor grön kiwi",
+    "vikt_gram": "110-120",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Stor gul kiwi",
+    "vikt_gram": "110-120",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Trädmogen mango",
+    "vikt_gram": "400-475",
+    "kg_st": "St",
+    "active": 1,
+    "price": 69.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blåbär",
+    "vikt_gram": "125",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": 29.0
+  },
+  {
+    "name": "Hallon",
+    "vikt_gram": "125",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Tranbär",
+    "vikt_gram": "125",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Jordgubbar",
+    "vikt_gram": "500",
+    "kg_st": "St",
+    "active": 0,
+    "price": 89.0,
+    "sale_price": null
+  },
+  {
+    "name": "Lingon i tråg",
+    "vikt_gram": "1000",
+    "kg_st": "St",
+    "active": 0,
+    "price": 169.0,
+    "sale_price": null
+  },
+  {
+    "name": "Lingon i hink",
+    "vikt_gram": "500",
+    "kg_st": "St",
+    "active": 0,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Dill i knippe",
+    "vikt_gram": "60",
+    "kg_st": "st",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Dragon kruka",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Gräslök Kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 27.9,
+    "sale_price": null
+  },
+  {
+    "name": "Basilika kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 22.9,
+    "sale_price": null
+  },
+  {
+    "name": "Basilika Warberg",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Bladpersilja i knippe",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 15.0,
+    "sale_price": null
+  },
+  {
+    "name": "Koriander kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": 25.0
+  },
+  {
+    "name": "Kruspersilja i knippe",
+    "vikt_gram": "50",
+    "kg_st": "St",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Mynta kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Oregano kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Rosmarin kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Salvia kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Timjan Kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Gurka",
+    "vikt_gram": "250-300",
+    "kg_st": "St",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Svensk Gurka",
+    "vikt_gram": "250-300",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Blomkål Delad Halv/kvart",
+    "vikt_gram": "515-848",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": 55.0
+  },
+  {
+    "name": "Savoykål Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Broccoli",
+    "vikt_gram": "250",
+    "kg_st": "St",
+    "active": 1,
+    "price": 16.9,
+    "sale_price": null
+  },
+  {
+    "name": "Brysselkål",
+    "vikt_gram": "500",
+    "kg_st": "St",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Brysselkål",
+    "vikt_gram": "500",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Fänkål",
+    "vikt_gram": "89-350",
+    "kg_st": "St",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": 39.0
+  },
+  {
+    "name": "Färsk vitkål Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Grönkål",
+    "vikt_gram": "200",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Röd Salladskål Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Rödkål Delad Halv/kvart",
+    "vikt_gram": "1101-2520",
+    "kg_st": "st",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Salladskål Delad Halv/kvart",
+    "vikt_gram": "500-1100",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Spetskål Delad Halv/kvart",
+    "vikt_gram": "500-1928",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Spetskål Delad Halv/kvart",
+    "vikt_gram": "500-1928",
+    "kg_st": "st",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Svartkål",
+    "vikt_gram": "200",
+    "kg_st": "st",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Vitkål Delad Halv/kvart",
+    "vikt_gram": "800-3530",
+    "kg_st": "st",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Färsk vitlök",
+    "vikt_gram": "50-100",
+    "kg_st": "st",
+    "active": 1,
+    "price": 199.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gul lök",
+    "vikt_gram": "50-170",
+    "kg_st": "st",
+    "active": 1,
+    "price": 14.9,
+    "sale_price": null
+  },
+  {
+    "name": "Purjolök",
+    "vikt_gram": "200-350",
+    "kg_st": "st",
+    "active": 0,
+    "price": 35.0,
+    "sale_price": null
+  },
+  {
+    "name": "Purjolök",
+    "vikt_gram": "200-350",
+    "kg_st": "st",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "RoscoffLök",
+    "vikt_gram": "140-260",
+    "kg_st": "st",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Rosévitlök",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 199.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röd lök",
+    "vikt_gram": "50-170",
+    "kg_st": "st",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Salladslök i knippe",
+    "vikt_gram": "125-175",
+    "kg_st": "st",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Schalottenlök Banan",
+    "vikt_gram": "24-120",
+    "kg_st": "st",
+    "active": 1,
+    "price": 69.0,
+    "sale_price": null
+  },
+  {
+    "name": "Svart Vitlök",
+    "vikt_gram": "50",
+    "kg_st": "st",
+    "active": 1,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Sweet Onion Lök",
+    "vikt_gram": "130-170",
+    "kg_st": "st",
+    "active": 1,
+    "price": 119.0,
+    "sale_price": null
+  },
+  {
+    "name": "Tropealök",
+    "vikt_gram": "130-170",
+    "kg_st": "st",
+    "active": 0,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Majs 2-pack förkokt vakuumförpackad",
+    "vikt_gram": "400",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Majskolvar förkokta 2 st delade i sex bitar vakuumförpackad",
+    "vikt_gram": "600",
+    "kg_st": "st",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Cantaloupe melon Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 35.0,
+    "sale_price": null
+  },
+  {
+    "name": "Galia melon Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Honungsmelon Delad Halv/kvart",
+    "vikt_gram": "1500-2100",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Piel Del Sapo Delad Halv/kvart",
+    "vikt_gram": "1600-3000",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Sweet Heart melon Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Vattenmelon Delad Halv/kvart",
+    "vikt_gram": "",
+    "kg_st": "st",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Grön Paprika",
+    "vikt_gram": "150-285",
+    "kg_st": "st",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röd spetspaprika",
+    "vikt_gram": "80-95",
+    "kg_st": "st",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gul Paprika",
+    "vikt_gram": "120-285",
+    "kg_st": "st",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Orange paprika",
+    "vikt_gram": "120-285",
+    "kg_st": "st",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röd Paprika",
+    "vikt_gram": "120-285",
+    "kg_st": "st",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Spetspaprika",
+    "vikt_gram": "250",
+    "kg_st": "st",
+    "active": 0,
+    "price": 34.9,
+    "sale_price": null
+  },
+  {
+    "name": "Röd Spetspaprika",
+    "vikt_gram": "250",
+    "kg_st": "St",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": null
+  },
+  {
+    "name": "Fast potatis",
+    "vikt_gram": "100-505",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 14.9,
+    "sale_price": null
+  },
+  {
+    "name": "Mjölig potatis King Edward Jordig",
+    "vikt_gram": "100-505",
+    "kg_st": "Kg",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Mjölig potatis King Edward Tvättad",
+    "vikt_gram": "100-505",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Amandine påse",
+    "vikt_gram": "900",
+    "kg_st": "St",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Fast potatis",
+    "vikt_gram": "2000",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Gourmetpotatis påse",
+    "vikt_gram": "900",
+    "kg_st": "St",
+    "active": 0,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Mjölig potatis King Edward",
+    "vikt_gram": "2000",
+    "kg_st": "St",
+    "active": 0,
+    "price": 44.0,
+    "sale_price": null
+  },
+  {
+    "name": "Potatis Delikatess",
+    "vikt_gram": "900",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Potatis julpåse",
+    "vikt_gram": "900",
+    "kg_st": "St",
+    "active": 0,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Tjörnpotatis",
+    "vikt_gram": "2000",
+    "kg_st": "St",
+    "active": 1,
+    "price": 89.0,
+    "sale_price": null
+  },
+  {
+    "name": "Carola päron",
+    "vikt_gram": "250-300",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Clara Frijs päron",
+    "vikt_gram": "160-261",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Conference päron",
+    "vikt_gram": "160-261",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Herzogin Elsa Päron",
+    "vikt_gram": "250-300",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Alexander Lukas päron",
+    "vikt_gram": "250-300",
+    "kg_st": "St",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Santa Maria päron",
+    "vikt_gram": "150-200",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Svartrot",
+    "vikt_gram": "25-55",
+    "kg_st": "St",
+    "active": 1,
+    "price": 89.0,
+    "sale_price": null
+  },
+  {
+    "name": "Pepparrot",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 0,
+    "price": 199.0,
+    "sale_price": null
+  },
+  {
+    "name": "Lila sötpotatis",
+    "vikt_gram": "410-530",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Vit Rättika",
+    "vikt_gram": "100-300",
+    "kg_st": "St",
+    "active": 1,
+    "price": 89.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gul morot",
+    "vikt_gram": "50-250",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Gulbeta",
+    "vikt_gram": "150-327",
+    "kg_st": "st",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Kålrabbi",
+    "vikt_gram": "200-310",
+    "kg_st": "st",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Kålrot Delad Halv/kvart",
+    "vikt_gram": "320-1228",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Lila morot",
+    "vikt_gram": "50-250",
+    "kg_st": "st",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Majrova",
+    "vikt_gram": "210-300",
+    "kg_st": "st",
+    "active": 0,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Majrova",
+    "vikt_gram": "210-300",
+    "kg_st": "st",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Morötter",
+    "vikt_gram": "1000",
+    "kg_st": "St",
+    "active": 1,
+    "price": 24.9,
+    "sale_price": null
+  },
+  {
+    "name": "Morötter i Knippe",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Orange (vanlig) morot",
+    "vikt_gram": "50-250",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Palsternackor",
+    "vikt_gram": "50-150",
+    "kg_st": "St",
+    "active": 1,
+    "price": 44.9,
+    "sale_price": 39.0
+  },
+  {
+    "name": "Rotselleri",
+    "vikt_gram": "500-850",
+    "kg_st": "st",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": 45.0
+  },
+  {
+    "name": "Rädisor i bunt",
+    "vikt_gram": "175-225",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Rädisor i strut",
+    "vikt_gram": "125",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Röd morot",
+    "vikt_gram": "50-250",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Rödbetor",
+    "vikt_gram": "150-327",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": 19.0
+  },
+  {
+    "name": "Rödkål Delad Halv/kvart",
+    "vikt_gram": "1000-3000",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Snackmorötter",
+    "vikt_gram": "200",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Sötpotatis",
+    "vikt_gram": "125-600",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Vit morot",
+    "vikt_gram": "50-250",
+    "kg_st": "St",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Babyspenat",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Isbergssallad",
+    "vikt_gram": "350-600",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Krispsallad",
+    "vikt_gram": "156-180",
+    "kg_st": "St",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": null
+  },
+  {
+    "name": "Krispsallad",
+    "vikt_gram": "170-190",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Machésallad",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Pak Choi",
+    "vikt_gram": "450-550",
+    "kg_st": "St",
+    "active": 0,
+    "price": 44.9,
+    "sale_price": null
+  },
+  {
+    "name": "Plocksallat i kruka",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Romansallad",
+    "vikt_gram": "250-320",
+    "kg_st": "St",
+    "active": 1,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Romansallad",
+    "vikt_gram": "250-320",
+    "kg_st": "St",
+    "active": 0,
+    "price": 29.9,
+    "sale_price": null
+  },
+  {
+    "name": "Rosésallad",
+    "vikt_gram": "150-280",
+    "kg_st": "St",
+    "active": 1,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Ruccola i cellofanpåse",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Salladsmix i cellofanpåse",
+    "vikt_gram": "100",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Grön Sparris",
+    "vikt_gram": "250",
+    "kg_st": "St",
+    "active": 0,
+    "price": 79.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gul persika",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Nektarin",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Plommon",
+    "vikt_gram": "60-80",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Champinjoner",
+    "vikt_gram": "5-45",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Kantareller",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 0,
+    "price": 349.0,
+    "sale_price": null
+  },
+  {
+    "name": "Skogschampinjon",
+    "vikt_gram": "5-45",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Portabello",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 0,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Cocktailtomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 1,
+    "price": 159.0,
+    "sale_price": null
+  },
+  {
+    "name": "Delioso tomat",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gourami tomat",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gröna miniplommontomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gula körsbärstomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Gula miniplommontomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Nightshade tomat",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Orangea miniplommontomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röda körsbärstomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röda miniplommontomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Yoom tomater",
+    "vikt_gram": "5-10",
+    "kg_st": "St",
+    "active": 0,
+    "price": 179.0,
+    "sale_price": null
+  },
+  {
+    "name": "Bifftomat",
+    "vikt_gram": "180-232",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Kvisttomater",
+    "vikt_gram": "65-220",
+    "kg_st": "St",
+    "active": 1,
+    "price": 69.0,
+    "sale_price": null
+  },
+  {
+    "name": "Lila Murice tomat",
+    "vikt_gram": "180-232",
+    "kg_st": "St",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Sweet Marmande tomat",
+    "vikt_gram": "150-200",
+    "kg_st": "St",
+    "active": 0,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Tomater",
+    "vikt_gram": "65-190",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Tomater",
+    "vikt_gram": "65-190",
+    "kg_st": "St",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": 39.0
+  },
+  {
+    "name": "Tomater",
+    "vikt_gram": "65-190",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Aroma äpple",
+    "vikt_gram": "175-210",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Cox Orange äpple",
+    "vikt_gram": "135-150",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Kanzi äpple",
+    "vikt_gram": "134-150",
+    "kg_st": "St",
+    "active": 1,
+    "price": 54.0,
+    "sale_price": null
+  },
+  {
+    "name": "Cosmic Crisp äpple",
+    "vikt_gram": "184-190",
+    "kg_st": "St",
+    "active": 1,
+    "price": 55.0,
+    "sale_price": null
+  },
+  {
+    "name": "Discovery äpple",
+    "vikt_gram": "135-150",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Granny Smith äpple",
+    "vikt_gram": "184-220",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Pink Lady äpple",
+    "vikt_gram": "135-150",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Granny Smith äpple",
+    "vikt_gram": "184-220",
+    "kg_st": "St",
+    "active": 1,
+    "price": 59.0,
+    "sale_price": 55.0
+  },
+  {
+    "name": "Gravensteiner äpple",
+    "vikt_gram": "184-220",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Ingrid Marie Äpple",
+    "vikt_gram": "175-210",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Jazz äpple",
+    "vikt_gram": "180-210",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": 39.0
+  },
+  {
+    "name": "Royal Gala äpple",
+    "vikt_gram": "140-155",
+    "kg_st": "St",
+    "active": 1,
+    "price": 39.9,
+    "sale_price": null
+  },
+  {
+    "name": "Royal Gala äpple",
+    "vikt_gram": "140-155",
+    "kg_st": "St",
+    "active": 0,
+    "price": 59.0,
+    "sale_price": null
+  },
+  {
+    "name": "Rubinola äpple",
+    "vikt_gram": "140-155",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Rubinstep äpple",
+    "vikt_gram": "130-165",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Wilton äpple",
+    "vikt_gram": "130-165",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Saga äpple",
+    "vikt_gram": "184-220",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Santana äpple",
+    "vikt_gram": "130-165",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Signe Tillisch äpple",
+    "vikt_gram": "130-165",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Åkerö äpple",
+    "vikt_gram": "150-200",
+    "kg_st": "St",
+    "active": 0,
+    "price": 39.0,
+    "sale_price": null
+  },
+  {
+    "name": "Sockerärtor",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 0,
+    "price": 249.0,
+    "sale_price": null
+  },
+  {
+    "name": "Sugarsnaps",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 0,
+    "price": 249.0,
+    "sale_price": null
+  },
+  {
+    "name": "Ingefära",
+    "vikt_gram": "",
+    "kg_st": "Kg",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Aubergine",
+    "vikt_gram": "200-400",
+    "kg_st": "St",
+    "active": 1,
+    "price": 129.0,
+    "sale_price": null
+  },
+  {
+    "name": "Avocado Idag",
+    "vikt_gram": "140-160",
+    "kg_st": "St",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Avocado Imorgon",
+    "vikt_gram": "140-160",
+    "kg_st": "St",
+    "active": 1,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Avokado Mellanstor",
+    "vikt_gram": "140-160",
+    "kg_st": "St",
+    "active": 1,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blaze pumpa",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Blekselleri",
+    "vikt_gram": "470-500",
+    "kg_st": "St",
+    "active": 1,
+    "price": 34.9,
+    "sale_price": null
+  },
+  {
+    "name": "Butternutpumpa Delad Halv/kvart",
+    "vikt_gram": "1000-1200",
+    "kg_st": "St",
+    "active": 1,
+    "price": 25.0,
+    "sale_price": null
+  },
+  {
+    "name": "Dekorationspumpa",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Grön Zucchini",
+    "vikt_gram": "250-450",
+    "kg_st": "St",
+    "active": 1,
+    "price": 99.0,
+    "sale_price": null
+  },
+  {
+    "name": "Halloweenpumpa",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 19.9,
+    "sale_price": null
+  },
+  {
+    "name": "Hokkaido pumpa",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Uchiki Kuri pumpa",
+    "vikt_gram": "",
+    "kg_st": "St",
+    "active": 0,
+    "price": 49.0,
+    "sale_price": null
+  },
+  {
+    "name": "Röd Chilipeppar",
+    "vikt_gram": "5-20",
+    "kg_st": "St",
+    "active": 1,
+    "price": 149.0,
+    "sale_price": null
+  }
+]

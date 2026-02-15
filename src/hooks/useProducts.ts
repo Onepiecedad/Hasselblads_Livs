@@ -258,6 +258,8 @@ function transformProduct(pim: PIMProduct): Product {
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
+
+
         origin: {
             country: country || 'Okänt',
             flag: FLAG_MAP[country] || '🌍'

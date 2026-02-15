@@ -59,7 +59,8 @@ async function addToWooCommerceCart(productId: number, quantity: number): Promis
  */
 export async function addItemsAndRedirectToCheckout(
     items: CartItem[],
-    clearLocalCart?: () => void
+    clearLocalCart?: () => void,
+    deliveryNote?: string
 ): Promise<void> {
     const validItems = items.filter(item => item.woocommerce_id);
 
@@ -80,12 +81,17 @@ export async function addItemsAndRedirectToCheckout(
         }
     }
 
+    // Build query string for delivery note
+    const noteParam = deliveryNote
+        ? `?delivery_note=${encodeURIComponent(deliveryNote)}`
+        : '';
+
     // Om Store API lyckades med minst en produkt, rensa lokal varukorg och redirecta
     if (successCount > 0) {
         console.log(`[WooCommerce] ✅ ${successCount}/${validItems.length} produkter tillagda via API`);
         if (clearLocalCart) clearLocalCart();
         // Redirect to WooCommerce checkout via proxy
-        window.location.href = `${WC_URL || 'https://hasselbladslivs.se'}/kassa`;
+        window.location.href = `${WC_URL || 'https://hasselbladslivs.se'}/kassa${noteParam}`;
         return;
     }
 
@@ -96,7 +102,10 @@ export async function addItemsAndRedirectToCheckout(
     // Fallback: redirect to WooCommerce directly with add-to-cart params
     const firstItem = validItems[0];
     const fallbackUrl = WC_URL || 'https://hasselbladslivs.se';
-    window.location.href = `${fallbackUrl}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}`;
+    const noteQuery = deliveryNote
+        ? `&delivery_note=${encodeURIComponent(deliveryNote)}`
+        : '';
+    window.location.href = `${fallbackUrl}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}${noteQuery}`;
 }
 
 /**
