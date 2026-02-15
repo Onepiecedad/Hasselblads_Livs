@@ -168,6 +168,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     </span>
                   )}
                 </p>
+                {product.weightInGrams && (
+                  <p className="text-[10px] text-muted-foreground/70 sm:text-xs">{product.weightInGrams} g</p>
+                )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
                   <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
                     {product.origin.flag} {product.origin.country}

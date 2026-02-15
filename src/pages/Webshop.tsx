@@ -456,11 +456,7 @@ const Webshop = () => {
                         </div>
                     </div>
 
-                    {/* Beställningsinfo – banner */}
-                    <div className="rounded-2xl bg-amber-50 border border-amber-200 px-5 py-3 mb-6 text-sm text-amber-900">
-                        <strong>OBS:</strong> Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
-                        Vid tidigare beställning kan pris och sortiment ändras.
-                    </div>
+
 
                     {/* Visual Filter Cards - Focus first, then Categories */}
                     <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-10">
@@ -511,18 +507,18 @@ const Webshop = () => {
                         className="mb-4"
                     />
 
-                    {/* Search and Sort */}
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+                    {/* Search, Sort & Controls */}
+                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
                         <SearchAutocomplete
                             products={products}
                             value={searchTerm}
                             onChange={handleSearchChange}
                             onSelectProduct={(product) => handleQuickView(product)}
                         />
-                        <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                     </div>
 
-                    <div className="flex items-center justify-between text-sm text-muted-foreground/70 pb-6 border-b border-border/20">
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground/70 pb-4 border-b border-border/20">
+                        <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                         <span className="font-medium">{isLoading ? 'Laddar produkter…' : `${filteredProducts.length} produkter`}</span>
                         {(activeCategory || activeTag || searchTerm) && (
                             <button
@@ -536,6 +532,9 @@ const Webshop = () => {
                                 Nollställ filter
                             </button>
                         )}
+                        <span className="hidden sm:inline ml-auto text-xs text-amber-700">
+                            OBS: Beställ dagen före önskad leverans. Vid tidigare beställning kan pris och sortiment ändras.
+                        </span>
                     </div>
 
                     <div ref={productsGridRef} className="scroll-mt-24 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">

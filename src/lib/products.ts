@@ -39,6 +39,7 @@ export type Product = {
   unit: string;
   priceUnit?: 'kg' | 'st';       // Raw unit type for display
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
+  weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout

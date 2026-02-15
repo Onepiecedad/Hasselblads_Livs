@@ -238,6 +238,7 @@ function transformProduct(pim: PIMProduct): Product {
         unit: parseUnit(kgSt),
         priceUnit: parsePriceUnit(kgSt),
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
+        weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
         origin: {
             country: country || 'Okänt',
             flag: FLAG_MAP[country] || '🌍'
