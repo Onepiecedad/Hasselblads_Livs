@@ -160,15 +160,27 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
             <div className="mt-4 flex items-end justify-between gap-1">
               <div className="min-w-0">
-                <p className="text-lg font-bold text-primary sm:text-xl">
-                  {formatPrice(product.price)} kr/{product.priceUnit || 'st'}
-                  {product.priceUnit === 'st' && product.approximateWeight && (
-                    <span className="text-sm font-normal text-amber-600 ml-1">
-                      ≈ {product.approximateWeight}
-                    </span>
-                  )}
-                </p>
-                {product.weightInGrams && (
+                {product.pricing_type === 'weight_based' && product.estimated_piece_price ? (
+                  <>
+                    <p className="text-lg font-bold text-primary sm:text-xl">
+                      ca {formatPrice(product.estimated_piece_price)} kr/st
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/80 sm:text-xs">
+                      {product.price_per_kg ? `${formatPrice(product.price_per_kg)} kr/kg` : ''}
+                      {product.estimated_weight_g ? ` · ca ${product.estimated_weight_g} g` : ''}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-lg font-bold text-primary sm:text-xl">
+                    {formatPrice(product.price)} kr/{product.priceUnit || 'st'}
+                    {product.priceUnit === 'st' && product.approximateWeight && (
+                      <span className="text-sm font-normal text-amber-600 ml-1">
+                        ≈ {product.approximateWeight}
+                      </span>
+                    )}
+                  </p>
+                )}
+                {product.pricing_type !== 'weight_based' && product.weightInGrams && (
                   <p className="text-[10px] text-muted-foreground/70 sm:text-xs">{product.weightInGrams} g</p>
                 )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
@@ -312,7 +324,10 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           <div className="p-2 pt-0 border-t border-border/30 bg-card/50">
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-primary">
-                {formatPrice(product.price)} kr/{product.priceUnit || 'st'}
+                {product.pricing_type === 'weight_based' && product.estimated_piece_price
+                  ? `ca ${formatPrice(product.estimated_piece_price)} kr/st`
+                  : `${formatPrice(product.price)} kr/${product.priceUnit || 'st'}`
+                }
               </p>
               <Button
                 size="sm"

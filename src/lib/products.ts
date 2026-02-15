@@ -40,6 +40,12 @@ export type Product = {
   priceUnit?: 'kg' | 'st';       // Raw unit type for display
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
   weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"
+
+  // Viktbaserad prissättning (från PIM)
+  pricing_type?: 'fixed' | 'weight_based' | 'bulk_weight';
+  price_per_kg?: number;         // Kilopris
+  estimated_weight_g?: number;   // Uppskattad snittvikt i gram
+  estimated_piece_price?: number; // Förberäknat styckpris
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout

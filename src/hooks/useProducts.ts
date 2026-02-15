@@ -27,6 +27,12 @@ interface PIMProduct {
     tags?: string[];         // Produkttaggar (sasong, eko, etc.)
     csvData?: Record<string, string>;
 
+    // Viktbaserad prissättning
+    pricing_type?: 'fixed' | 'weight_based' | 'bulk_weight';
+    price_per_kg?: number;
+    estimated_weight_g?: number;
+    estimated_piece_price?: number;
+
     // Baksideinformation (från PIM-appen)
     backImageUrl?: string;
     ingredients?: string;
@@ -234,11 +240,20 @@ function transformProduct(pim: PIMProduct): Product {
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
-        price: pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0'),
+        price: pim.pricing_type === 'weight_based' && pim.estimated_piece_price
+            ? pim.estimated_piece_price
+            : (pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0')),
         unit: parseUnit(kgSt),
         priceUnit: parsePriceUnit(kgSt),
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
+
+        // Viktbaserad prissättning
+        pricing_type: pim.pricing_type,
+        price_per_kg: pim.price_per_kg,
+        estimated_weight_g: pim.estimated_weight_g,
+        estimated_piece_price: pim.estimated_piece_price,
+
         origin: {
             country: country || 'Okänt',
             flag: FLAG_MAP[country] || '🌍'
