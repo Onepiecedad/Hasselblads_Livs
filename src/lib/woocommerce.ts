@@ -97,8 +97,14 @@ async function addToWooCommerceCart(productId: number, quantity: number, nonce: 
 }
 
 /**
- * Lägg till alla produkter i WooCommerce-varukorgen via Store API
+ * Lägg till alla produkter i WooCommerce-varukorgen via server-side gateway
  * och redirecta till checkout
+ * 
+ * Använder /.netlify/functions/wc-add-to-cart som:
+ * 1. Lägger till produkter server-side mot WordPress
+ * 2. Fångar WooCommerce session-cookies
+ * 3. Sätter cookies på användarens browser
+ * 4. Redirectar till /kassa
  */
 export async function addItemsAndRedirectToCheckout(
     items: CartItem[],
@@ -113,50 +119,26 @@ export async function addItemsAndRedirectToCheckout(
         return;
     }
 
-    console.log(`[WooCommerce] Lägger till ${validItems.length} produkter via Store API...`);
+    console.log(`[WooCommerce] Lägger till ${validItems.length} produkter via gateway...`);
 
-    // Hämta nonce först (krävs för alla POST-anrop)
-    const nonce = await getStoreApiNonce();
-    if (!nonce) {
-        console.warn('[WooCommerce] Kunde inte hämta nonce, använder fallback...');
+    // Build items parameter: ID:QTY,ID:QTY,...
+    const itemsParam = validItems
+        .map(item => `${item.woocommerce_id}:${item.quantity}`)
+        .join(',');
+
+    // Build gateway URL
+    let gatewayUrl = `/.netlify/functions/wc-add-to-cart?items=${encodeURIComponent(itemsParam)}`;
+    if (deliveryNote) {
+        gatewayUrl += `&delivery_note=${encodeURIComponent(deliveryNote)}`;
     }
 
-    // Försök lägga till via Store API (med nonce)
-    let successCount = 0;
-    if (nonce) {
-        for (const item of validItems) {
-            if (item.woocommerce_id) {
-                const success = await addToWooCommerceCart(item.woocommerce_id, item.quantity, nonce);
-                if (success) successCount++;
-            }
-        }
-    }
-
-    // Build query string for delivery note
-    const noteParam = deliveryNote
-        ? `?delivery_note=${encodeURIComponent(deliveryNote)}`
-        : '';
-
-    // Om Store API lyckades med minst en produkt, rensa lokal varukorg och redirecta
-    if (successCount > 0) {
-        console.log(`[WooCommerce] ✅ ${successCount}/${validItems.length} produkter tillagda via API`);
-        if (clearLocalCart) clearLocalCart();
-        // Redirect to WooCommerce checkout via proxy
-        window.location.href = `${WC_URL || 'https://hasselbladslivs.se'}/kassa${noteParam}`;
-        return;
-    }
-
-    // Fallback: Om Store API inte fungerar, använd URL-metoden via /varukorg/
-    console.warn('[WooCommerce] Store API fungerade inte, använder URL-fallback via /varukorg/...');
     if (clearLocalCart) clearLocalCart();
 
-    // Fallback: redirect to WooCommerce directly with add-to-cart params
-    const firstItem = validItems[0];
-    const fallbackUrl = WC_URL || 'https://hasselbladslivs.se';
-    const noteQuery = deliveryNote
-        ? `&delivery_note=${encodeURIComponent(deliveryNote)}`
-        : '';
-    window.location.href = `${fallbackUrl}/varukorg/?add-to-cart=${firstItem.woocommerce_id}&quantity=${firstItem.quantity}${noteQuery}`;
+    // Redirect to the gateway function which will:
+    // 1. Add items to WooCommerce cart server-side
+    // 2. Set WC session cookies on the user's browser
+    // 3. Redirect to /kassa
+    window.location.href = gatewayUrl;
 }
 
 /**
