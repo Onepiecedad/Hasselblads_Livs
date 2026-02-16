@@ -21,19 +21,55 @@ interface CartItem {
 }
 
 /**
+ * Hämta en nonce från WooCommerce Store API
+ * 
+ * Store API kräver en giltig nonce för alla POST/PUT/DELETE-anrop.
+ * Vi hämtar den via GET /cart som returnerar nonce i response headers.
+ */
+let cachedNonce: string | null = null;
+
+async function getStoreApiNonce(): Promise<string | null> {
+    if (cachedNonce) return cachedNonce;
+
+    try {
+        const response = await fetch(`${WC_URL}/wp-json/wc/store/v1/cart`, {
+            method: 'GET',
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            console.warn('[WooCommerce] Kunde inte hämta nonce:', response.statusText);
+            return null;
+        }
+
+        // Nonce comes in the response header
+        const nonce = response.headers.get('nonce') || response.headers.get('x-wc-store-api-nonce');
+        if (nonce) {
+            cachedNonce = nonce;
+            console.log('[WooCommerce] ✅ Nonce hämtad');
+        }
+        return nonce;
+    } catch (error) {
+        console.error('[WooCommerce] Kunde inte hämta nonce:', error);
+        return null;
+    }
+}
+
+/**
  * Lägg till en produkt i WooCommerce-varukorgen via Store API
  * 
  * WooCommerce Store API kräver att vi inkluderar credentials
- * för att behålla session/cookies.
+ * för att behålla session/cookies, samt en giltig nonce.
  */
-async function addToWooCommerceCart(productId: number, quantity: number): Promise<boolean> {
+async function addToWooCommerceCart(productId: number, quantity: number, nonce: string): Promise<boolean> {
     try {
         const response = await fetch(`${WC_URL}/wp-json/wc/store/v1/cart/add-item`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Nonce': nonce,
             },
-            credentials: 'include', // Viktig: Behå session cookies
+            credentials: 'include', // Viktig: Behåll session cookies
             body: JSON.stringify({
                 id: productId,
                 quantity: quantity,
@@ -41,8 +77,15 @@ async function addToWooCommerceCart(productId: number, quantity: number): Promis
         });
 
         if (!response.ok) {
-            console.warn(`[WooCommerce] Kunde inte lägga till produkt ${productId}:`, response.statusText);
+            const errorText = await response.text().catch(() => response.statusText);
+            console.warn(`[WooCommerce] Kunde inte lägga till produkt ${productId}: ${response.status} ${errorText}`);
             return false;
+        }
+
+        // Update nonce from response if available (it can rotate)
+        const newNonce = response.headers.get('nonce') || response.headers.get('x-wc-store-api-nonce');
+        if (newNonce) {
+            cachedNonce = newNonce;
         }
 
         console.log(`[WooCommerce] ✅ Lade till produkt ${productId} i varukorgen`);
@@ -72,12 +115,20 @@ export async function addItemsAndRedirectToCheckout(
 
     console.log(`[WooCommerce] Lägger till ${validItems.length} produkter via Store API...`);
 
-    // Försök lägga till via Store API
+    // Hämta nonce först (krävs för alla POST-anrop)
+    const nonce = await getStoreApiNonce();
+    if (!nonce) {
+        console.warn('[WooCommerce] Kunde inte hämta nonce, använder fallback...');
+    }
+
+    // Försök lägga till via Store API (med nonce)
     let successCount = 0;
-    for (const item of validItems) {
-        if (item.woocommerce_id) {
-            const success = await addToWooCommerceCart(item.woocommerce_id, item.quantity);
-            if (success) successCount++;
+    if (nonce) {
+        for (const item of validItems) {
+            if (item.woocommerce_id) {
+                const success = await addToWooCommerceCart(item.woocommerce_id, item.quantity, nonce);
+                if (success) successCount++;
+            }
         }
     }
 

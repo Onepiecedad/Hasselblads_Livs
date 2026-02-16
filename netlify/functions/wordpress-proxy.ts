@@ -52,6 +52,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
     const mcpKey = request.headers.get("x-mcp-api-key");
     if (mcpKey) headers["X-MCP-API-Key"] = mcpKey;
 
+    // Forward WooCommerce Store API nonce
+    const nonce = request.headers.get("nonce");
+    if (nonce) headers["Nonce"] = nonce;
+    const cartToken = request.headers.get("cart-token");
+    if (cartToken) headers["Cart-Token"] = cartToken;
+
     // Get request body for non-GET requests
     let body: string | undefined;
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -93,6 +99,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 // Remove problematic headers
                 delete responseHeaders["transfer-encoding"];
                 delete responseHeaders["connection"];
+
+                // Expose Store API headers to the browser (nonce, cart-token)
+                responseHeaders["access-control-expose-headers"] = "Nonce, Cart-Token, X-WC-Store-API-Nonce";
+                // CORS: allow the frontend origin
+                responseHeaders["access-control-allow-origin"] = request.headers.get("origin") || "*";
+                responseHeaders["access-control-allow-credentials"] = "true";
 
                 // Check if this is a binary response (images, fonts, etc.)
                 const contentType = proxyRes.headers["content-type"] || "";
