@@ -1,12 +1,12 @@
+import https from "node:https";
+
 /**
  * WooCommerce API Proxy - Netlify Serverless Function
  * 
- * This proxy allows the PIM to make WooCommerce API calls without
- * running into CORS issues. The WordPress backend runs on Pressable
- * at a specific IP, while the domain points to this Netlify site.
+ * Proxies WooCommerce REST API requests from PIM to WordPress backend
+ * at Pressable. Uses rejectUnauthorized: false for SSL cert mismatch.
  */
 
-// WordPress backend on Pressable (same as wordpress-proxy.ts)
 const WORDPRESS_BACKEND_IP = "199.16.172.188";
 const WORDPRESS_HOST = "hasselbladslivs.se";
 
@@ -17,84 +17,96 @@ const CORS_HEADERS = {
     'Access-Control-Max-Age': '86400',
 };
 
-export const handler = async (event) => {
+export default async (request, context) => {
     // Handle preflight CORS
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 204,
+    if (request.method === 'OPTIONS') {
+        return new Response(null, {
+            status: 204,
             headers: CORS_HEADERS,
-            body: '',
-        };
+        });
     }
 
-    // Get WooCommerce credentials from environment variables
     const WC_KEY = process.env.WOOCOMMERCE_CONSUMER_KEY;
     const WC_SECRET = process.env.WOOCOMMERCE_CONSUMER_SECRET;
 
     if (!WC_KEY || !WC_SECRET) {
-        return {
-            statusCode: 500,
+        return new Response(JSON.stringify({ error: 'WooCommerce credentials not configured.' }), {
+            status: 500,
             headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                error: 'WooCommerce credentials not configured.'
-            }),
-        };
+        });
     }
 
     try {
-        const body = JSON.parse(event.body || '{}');
+        const body = await request.json();
         const { endpoint, method = 'GET', data } = body;
 
         if (!endpoint) {
-            return {
-                statusCode: 400,
+            return new Response(JSON.stringify({ error: 'Missing endpoint parameter' }), {
+                status: 400,
                 headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Missing endpoint parameter' }),
-            };
+            });
         }
 
-        // Build URL pointing to the Pressable backend IP
-        const wcUrl = `https://${WORDPRESS_BACKEND_IP}/wp-json/wc/v3${endpoint}`;
         const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString('base64');
+        const requestBody = data && ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())
+            ? JSON.stringify(data) : undefined;
 
-        const fetchOptions = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${auth}`,
-                'Host': WORDPRESS_HOST,
-                'X-Forwarded-Host': WORDPRESS_HOST,
-            },
-        };
+        const result = await new Promise((resolve) => {
+            const options = {
+                hostname: WORDPRESS_BACKEND_IP,
+                port: 443,
+                path: `/wp-json/wc/v3${endpoint}`,
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${auth}`,
+                    'Host': WORDPRESS_HOST,
+                    'X-Forwarded-Host': WORDPRESS_HOST,
+                    'User-Agent': 'HasselbladsLivs-PIM/1.0',
+                },
+                rejectUnauthorized: false,
+            };
 
-        if (data && ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
-            fetchOptions.body = JSON.stringify(data);
-        }
+            if (requestBody) {
+                options.headers['Content-Length'] = Buffer.byteLength(requestBody).toString();
+            }
 
-        console.log(`WooCommerce proxy: ${method} ${wcUrl}`);
+            console.log(`WooCommerce proxy: ${method} /wp-json/wc/v3${endpoint}`);
 
-        const response = await fetch(wcUrl, fetchOptions);
-        const responseText = await response.text();
+            const proxyReq = https.request(options, (proxyRes) => {
+                const chunks = [];
+                proxyRes.on('data', (chunk) => chunks.push(chunk));
+                proxyRes.on('end', () => {
+                    const responseText = Buffer.concat(chunks).toString('utf-8');
+                    resolve({
+                        statusCode: proxyRes.statusCode || 200,
+                        body: responseText,
+                    });
+                });
+            });
 
-        let responseData;
-        try {
-            responseData = JSON.parse(responseText);
-        } catch {
-            responseData = { raw: responseText };
-        }
+            proxyReq.on('error', (error) => {
+                console.error('WooCommerce proxy error:', error);
+                resolve({
+                    statusCode: 502,
+                    body: JSON.stringify({ error: error.message }),
+                });
+            });
 
-        return {
-            statusCode: response.status,
+            if (requestBody) proxyReq.write(requestBody);
+            proxyReq.end();
+        });
+
+        return new Response(result.body, {
+            status: result.statusCode,
             headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-            body: JSON.stringify(responseData),
-        };
+        });
 
     } catch (error) {
         console.error('WooCommerce proxy error:', error);
-        return {
-            statusCode: 500,
+        return new Response(JSON.stringify({ error: error.message || 'Internal proxy error' }), {
+            status: 500,
             headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ error: error.message || 'Internal proxy error' }),
-        };
+        });
     }
 };
