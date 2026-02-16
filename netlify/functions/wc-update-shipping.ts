@@ -16,16 +16,18 @@ const WC_SECRET = "cs_81b7472660a5e4e2ee9e7058a51803e6efbce4fd";
 
 function makeWCRequest(path: string, method: string = "GET", body?: string): Promise<{ status: number; data: any }> {
     return new Promise((resolve, reject) => {
-        const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString("base64");
+        // Use query-string auth (works with self-signed SSL)
+        const separator = path.includes("?") ? "&" : "?";
+        const authPath = `${path}${separator}consumer_key=${WC_KEY}&consumer_secret=${WC_SECRET}`;
+
         const options: https.RequestOptions = {
             hostname: WORDPRESS_BACKEND_IP,
             port: 443,
-            path: path,
+            path: authPath,
             method: method,
             rejectUnauthorized: false,
             headers: {
                 "Host": WORDPRESS_HOST,
-                "Authorization": `Basic ${auth}`,
                 "Content-Type": "application/json",
                 "User-Agent": "HasselbladsLivs/ShippingUpdater",
             },
