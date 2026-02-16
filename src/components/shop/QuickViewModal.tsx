@@ -141,7 +141,9 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   // Calculate estimated weight/price for per-piece items
   const isPieceItem = product?.priceUnit === 'st';
-  const weightPerUnit = product?.approximateWeight ? parseWeight(product.approximateWeight) : null;
+  const weightPerUnit = product?.approximateWeight
+    ? parseWeight(product.approximateWeight)
+    : (product?.weightInGrams ?? null);
   const showEstimate = isPieceItem && weightPerUnit && quantity > 1;
   const estimatedTotalWeight = weightPerUnit ? weightPerUnit * quantity : 0;
   const estimatedTotalPrice = product ? displayPrice * quantity : 0;
