@@ -22,8 +22,8 @@
 
 [[redirects]]
   from = "/wp-json/*"
-  to = "https://hasselbladslivs.se/wp-json/:splat"
-  status = 301
+  to = "/.netlify/functions/wordpress-proxy/wp-json/:splat"
+  status = 200
   force = true
 
 # WooCommerce checkout - proxy to WordPress (kept for checkout flow)
