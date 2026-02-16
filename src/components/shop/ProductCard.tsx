@@ -238,6 +238,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     )}
                   </>
                 )}
+                {product.multiOffers && product.multiOffers.length > 0 && (
+                  <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                    {product.multiOffers[0].label}
+                  </span>
+                )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
                   <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
                     {product.origin.flag} {product.origin.country}

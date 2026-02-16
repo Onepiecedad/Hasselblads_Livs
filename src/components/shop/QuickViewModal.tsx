@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
+import type { MultiOffer } from "@/lib/products";
 
 export type QuickViewProduct = {
   id: string;
@@ -29,6 +30,7 @@ export type QuickViewProduct = {
   image: string;
   tags: string[];
   sold_as?: ('hel' | 'halv' | 'kvart')[];
+  multiOffers?: MultiOffer[];
 };
 
 interface QuickViewModalProps {
@@ -53,6 +55,8 @@ function formatWeight(grams: number): string {
 
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
+  const [selectedOffer, setSelectedOffer] = useState<MultiOffer | null>(null);
+  const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
 
   // Portionsval
   const hasPortions = product?.sold_as && product.sold_as.length > 1;
@@ -99,11 +103,25 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   useEffect(() => {
     if (open) {
       setQuantity(1);
+      setSelectedOffer(null);
       if (product?.sold_as?.[0]) {
         setSelectedPortion(product.sold_as[0]);
       }
     }
   }, [open, product]);
+
+  const handleSelectOffer = (offer: MultiOffer | null) => {
+    if (offer) {
+      setSelectedOffer(offer);
+      setQuantity(offer.quantity);
+    } else {
+      setSelectedOffer(null);
+      setQuantity(1);
+    }
+  };
+
+  const activeMultiPrice = selectedOffer ? selectedOffer.price : null;
+  const displayTotalPrice = activeMultiPrice ?? (product ? displayPrice * quantity : 0);
 
   const handleQuantityChange = (value: string) => {
     const next = Number.parseInt(value, 10);
@@ -232,6 +250,38 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       </p>
                     )}
 
+                    {/* Multiköp-väljare */}
+                    {hasMultiOffers && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Multiköp</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectOffer(null)}
+                            className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all ${!selectedOffer
+                                ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                                : 'bg-muted/50 text-foreground/80 border-border hover:border-primary/40 hover:bg-muted'
+                              }`}
+                          >
+                            1 st — {formatPrice(product!.price)} kr
+                          </button>
+                          {product!.multiOffers!.map((offer, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={() => handleSelectOffer(offer)}
+                              className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all ${selectedOffer?.quantity === offer.quantity && selectedOffer?.price === offer.price
+                                  ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                                  : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30 hover:border-orange-500/60 hover:bg-orange-500/20'
+                                }`}
+                            >
+                              {offer.label} ⭐
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Quantity selector - hidden on mobile (shown in sticky footer) */}
                     <div className="hidden sm:flex items-center gap-3">
                       <span className="text-sm text-muted-foreground">Antal:</span>
@@ -291,7 +341,9 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       onClick={handleAddToCart}
                     >
                       <ShoppingCart className="h-5 w-5" />
-                      Lägg i varukorg
+                      {selectedOffer
+                        ? `${selectedOffer.quantity} st för ${selectedOffer.price}:- — Lägg i varukorg`
+                        : 'Lägg i varukorg'}
                     </Button>
                   </div>
                 </div>
@@ -340,7 +392,9 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
+                  {selectedOffer
+                    ? `${selectedOffer.quantity} st — ${selectedOffer.price}:-`
+                    : showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
                 </Button>
               </div>
             </div>

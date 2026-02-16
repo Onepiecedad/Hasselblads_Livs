@@ -228,6 +228,36 @@ function parsePriceUnit(kgSt?: string): 'kg' | 'st' {
     return normalized === 'kg' || normalized.includes('kilo') ? 'kg' : 'st';
 }
 
+// Parsa multiköp-erbjudanden ("2 st 29:-", "2 st 12:- & 3 st 15:-", "2 för 49 kr")
+function parseMultiOffers(multiStr?: string): Product['multiOffers'] {
+    if (!multiStr || typeof multiStr !== 'string') return undefined;
+    const str = multiStr.trim();
+    if (!str) return undefined;
+
+    // Dela upp på "&" för multi-tier erbjudanden
+    const parts = str.split(/\s*&\s*/);
+    const offers: NonNullable<Product['multiOffers']> = [];
+
+    for (const part of parts) {
+        const trimmed = part.trim();
+        // Matcha: "2 st 29:-", "2 st 35:", "2 st för 20", "2 för 49 kr"
+        const match = trimmed.match(/(\d+)\s*(?:st\s+)?(?:för\s+)?(\d+)/i);
+        if (match) {
+            const qty = parseInt(match[1], 10);
+            const price = parseInt(match[2], 10);
+            if (qty > 0 && price > 0) {
+                offers.push({
+                    quantity: qty,
+                    price,
+                    label: `${qty} för ${price}:-`
+                });
+            }
+        }
+    }
+
+    return offers.length > 0 ? offers.sort((a, b) => a.quantity - b.quantity) : undefined;
+}
+
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
     const country = pim.origin_country || pim.csvData?.['Etiketter land'] || '';
@@ -259,6 +289,7 @@ function transformProduct(pim: PIMProduct): Product {
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
+        multiOffers: parseMultiOffers(pim.csvData?.['Multi']),
 
 
         origin: {

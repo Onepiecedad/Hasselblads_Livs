@@ -28,6 +28,12 @@ export type NutritionData = {
   fiber?: number;
 };
 
+export type MultiOffer = {
+  quantity: number;    // Antal i erbjudandet, t.ex. 2
+  price: number;       // Totalpris för erbjudandet, t.ex. 29
+  label: string;       // Visningstext, t.ex. "2 för 29:-"
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -44,6 +50,7 @@ export type Product = {
   estimatedWeightG?: number;     // Uppskattad vikt i gram (för viktbaserade produkter)
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
   weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"
+  multiOffers?: MultiOffer[];    // Multiköp-erbjudanden, t.ex. "2 för 29:-"
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
