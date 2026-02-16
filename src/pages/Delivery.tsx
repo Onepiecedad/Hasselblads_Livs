@@ -1,7 +1,53 @@
 import { useMemo } from "react";
-import { Truck, MapPin, ArrowRight, Clock } from "lucide-react";
+import { MapPin, ArrowRight, Clock } from "lucide-react";
 import usePageMetadata from "@/hooks/usePageMetadata";
 import AddressLookup from "@/components/sections/AddressLookup";
+
+/** Cargo-bike icon matching Hasselblads Livs brand – filled style */
+const CargoBikeIcon = ({ className = "h-7 w-7" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 64 64"
+    fill="currentColor"
+    className={className}
+    aria-hidden="true"
+  >
+    {/* Awning roof */}
+    <rect x="3" y="8" width="28" height="3" rx="1" />
+    {/* Awning support posts */}
+    <rect x="5" y="11" width="2.5" height="10" />
+    <rect x="26" y="11" width="2.5" height="10" />
+    {/* Awning scallops */}
+    <path d="M3 11 Q6.5 17 10 11 Q13.5 17 17 11 Q20.5 17 24 11 Q27.5 17 31 11 L31 14 Q27.5 20 24 14 Q20.5 20 17 14 Q13.5 20 10 14 Q6.5 20 3 14 Z" opacity="0.25" />
+    {/* Cart body */}
+    <path d="M3 21 L3 40 Q3 42 5 42 L28 42 Q30 42 30 40 L30 21 Z" />
+    {/* Cart wheel left */}
+    <circle cx="10" cy="48" r="5.5" />
+    <circle cx="10" cy="48" r="2" fill="white" />
+    {/* Cart wheel right */}
+    <circle cx="24" cy="48" r="5.5" />
+    <circle cx="24" cy="48" r="2" fill="white" />
+    {/* Axle bar */}
+    <rect x="3" y="42" width="27" height="2" />
+    {/* Connection bar from cart to bike */}
+    <rect x="30" y="33" width="10" height="2.5" rx="1" />
+    {/* Bike frame – diagonal to rear wheel */}
+    <path d="M40 35.5 L50.5 47 L48 48.5 L38 37 Z" />
+    {/* Bike frame – seat tube */}
+    <rect x="41" y="24" width="2.5" height="12" />
+    {/* Seat */}
+    <rect x="38" y="23" width="9" height="2.5" rx="1" />
+    {/* Handlebars */}
+    <path d="M42.5 28 L38 24 L39.5 22.5 L43.5 26 Z" />
+    <path d="M42.5 28 L47 24 L45.5 22.5 L41.5 26 Z" />
+    {/* Rear bicycle wheel */}
+    <circle cx="52" cy="48" r="7.5" />
+    <circle cx="52" cy="48" r="4.5" fill="white" />
+    <circle cx="52" cy="48" r="2.5" />
+    {/* Pedal crank */}
+    <circle cx="42" cy="40" r="3" />
+    <circle cx="42" cy="40" r="1.2" fill="white" />
+  </svg>
+);
 
 const Delivery = () => {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://www.hasselbladslivs.se";
@@ -73,14 +119,13 @@ const Delivery = () => {
               <div className="relative">
                 <div className="flex items-center gap-4 mb-6">
                   <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <Truck className="h-7 w-7" />
+                    <CargoBikeIcon className="h-7 w-7" />
                   </div>
                   <h2 className="text-2xl font-bold">Hemleverans</h2>
                 </div>
 
                 <p className="text-lg text-muted-foreground mb-4 leading-relaxed">
-                  Vi levererar hem till dig i områdena Solängen och Malevik.
-                  Vill du veta om vi kan leverera till just din adress?
+                  Vi levererar till din dörr i området Malevik och i butikens omedelbara närområde.
                 </p>
 
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
@@ -91,13 +136,13 @@ const Delivery = () => {
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                     <span className="text-muted-foreground">
-                      <strong className="text-foreground">Solängen</strong> – leverans kl 12–15 (eller hämta i butiken från kl 12)
+                      <strong className="text-foreground">Butikens närområde</strong> – leverans vid lunch
                     </span>
                   </div>
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                     <span className="text-muted-foreground">
-                      <strong className="text-foreground">Malevik</strong> – leverans kl 15–18 (eller hämta på Gamla Särövägen 153A från kl 15)
+                      <strong className="text-foreground">Malevik</strong> – leverans efter kl 16
                     </span>
                   </div>
                 </div>
@@ -142,7 +187,7 @@ const Delivery = () => {
                   <li className="flex items-start gap-3">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-sm font-bold mt-0.5">1</span>
                     <span className="text-muted-foreground">
-                      <strong className="text-foreground">Vår butik</strong>
+                      <strong className="text-foreground">I butiken på Frejagatan 9</strong>
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
@@ -155,9 +200,6 @@ const Delivery = () => {
                   </li>
                 </ul>
 
-                <div className="flex items-baseline gap-2 mb-6">
-                  <span className="text-4xl font-bold text-primary">Gratis</span>
-                </div>
 
                 <a
                   href="/webbutik"

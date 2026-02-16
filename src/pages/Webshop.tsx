@@ -139,8 +139,8 @@ const Webshop = () => {
         // Scroll to products when arriving with a tag/focus filter (e.g. from homepage)
         if (urlTag || urlFocus) {
             setTimeout(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 300);
+                productsGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 400);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialized, setSearchParams]);
@@ -195,7 +195,7 @@ const Webshop = () => {
     // Scroll to products when a filter is selected
     const scrollToProducts = () => {
         setTimeout(() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            productsGridRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     };
 
