@@ -1,7 +1,7 @@
 # WordPress admin – redirect directly to WordPress
 /wp-login.php  https://hasselbladslivs.se/wp-login.php  301!
 /wp-admin/*    https://hasselbladslivs.se/wp-admin/:splat  301!
-/wp-json/*     https://hasselbladslivs.se/wp-json/:splat  301!
+/wp-json/*     /.netlify/functions/wordpress-proxy/wp-json/:splat  200!
 
 # WooCommerce checkout and cart - proxy to WordPress (kept for checkout flow)
 /wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200!
