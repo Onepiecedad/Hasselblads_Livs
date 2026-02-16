@@ -24,6 +24,7 @@ export type CartItem = {
   quantity: number;
   portion?: PortionSize;
   portionLabel?: string; // T.ex. "Halv"
+  weightGrams?: number;  // Vikt i gram för kg-produkter (t.ex. 300 = 300g)
   woocommerce_id?: number; // WooCommerce product ID for checkout
 };
 

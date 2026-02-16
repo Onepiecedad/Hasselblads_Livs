@@ -34,11 +34,15 @@ export type QuickViewProduct = {
   weightInGrams?: number;
 };
 
+/** Weight presets in grams for kg-priced products */
+const WEIGHT_PRESETS = [100, 200, 300, 400, 500] as const;
+const DEFAULT_WEIGHT = 200;
+
 interface QuickViewModalProps {
   product: QuickViewProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddToCart: (product: QuickViewProduct, quantity: number, portion?: PortionSize) => void;
+  onAddToCart: (product: QuickViewProduct, quantity: number, portion?: PortionSize, weightGrams?: number) => void;
   returnFocusRef?: RefObject<HTMLElement> | null;
 }
 
@@ -64,13 +68,23 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const defaultPortion = product?.sold_as?.[0] ?? 'hel';
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
 
+  // Viktväljare för kg-produkter
+  const isKgProduct = product?.priceUnit === 'kg' && product?.pricingType !== 'weight_based';
+  const [selectedWeight, setSelectedWeight] = useState(DEFAULT_WEIGHT);
+
   const portionPrice = useMemo(() => {
     if (!product) return 0;
     if (!hasPortions) return product.price;
     return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
   }, [product, selectedPortion, hasPortions]);
 
-  const displayPrice = hasPortions ? portionPrice : (product?.price ?? 0);
+  // For kg products, calculate price based on selected weight
+  const weightPrice = useMemo(() => {
+    if (!product || !isKgProduct) return 0;
+    return Math.round((product.price / 1000) * selectedWeight * 100) / 100;
+  }, [product, isKgProduct, selectedWeight]);
+
+  const displayPrice = isKgProduct ? weightPrice : (hasPortions ? portionPrice : (product?.price ?? 0));
 
   // Browser back button support: push history state when opening
   useEffect(() => {
@@ -105,6 +119,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     if (open) {
       setQuantity(1);
       setSelectedOffer(null);
+      setSelectedWeight(DEFAULT_WEIGHT);
       if (product?.sold_as?.[0]) {
         setSelectedPortion(product.sold_as[0]);
       }
@@ -135,7 +150,12 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   const handleAddToCart = () => {
     if (product) {
-      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
+      onAddToCart(
+        product,
+        quantity,
+        hasPortions ? selectedPortion : undefined,
+        isKgProduct ? selectedWeight : undefined,
+      );
     }
   };
 
@@ -151,7 +171,10 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   // Unit display label
   const unitLabel = product?.pricingType === 'weight_based'
     ? 'per st (viktpris)'
-    : product?.priceUnit === 'kg' ? 'per kg' : 'per st';
+    : isKgProduct ? 'per kg' : 'per st';
+
+  // Total price for kg products (weight × quantity)
+  const kgTotalPrice = isKgProduct ? weightPrice * quantity : 0;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -211,9 +234,37 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       </div>
                     )}
 
+                    {/* Viktväljare för kg-produkter */}
+                    {isKgProduct && (
+                      <div className="space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Välj vikt</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {WEIGHT_PRESETS.map((w) => (
+                            <button
+                              key={w}
+                              type="button"
+                              onClick={() => setSelectedWeight(w)}
+                              className={`px-3.5 py-2 text-sm font-medium rounded-full border transition-all ${selectedWeight === w
+                                  ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105'
+                                  : 'bg-muted/40 text-muted-foreground border-border/50 hover:bg-muted hover:border-primary/30'
+                                }`}
+                            >
+                              {w} g
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Price */}
                     <div className="flex items-baseline gap-2">
-                      {product.pricingType === 'weight_based' ? (
+                      {isKgProduct ? (
+                        <>
+                          <span className="text-3xl font-bold text-primary">≈ {formatPrice(weightPrice)}</span>
+                          <span className="text-xl text-muted-foreground">kr</span>
+                          <span className="text-sm text-muted-foreground">/ {selectedWeight} g</span>
+                        </>
+                      ) : product.pricingType === 'weight_based' ? (
                         <>
                           <span className="text-3xl font-bold text-primary">ca {formatPrice(displayPrice)}</span>
                           <span className="text-xl text-muted-foreground">kr/st</span>
@@ -238,6 +289,13 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                         </>
                       )}
                     </div>
+
+                    {/* kg-product price per kg info */}
+                    {isKgProduct && (
+                      <p className="text-sm text-muted-foreground">
+                        {formatPrice(product.price)} kr/kg
+                      </p>
+                    )}
 
                     {/* Weight-based price info */}
                     {product.pricingType === 'weight_based' && (product.pricePerKg || product.estimatedWeightG) && (
@@ -288,39 +346,41 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     )}
 
                     {/* Quantity selector - hidden on mobile (shown in sticky footer) */}
-                    <div className="hidden sm:flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">Antal:</span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10 rounded-full"
-                          onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                          aria-label="Minska antal"
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          value={quantity.toString()}
-                          onChange={(event) => handleQuantityChange(event.target.value)}
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          className="h-10 w-16 text-center text-lg font-semibold"
-                          aria-label="Antal"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          className="h-10 w-10 rounded-full"
-                          onClick={() => setQuantity((prev) => Math.min(99, prev + 1))}
-                          aria-label="Öka antal"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                    {!isKgProduct && (
+                      <div className="hidden sm:flex items-center gap-3">
+                        <span className="text-sm text-muted-foreground">Antal:</span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10 rounded-full"
+                            onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                            aria-label="Minska antal"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            value={quantity.toString()}
+                            onChange={(event) => handleQuantityChange(event.target.value)}
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            className="h-10 w-16 text-center text-lg font-semibold"
+                            aria-label="Antal"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-10 w-10 rounded-full"
+                            onClick={() => setQuantity((prev) => Math.min(99, prev + 1))}
+                            aria-label="Öka antal"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Estimated total for per-piece items (quantity > 1) */}
                     {showEstimate && (
@@ -346,9 +406,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       onClick={handleAddToCart}
                     >
                       <ShoppingCart className="h-5 w-5" />
-                      {selectedOffer
-                        ? `${selectedOffer.quantity} st för ${selectedOffer.price}:- — Lägg i varukorg`
-                        : 'Lägg i varukorg'}
+                      {isKgProduct
+                        ? `${selectedWeight} g · ≈ ${formatPrice(kgTotalPrice)} kr — Lägg i varukorg`
+                        : selectedOffer
+                          ? `${selectedOffer.quantity} st för ${selectedOffer.price}:- — Lägg i varukorg`
+                          : 'Lägg i varukorg'}
                     </Button>
                   </div>
                 </div>
@@ -365,30 +427,32 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                 </div>
               )}
               <div className="flex items-center gap-3">
-                {/* Quantity controls */}
-                <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-full"
-                    onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-                    aria-label="Minska antal"
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-8 text-center font-semibold">{quantity}</span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 rounded-full"
-                    onClick={() => setQuantity((prev) => Math.min(99, prev + 1))}
-                    aria-label="Öka antal"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+                {/* Quantity controls — hide for kg products */}
+                {!isKgProduct && (
+                  <div className="flex items-center gap-1 bg-muted/50 rounded-full p-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                      aria-label="Minska antal"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-8 text-center font-semibold">{quantity}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 rounded-full"
+                      onClick={() => setQuantity((prev) => Math.min(99, prev + 1))}
+                      aria-label="Öka antal"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
 
                 {/* Add to cart button */}
                 <Button
@@ -397,9 +461,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {selectedOffer
-                    ? `${selectedOffer.quantity} st — ${selectedOffer.price}:-`
-                    : showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
+                  {isKgProduct
+                    ? `${selectedWeight} g · ≈ ${formatPrice(kgTotalPrice)} kr`
+                    : selectedOffer
+                      ? `${selectedOffer.quantity} st — ${selectedOffer.price}:-`
+                      : showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
                 </Button>
               </div>
             </div>

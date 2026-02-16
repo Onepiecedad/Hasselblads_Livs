@@ -351,28 +351,34 @@ const Webshop = () => {
         return result;
     }, [filteredProducts, activeCategory]);
 
-    const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize) => {
+    const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize, weightGrams?: number) => {
         const basePrice = (product.salePrice && product.salePrice < product.price)
             ? product.salePrice
             : product.price;
-        const portionPrice = portion
-            ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
-            : basePrice;
+
+        // For kg products with weight selection, calculate price per selected weight
+        const itemPrice = weightGrams
+            ? Math.round((basePrice / 1000) * weightGrams * 100) / 100
+            : portion
+                ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
+                : basePrice;
 
         addItem({
             id: product.id,
             productId: product.id,
             name: product.name,
-            price: portionPrice,
+            price: itemPrice,
             unit: product.unit,
             image: product.image,
             woocommerce_id: product.woocommerce_id,
             portion,
             portionLabel: portion ? PORTION_LABELS[portion] : undefined,
+            weightGrams,
         }, quantity);
 
+        const weightLabel = weightGrams ? `${weightGrams}g ` : '';
         const label = portion && portion !== 'hel' ? ` (${PORTION_LABELS[portion].toLowerCase()})` : '';
-        toast.success(`${quantity > 1 ? quantity + " " : ""}${product.name}${label} tillagd i varukorgen`, {
+        toast.success(`${weightLabel}${quantity > 1 ? quantity + " " : ""}${product.name}${label} tillagd i varukorgen`, {
             duration: 2500,
             action: {
                 label: "Visa varukorg",
@@ -611,8 +617,8 @@ const Webshop = () => {
                 product={quickViewProduct}
                 open={quickViewOpen}
                 onOpenChange={setQuickViewOpen}
-                onAddToCart={(product, quantity, portion) => {
-                    handleAddToCart(product as Product, quantity, portion);
+                onAddToCart={(product, quantity, portion, weightGrams) => {
+                    handleAddToCart(product as Product, quantity, portion, weightGrams);
                     setQuickViewOpen(false);
                     setOpen(true);
                 }}

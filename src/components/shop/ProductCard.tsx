@@ -10,7 +10,7 @@ import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product, quantity?: number, portion?: PortionSize) => void;
+  onAddToCart: (product: Product, quantity?: number, portion?: PortionSize, weightGrams?: number) => void;
   onQuickView: (product: Product) => void;
   setQuickViewButtonRef?: (node: HTMLElement | null) => void;
 }
@@ -24,6 +24,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const hasPortions = product.sold_as && product.sold_as.length > 1;
   const defaultPortion = product.sold_as?.[0] ?? 'hel';
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
+  const isKgProduct = product.priceUnit === 'kg' && product.pricingType !== 'weight_based';
+  const defaultWeight = 200;
 
   const portionPrice = useMemo(() => {
     if (!hasPortions) return product.price;
@@ -67,7 +69,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (showQuantity) {
-      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
+      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
       setQuantity(1);
       setShowQuantity(false);
     } else {
@@ -82,7 +84,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined);
+    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
     setQuantity(1);
     setShowQuantity(false);
   };
@@ -395,7 +397,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 className="h-7 px-3 text-xs rounded-full bg-primary hover:bg-primary/90"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddToCart(product, 1, hasPortions ? selectedPortion : undefined);
+                  onAddToCart(product, 1, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
                 }}
                 aria-label={`Lägg ${product.name} i varukorgen`}
               >

@@ -139,7 +139,9 @@ const MiniCartDrawer = () => {
                           <span className="text-sm font-normal text-muted-foreground ml-1">({item.portionLabel.toLowerCase()})</span>
                         )}
                       </h3>
-                      <p className="text-sm md:text-base text-muted-foreground mt-0.5">{item.unit}</p>
+                      <p className="text-sm md:text-base text-muted-foreground mt-0.5">
+                        {item.weightGrams ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr` : item.unit}
+                      </p>
                       {/* Mobile: quantity and price inline */}
                       <div className="flex items-center justify-between mt-2 sm:hidden">
                         <div className="flex items-center gap-2">
