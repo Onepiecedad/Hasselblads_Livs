@@ -4,6 +4,7 @@ import { Leaf } from "lucide-react";
 import FocusFilterCards from "@/components/shop/FocusFilterCards";
 import CategoryFilterCards from "@/components/shop/CategoryFilterCards";
 import SubcategoryChips from "@/components/shop/SubcategoryChips";
+import DetailCategoryChips from "@/components/shop/DetailCategoryChips";
 import Breadcrumbs from "@/components/shop/Breadcrumbs";
 import ActiveFilterBadges from "@/components/shop/ActiveFilterBadges";
 import SortDropdown from "@/components/shop/SortDropdown";
@@ -24,6 +25,7 @@ const STORAGE_KEY = "webshop-filters";
 type FiltersState = {
     category: string | null; // Single-select category
     subcategory: string | null; // Subcategory within category
+    detailCategory: string | null; // Detail category (level 3) within subcategory
     tag: string;
     sort: string;
     search: string;
@@ -32,6 +34,7 @@ type FiltersState = {
 const DEFAULT_FILTERS: FiltersState = {
     category: null,
     subcategory: null,
+    detailCategory: null,
     tag: "",
     sort: "name-asc",
     search: "",
@@ -118,6 +121,7 @@ const Webshop = () => {
                     const parsedState: FiltersState = {
                         category: category && category !== "alla" ? category : null,
                         subcategory: parsed.subcategory || null,
+                        detailCategory: parsed.detailCategory || null,
                         tag: parsed.tag || "",
                         sort: parsed.sort || DEFAULT_FILTERS.sort,
                         search: parsed.search || "",
@@ -151,6 +155,7 @@ const Webshop = () => {
         const current: FiltersState = {
             category: kategori || null,
             subcategory: searchParams.get("underkategori") || null,
+            detailCategory: searchParams.get("detalj") || null,
             tag: searchParams.get("tag") ?? DEFAULT_FILTERS.tag,
             sort: searchParams.get("sort") ?? DEFAULT_FILTERS.sort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -169,6 +174,11 @@ const Webshop = () => {
         return searchParams.get("underkategori") || null;
     }, [searchParams]);
 
+    // Get active detail category from URL
+    const activeDetailCategory: string | null = useMemo(() => {
+        return searchParams.get("detalj") || null;
+    }, [searchParams]);
+
     const activeTag = searchParams.get("tag") ?? DEFAULT_FILTERS.tag;
     const activeSort = searchParams.get("sort") ?? DEFAULT_FILTERS.sort;
 
@@ -176,6 +186,7 @@ const Webshop = () => {
         const current: FiltersState = {
             category: activeCategory,
             subcategory: activeSubcategory,
+            detailCategory: activeDetailCategory,
             tag: activeTag,
             sort: activeSort,
             search: searchParams.get("sok") ?? DEFAULT_FILTERS.search,
@@ -185,6 +196,7 @@ const Webshop = () => {
 
         if (next.category) params.set("kategori", next.category);
         if (next.subcategory) params.set("underkategori", next.subcategory);
+        if (next.detailCategory) params.set("detalj", next.detailCategory);
         if (next.tag) params.set("tag", next.tag);
         if (next.sort && next.sort !== DEFAULT_FILTERS.sort) params.set("sort", next.sort);
         if (next.search) params.set("sok", next.search);
@@ -200,19 +212,25 @@ const Webshop = () => {
     };
 
     const handleCategoryChange = (value: string | null) => {
-        // Clear subcategory and focus/tag filter when selecting a new category
-        updateFilters({ category: value, subcategory: null, tag: value ? "" : DEFAULT_FILTERS.tag });
+        // Clear subcategory, detailCategory and focus/tag filter when selecting a new category
+        updateFilters({ category: value, subcategory: null, detailCategory: null, tag: value ? "" : DEFAULT_FILTERS.tag });
         if (value) scrollToProducts();
     };
 
     const handleTagChange = (value: string | null) => {
         // Clear category filter when selecting a focus card
-        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag, category: value ? null : activeCategory, subcategory: null });
+        updateFilters({ tag: value ?? DEFAULT_FILTERS.tag, category: value ? null : activeCategory, subcategory: null, detailCategory: null });
         if (value) scrollToProducts();
     };
 
     const handleSubcategoryChange = (value: string | null) => {
-        updateFilters({ subcategory: value });
+        // Clear detailCategory when switching subcategory
+        updateFilters({ subcategory: value, detailCategory: null });
+        if (value) scrollToProducts();
+    };
+
+    const handleDetailCategoryChange = (value: string | null) => {
+        updateFilters({ detailCategory: value });
         if (value) scrollToProducts();
     };
 
@@ -241,6 +259,12 @@ const Webshop = () => {
         const subcategory = activeSubcategory;
         if (subcategory) {
             result = result.filter((product) => product.subcategory === subcategory);
+        }
+
+        // Detail category filtering (if a detail category is selected)
+        const detailCat = activeDetailCategory;
+        if (detailCat) {
+            result = result.filter((product) => product.detailCategory === detailCat);
         }
 
         // Focus card filtering - use PIM products first, fallback to tags
@@ -284,7 +308,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategory, activeSubcategory, activeTag, activeSort, getCardProducts]);
+    }, [products, searchParams, activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, getCardProducts]);
 
     const groupedProducts = useMemo(() => {
         // Only group when exactly one category is selected and there are many products
@@ -481,6 +505,15 @@ const Webshop = () => {
                         category={activeCategory}
                         activeSubcategory={activeSubcategory}
                         onSubcategoryChange={handleSubcategoryChange}
+                        className="mb-4"
+                    />
+
+                    {/* Detail Category Chips - shows when a subcategory is selected */}
+                    <DetailCategoryChips
+                        category={activeCategory}
+                        subcategory={activeSubcategory}
+                        activeDetailCategory={activeDetailCategory}
+                        onDetailCategoryChange={handleDetailCategoryChange}
                         className="mb-6"
                     />
 
@@ -488,6 +521,7 @@ const Webshop = () => {
                     <Breadcrumbs
                         category={activeCategory}
                         subcategory={activeSubcategory}
+                        detailCategory={activeDetailCategory}
                         searchTerm={searchTerm}
                         focusTag={activeTag || null}
                         className="mb-4"
@@ -497,10 +531,12 @@ const Webshop = () => {
                     <ActiveFilterBadges
                         category={activeCategory}
                         subcategory={activeSubcategory}
+                        detailCategory={activeDetailCategory}
                         focusTag={activeTag || null}
                         searchTerm={searchTerm}
-                        onClearCategory={() => updateFilters({ category: null, subcategory: null })}
-                        onClearSubcategory={() => updateFilters({ subcategory: null })}
+                        onClearCategory={() => updateFilters({ category: null, subcategory: null, detailCategory: null })}
+                        onClearSubcategory={() => updateFilters({ subcategory: null, detailCategory: null })}
+                        onClearDetailCategory={() => updateFilters({ detailCategory: null })}
                         onClearFocusTag={() => updateFilters({ tag: "" })}
                         onClearSearch={() => {
                             setSearchTerm("");
@@ -508,7 +544,7 @@ const Webshop = () => {
                         }}
                         onClearAll={() => {
                             setSearchTerm("");
-                            updateFilters({ category: null, subcategory: null, tag: "", search: "" });
+                            updateFilters({ category: null, subcategory: null, detailCategory: null, tag: "", search: "" });
                         }}
                         className="mb-4"
                     />

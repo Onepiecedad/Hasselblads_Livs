@@ -1,15 +1,21 @@
 /**
  * Category Hierarchy for Hasselblads Livs webshop
- * Synkad med PIM (Feb 2026) — 12 huvudkategorier
- * 
- * This defines the complete category tree with subcategories
- * for the expandable sidebar navigation.
+ * Synkad med PIM categoryService.ts (Feb 2026) — 3 nivåer
+ *
+ * Nivå 1: Huvudkategori (visas som kort)
+ * Nivå 2: Underkategori (visas som filterchips)
+ * Nivå 3: Detaljkategori (visas som filterchips under underkategori)
  */
+
+export type SubcategoryItem = {
+    name: string;
+    detailCategories: string[];
+};
 
 export type CategoryHierarchyItem = {
     label: string;
     value: string;
-    subcategories: string[];
+    subcategories: SubcategoryItem[];
     icon?: string;
 };
 
@@ -18,98 +24,254 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         label: "Frukt & Grönt",
         value: "frukt-gront",
         subcategories: [
-            "Frukt",
-            "Bär",
-            "Grönsaker",
-            "Färska Kryddor"
+            {
+                name: "Frukt",
+                detailCategories: [
+                    "Banan", "Äpple", "Päron", "Citrus", "Stenfrukt",
+                    "Melon", "Druvor", "Exotisk frukt", "Avokado",
+                    "Ingefära", "Övrig frukt"
+                ]
+            },
+            {
+                name: "Bär",
+                detailCategories: [
+                    "Jordgubbar", "Hallon", "Blåbär", "Övriga färska bär"
+                ]
+            },
+            {
+                name: "Grönsaker",
+                detailCategories: [
+                    "Sallad", "Gurka", "Tomat", "Paprika", "Avokado",
+                    "Potatis", "Lök", "Kål", "Rotfrukter", "Svamp",
+                    "Ingefära", "Övriga grönsaker"
+                ]
+            },
+            {
+                name: "Färska Kryddor",
+                detailCategories: [
+                    "Gräslök", "Dill", "Persilja Krus", "Persilja Blad",
+                    "Basilika", "Timjan", "Oregano", "Rosmarin",
+                    "Koriander", "Mynta", "Dragon", "Citronmeliss",
+                    "Ingefära", "Uteryddor", "Övriga färska kryddor"
+                ]
+            }
         ]
     },
     "agg-mejeri": {
         label: "Ägg & Mejeri",
         value: "agg-mejeri",
         subcategories: [
-            "Ägg",
-            "Mejeri"
+            {
+                name: "Ägg",
+                detailCategories: ["12-pack", "Karta 30 st", "Styckvis"]
+            },
+            {
+                name: "Mejeri",
+                detailCategories: [
+                    "Mjölk", "Filmjölk", "Yoghurt", "Grädde",
+                    "Smör", "Crème Fraîche"
+                ]
+            }
         ]
     },
     "skafferi": {
         label: "Skafferi",
         value: "skafferi",
         subcategories: [
-            "Bakning",
-            "Böner, linser och fröer",
-            "Café",
-            "Flingor",
-            "Inläggningar",
-            "Kolonial",
-            "Konserver",
-            "Kryddor",
-            "Multiköp",
-            "Oljor",
-            "Olja & Vinäger",
-            "Pasta & Ris",
-            "Såser",
-            "Sylt & Marmelad",
-            "Övrigt skafferi"
+            {
+                name: "Oliver",
+                detailCategories: ["Svarta", "Gröna"]
+            },
+            {
+                name: "Kryddor & Smaksättare",
+                detailCategories: ["Kryddor", "Smaksättare"]
+            },
+            {
+                name: "Flingor",
+                detailCategories: ["Granola", "Corn Flakes", "Müsli"]
+            },
+            {
+                name: "Socker & Honung",
+                detailCategories: ["Honung", "Socker"]
+            },
+            {
+                name: "Oljor",
+                detailCategories: ["Olivolja", "Rapsolja", "Matolja"]
+            },
+            {
+                name: "Kaffe & Te",
+                detailCategories: ["Kaffe", "Te"]
+            },
+            {
+                name: "Sylt & Marmelad",
+                detailCategories: ["Sylt", "Marmelad", "Gelé", "Ostmarmelad", "Nötkräm"]
+            },
+            {
+                name: "Bakning",
+                detailCategories: ["Mjöl", "Havregryn", "Nötkräm", "Kakao", "Kakaonibs"]
+            },
+            {
+                name: "Pasta, ris & nudlar",
+                detailCategories: ["Pasta", "Ris", "Nudlar"]
+            },
+            {
+                name: "Böner, linser och fröer",
+                detailCategories: ["Bönor", "Linser", "Fröer"]
+            },
+            {
+                name: "Konserver",
+                detailCategories: ["Bönor", "Tomater", "Fiskkonserver"]
+            },
+            {
+                name: "Inläggningar",
+                detailCategories: ["Kapris", "Cornichon", "Oliver"]
+            },
+            {
+                name: "Ketchup, Senap & Dressing",
+                detailCategories: ["Ketchup", "Senap", "Dressing"]
+            },
+            {
+                name: "Övrigt skafferi",
+                detailCategories: ["Majonäs"]
+            }
         ]
     },
     "ost-chark": {
         label: "Ost & Chark",
         value: "ost-chark",
         subcategories: [
-            "Ost",
-            "Ost, kex och marmelad",
-            "Chark"
+            {
+                name: "Ost, kex och marmelad",
+                detailCategories: [
+                    "Hårdost", "Färskost", "Vitmögelost", "Getost",
+                    "Kittost", "Blåmögelost", "Ostkaka", "Ostkex", "Ostmarmelad"
+                ]
+            },
+            {
+                name: "Chark",
+                detailCategories: ["Skivad chark", "Övrig chark"]
+            }
         ]
     },
     "konfektyr": {
         label: "Konfektyr",
         value: "konfektyr",
         subcategories: [
-            "Choklad",
-            "Lakrits",
-            "Övrig konfekt"
+            {
+                name: "Choklad",
+                detailCategories: [
+                    "Standout", "Vivani", "Matez",
+                    "La Perla & Tartufo", "Butlers", "Övrig Choklad"
+                ]
+            },
+            {
+                name: "Lakrits",
+                detailCategories: ["Almaregårdens", "Hans Hugo", "Övrig lakrits"]
+            },
+            {
+                name: "Övrig konfekt",
+                detailCategories: ["Tuggummi", "Sockerfritt", "Övrig konfekt"]
+            }
         ]
     },
     "brod": {
         label: "Bröd",
         value: "brod",
         subcategories: [
-            "Bröd",
-            "Kakor",
-            "Söta skorpor & matskorpor"
+            {
+                name: "Bröd",
+                detailCategories: ["Hårt bröd", "Kex", "Övrigt bröd"]
+            },
+            {
+                name: "Kakor",
+                detailCategories: ["Rullrån", "Maräng", "Amarettokaka"]
+            },
+            {
+                name: "Söta skorpor & matskorpor",
+                detailCategories: []
+            }
         ]
     },
     "snacks-dryck": {
         label: "Snacks & Dryck",
         value: "snacks-dryck",
         subcategories: [
-            "Chips",
-            "Öl",
-            "Vatten",
-            "Kolsyrade drycker",
-            "Tonic",
-            "Saft",
-            "Råsaft",
-            "Kombucha",
-            "Övriga snacks",
-            "Övriga drycker"
+            {
+                name: "Chips",
+                detailCategories: ["Savoursmiths", "Brets", "Gärdschips"]
+            },
+            {
+                name: "Nötter",
+                detailCategories: []
+            },
+            {
+                name: "Övrig snacks",
+                detailCategories: []
+            },
+            {
+                name: "Öl",
+                detailCategories: ["Ocean"]
+            },
+            {
+                name: "Vatten",
+                detailCategories: ["Imsdal", "Ramlösa"]
+            },
+            {
+                name: "Kolsyrade söta drickor",
+                detailCategories: ["It Cola", "Coca-Cola", "San Pellegrino", "Galvanina"]
+            },
+            {
+                name: "Saft",
+                detailCategories: []
+            },
+            {
+                name: "Råsaft",
+                detailCategories: []
+            },
+            {
+                name: "Kombucha",
+                detailCategories: []
+            },
+            {
+                name: "Tonic",
+                detailCategories: ["San Pellegrino", "Gbg Soda"]
+            },
+            {
+                name: "Övrig dryck",
+                detailCategories: []
+            }
         ]
     },
     "notter-torkad-frukt": {
         label: "Nötter & Torkad frukt",
         value: "notter-torkad-frukt",
         subcategories: [
-            "Nötter",
-            "Torkad Frukt"
+            {
+                name: "Torkad frukt Sötad",
+                detailCategories: []
+            },
+            {
+                name: "Torkad frukt osötad",
+                detailCategories: []
+            },
+            {
+                name: "Naturgodis",
+                detailCategories: []
+            }
         ]
     },
     "farskvaror": {
         label: "Färskvaror",
         value: "farskvaror",
         subcategories: [
-            "Inläggningar färska",
-            "Oliver"
+            {
+                name: "Inläggningar färska",
+                detailCategories: ["Tistelvind"]
+            },
+            {
+                name: "Oliver",
+                detailCategories: ["Meraki färska", "Cusa", "Fratepietro"]
+            }
         ]
     },
     "hogtidsvaror": {
@@ -120,7 +282,11 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
     "ovrigt": {
         label: "Övrigt",
         value: "ovrigt",
-        subcategories: []
+        subcategories: [
+            { name: "Presentkort", detailCategories: [] },
+            { name: "Presentkorg", detailCategories: [] },
+            { name: "Plockavgift", detailCategories: [] }
+        ]
     }
 };
 
@@ -167,8 +333,22 @@ export function hasSubcategories(categoryValue: string): boolean {
     return (CATEGORY_HIERARCHY[resolved]?.subcategories.length ?? 0) > 0;
 }
 
-// Helper to get subcategories for a category
+// Helper to get subcategory names for a category (for filter chips)
 export function getSubcategories(categoryValue: string): string[] {
     const resolved = resolveCategorySlug(categoryValue);
-    return CATEGORY_HIERARCHY[resolved]?.subcategories || [];
+    return CATEGORY_HIERARCHY[resolved]?.subcategories.map(s => s.name) || [];
+}
+
+// Helper to get detail categories for a specific subcategory within a category
+export function getDetailCategories(categoryValue: string, subcategoryName: string): string[] {
+    const resolved = resolveCategorySlug(categoryValue);
+    const cat = CATEGORY_HIERARCHY[resolved];
+    if (!cat) return [];
+    const sub = cat.subcategories.find(s => s.name === subcategoryName);
+    return sub?.detailCategories || [];
+}
+
+// Helper to check if a subcategory has detail categories
+export function hasDetailCategories(categoryValue: string, subcategoryName: string): boolean {
+    return getDetailCategories(categoryValue, subcategoryName).length > 0;
 }

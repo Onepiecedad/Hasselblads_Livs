@@ -185,6 +185,17 @@ function extractSubcategory(mainCategory?: string, subCategory?: string): string
     return undefined;
 }
 
+// Extrahera detaljkategori (nivå 3) från hierarkisk kategori
+// t.ex. "Frukt & Grönt > Frukt > Banan" → "Banan"
+function extractDetailCategory(mainCategory?: string): string | undefined {
+    if (!mainCategory || !mainCategory.includes('>')) return undefined;
+    const parts = mainCategory.split('>');
+    if (parts.length > 2) {
+        return parts[2].trim();
+    }
+    return undefined;
+}
+
 // Parsa taggar - prioritera produktens tags-fält, fallback till CSV-symbol
 function parseTags(pimTags?: string[], symbolField?: string): Product['tags'] {
     // Om produkten har taggar satta i PIM, använd dessa
@@ -279,6 +290,7 @@ function transformProduct(pim: PIMProduct): Product {
         description: pim.description || '',
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
+        detailCategory: extractDetailCategory(mainCategory),
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price,
         salePrice: pim.sale_price || undefined,

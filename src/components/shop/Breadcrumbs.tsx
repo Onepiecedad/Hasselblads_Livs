@@ -6,6 +6,7 @@ import { getCategoryLabel } from "@/lib/categoryHierarchy";
 interface BreadcrumbsProps {
     category: string | null;
     subcategory: string | null;
+    detailCategory?: string | null;
     searchTerm?: string;
     focusTag?: string | null;
     className?: string;
@@ -14,6 +15,7 @@ interface BreadcrumbsProps {
 const Breadcrumbs = ({
     category,
     subcategory,
+    detailCategory,
     searchTerm,
     focusTag,
     className,
@@ -112,7 +114,28 @@ const Breadcrumbs = ({
                             <ChevronRight className="w-3.5 h-3.5 mx-1 text-muted-foreground/50" />
                         </li>
                         <li>
-                            <span className="text-foreground font-medium">{subcategory}</span>
+                            {detailCategory ? (
+                                <Link
+                                    to={`/webbutik?kategori=${category}&underkategori=${subcategory}`}
+                                    className="hover:text-foreground transition-colors"
+                                >
+                                    {subcategory}
+                                </Link>
+                            ) : (
+                                <span className="text-foreground font-medium">{subcategory}</span>
+                            )}
+                        </li>
+                    </>
+                )}
+
+                {/* Detail Category */}
+                {detailCategory && (
+                    <>
+                        <li className="flex items-center">
+                            <ChevronRight className="w-3.5 h-3.5 mx-1 text-muted-foreground/50" />
+                        </li>
+                        <li>
+                            <span className="text-foreground font-medium">{detailCategory}</span>
                         </li>
                     </>
                 )}

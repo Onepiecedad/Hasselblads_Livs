@@ -5,10 +5,12 @@ import { getCategoryLabel } from "@/lib/categoryHierarchy";
 interface ActiveFilterBadgesProps {
     category: string | null;
     subcategory: string | null;
+    detailCategory?: string | null;
     focusTag: string | null;
     searchTerm: string;
     onClearCategory: () => void;
     onClearSubcategory: () => void;
+    onClearDetailCategory?: () => void;
     onClearFocusTag: () => void;
     onClearSearch: () => void;
     onClearAll: () => void;
@@ -18,10 +20,12 @@ interface ActiveFilterBadgesProps {
 const ActiveFilterBadges = ({
     category,
     subcategory,
+    detailCategory,
     focusTag,
     searchTerm,
     onClearCategory,
     onClearSubcategory,
+    onClearDetailCategory,
     onClearFocusTag,
     onClearSearch,
     onClearAll,
@@ -37,7 +41,7 @@ const ActiveFilterBadges = ({
         return labels[tag] || tag;
     };
 
-    const hasActiveFilters = category || subcategory || focusTag || searchTerm;
+    const hasActiveFilters = category || subcategory || detailCategory || focusTag || searchTerm;
 
     if (!hasActiveFilters) {
         return null;
@@ -78,6 +82,14 @@ const ActiveFilterBadges = ({
                             onClear={onClearSubcategory}
                         />
                     </>
+                )}
+
+                {/* Detail category badge */}
+                {detailCategory && onClearDetailCategory && (
+                    <FilterBadge
+                        label={detailCategory}
+                        onClear={onClearDetailCategory}
+                    />
                 )}
 
                 {/* Focus tag badge */}
