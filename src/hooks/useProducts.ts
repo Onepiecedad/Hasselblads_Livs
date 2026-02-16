@@ -34,6 +34,9 @@ interface PIMProduct {
     estimated_weight_g?: number;
     estimated_piece_price?: number;
 
+    // Multiköp-erbjudanden (från PIM)
+    multi_buy_offers?: { quantity: number; price: number }[];
+
     // Baksideinformation (från PIM-appen)
     backImageUrl?: string;
     ingredients?: string;
@@ -306,7 +309,9 @@ function transformProduct(pim: PIMProduct): Product {
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,
-        multiOffers: parseMultiOffers(pim.csvData?.['Multi']),
+        multiOffers: pim.multi_buy_offers && pim.multi_buy_offers.length > 0
+            ? pim.multi_buy_offers.map(o => ({ quantity: o.quantity, price: o.price, label: `${o.quantity} för ${o.price}:-` }))
+            : parseMultiOffers(pim.csvData?.['Multi']),
 
 
         origin: {
