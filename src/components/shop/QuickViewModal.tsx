@@ -31,6 +31,7 @@ export type QuickViewProduct = {
   tags: string[];
   sold_as?: ('hel' | 'halv' | 'kvart')[];
   multiOffers?: MultiOffer[];
+  weightInGrams?: number;
 };
 
 interface QuickViewModalProps {
@@ -244,9 +245,9 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     )}
 
                     {/* Approximate weight for per-piece items */}
-                    {product.pricingType !== 'weight_based' && isPieceItem && product.approximateWeight && !hasPortions && (
+                    {product.pricingType !== 'weight_based' && isPieceItem && (product.approximateWeight || product.weightInGrams) && !hasPortions && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
-                        ≈ {product.approximateWeight} per styck
+                        ≈ {product.approximateWeight || `${product.weightInGrams} g`} per styck
                       </p>
                     )}
 
@@ -259,8 +260,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             type="button"
                             onClick={() => handleSelectOffer(null)}
                             className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all ${!selectedOffer
-                                ? 'bg-primary text-primary-foreground border-primary shadow-md'
-                                : 'bg-muted/50 text-foreground/80 border-border hover:border-primary/40 hover:bg-muted'
+                              ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                              : 'bg-muted/50 text-foreground/80 border-border hover:border-primary/40 hover:bg-muted'
                               }`}
                           >
                             1 st — {formatPrice(product!.price)} kr
@@ -271,8 +272,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                               type="button"
                               onClick={() => handleSelectOffer(offer)}
                               className={`px-3 py-2 rounded-xl text-sm font-medium border transition-all ${selectedOffer?.quantity === offer.quantity && selectedOffer?.price === offer.price
-                                  ? 'bg-orange-500 text-white border-orange-500 shadow-md'
-                                  : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30 hover:border-orange-500/60 hover:bg-orange-500/20'
+                                ? 'bg-orange-500 text-white border-orange-500 shadow-md'
+                                : 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30 hover:border-orange-500/60 hover:bg-orange-500/20'
                                 }`}
                             >
                               {offer.label} ⭐
