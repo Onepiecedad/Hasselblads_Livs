@@ -237,16 +237,11 @@ const MiniCartDrawer = () => {
                   <span>Delsumma</span>
                   <span>{formatPrice(subtotal)} kr</span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>Frakt</span>
-                  <span className={hasFreeShipping ? "text-green-600 font-medium" : ""}>
-                    {shippingFee === 0 ? "Gratis" : `${formatPrice(shippingFee)} kr`}
-                  </span>
-                </div>
+
                 <Separator />
                 <div className="flex items-center justify-between text-lg font-semibold">
                   <span>Att betala</span>
-                  <span>{formatPrice(total)} kr</span>
+                  <span>{formatPrice(subtotal)} kr</span>
                 </div>
                 <div>
                   <label htmlFor="discount" className="text-sm text-muted-foreground">
@@ -270,7 +265,7 @@ const MiniCartDrawer = () => {
                     navigate('/kassa');
                   }}
                 >
-                  Till kassan · {formatPrice(total)} kr
+                  Till kassan · {formatPrice(subtotal)} kr
                   <ArrowRight className="h-4 w-4" />
                 </Button>
 
