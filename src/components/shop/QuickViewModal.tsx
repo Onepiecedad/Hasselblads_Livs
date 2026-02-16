@@ -42,7 +42,7 @@ interface QuickViewModalProps {
   product: QuickViewProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddToCart: (product: QuickViewProduct, quantity: number, portion?: PortionSize, weightGrams?: number) => void;
+  onAddToCart: (product: QuickViewProduct, quantity: number, portion?: PortionSize, weightGrams?: number, multiOffer?: MultiOffer) => void;
   returnFocusRef?: RefObject<HTMLElement> | null;
 }
 
@@ -155,6 +155,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
         quantity,
         hasPortions ? selectedPortion : undefined,
         isKgProduct ? selectedWeight : undefined,
+        selectedOffer ?? undefined,
       );
     }
   };
@@ -164,7 +165,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const weightPerUnit = product?.approximateWeight
     ? parseWeight(product.approximateWeight)
     : (product?.weightInGrams ?? null);
-  const showEstimate = isPieceItem && weightPerUnit && quantity > 1;
+  const showEstimate = isPieceItem && weightPerUnit && quantity > 1 && !selectedOffer;
   const estimatedTotalWeight = weightPerUnit ? weightPerUnit * quantity : 0;
   const estimatedTotalPrice = product ? displayPrice * quantity : 0;
 
@@ -245,8 +246,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                               type="button"
                               onClick={() => setSelectedWeight(w)}
                               className={`px-3.5 py-2 text-sm font-medium rounded-full border transition-all ${selectedWeight === w
-                                  ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105'
-                                  : 'bg-muted/40 text-muted-foreground border-border/50 hover:bg-muted hover:border-primary/30'
+                                ? 'bg-primary text-primary-foreground border-primary shadow-md scale-105'
+                                : 'bg-muted/40 text-muted-foreground border-border/50 hover:bg-muted hover:border-primary/30'
                                 }`}
                             >
                               {w} g
@@ -379,6 +380,19 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Multiköp summary when multi-offer is active */}
+                    {selectedOffer && (
+                      <div className="bg-orange-50 dark:bg-orange-500/10 rounded-xl p-3 space-y-1 text-sm border border-orange-200 dark:border-orange-500/20">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{selectedOffer.label}</span>
+                          <span className="font-semibold text-orange-600 dark:text-orange-400">{selectedOffer.price}:- kr</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground/80 mt-1 italic">
+                          Multiköpspris – du sparar {formatPrice(displayPrice * selectedOffer.quantity - selectedOffer.price)} kr
+                        </p>
                       </div>
                     )}
 

@@ -351,17 +351,19 @@ const Webshop = () => {
         return result;
     }, [filteredProducts, activeCategory]);
 
-    const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize, weightGrams?: number) => {
+    const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize, weightGrams?: number, multiOffer?: { quantity: number; price: number; label: string }) => {
         const basePrice = (product.salePrice && product.salePrice < product.price)
             ? product.salePrice
             : product.price;
 
-        // For kg products with weight selection, calculate price per selected weight
-        const itemPrice = weightGrams
-            ? Math.round((basePrice / 1000) * weightGrams * 100) / 100
-            : portion
-                ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
-                : basePrice;
+        // For multiköp offers, use the offer price per item
+        const itemPrice = multiOffer
+            ? Math.round((multiOffer.price / multiOffer.quantity) * 100) / 100
+            : weightGrams
+                ? Math.round((basePrice / 1000) * weightGrams * 100) / 100
+                : portion
+                    ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
+                    : basePrice;
 
         addItem({
             id: product.id,
@@ -617,8 +619,8 @@ const Webshop = () => {
                 product={quickViewProduct}
                 open={quickViewOpen}
                 onOpenChange={setQuickViewOpen}
-                onAddToCart={(product, quantity, portion, weightGrams) => {
-                    handleAddToCart(product as Product, quantity, portion, weightGrams);
+                onAddToCart={(product, quantity, portion, weightGrams, multiOffer) => {
+                    handleAddToCart(product as Product, quantity, portion, weightGrams, multiOffer);
                     setQuickViewOpen(false);
                     setOpen(true);
                 }}
