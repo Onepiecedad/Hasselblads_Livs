@@ -83,28 +83,48 @@ export default async (request: Request, context: Context): Promise<Response> => 
             proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
             proxyRes.on("end", () => {
                 const responseBuffer = Buffer.concat(chunks);
-                const responseHeaders: Record<string, string> = {};
+
+                // Use Headers object to properly handle multi-value headers (Set-Cookie)
+                const responseHeaders = new Headers();
+
+                // Collect Set-Cookie headers separately — they MUST NOT be comma-joined
+                const setCookies: string[] = [];
 
                 for (const [key, value] of Object.entries(proxyRes.headers)) {
-                    if (value) {
-                        // Handle set-cookie which can be an array
-                        if (Array.isArray(value)) {
-                            responseHeaders[key] = value.join(", ");
-                        } else if (typeof value === "string") {
-                            responseHeaders[key] = value;
+                    if (!value) continue;
+                    const lowerKey = key.toLowerCase();
+
+                    // Skip problematic headers
+                    if (lowerKey === "transfer-encoding" || lowerKey === "connection") continue;
+
+                    if (lowerKey === "set-cookie") {
+                        // Set-Cookie must be appended individually
+                        const cookies = Array.isArray(value) ? value : [value];
+                        for (const cookie of cookies) {
+                            // Fix domain in cookies to match the proxy domain
+                            const fixedCookie = cookie.replace(
+                                /domain=[^;]*/gi,
+                                `domain=hasselbladslivs.se`
+                            );
+                            setCookies.push(fixedCookie);
                         }
+                    } else if (Array.isArray(value)) {
+                        responseHeaders.set(key, value.join(", "));
+                    } else if (typeof value === "string") {
+                        responseHeaders.set(key, value);
                     }
                 }
 
-                // Remove problematic headers
-                delete responseHeaders["transfer-encoding"];
-                delete responseHeaders["connection"];
+                // Append each Set-Cookie individually (critical for browser parsing)
+                for (const cookie of setCookies) {
+                    responseHeaders.append("Set-Cookie", cookie);
+                }
 
                 // Expose Store API headers to the browser (nonce, cart-token)
-                responseHeaders["access-control-expose-headers"] = "Nonce, Cart-Token, X-WC-Store-API-Nonce";
+                responseHeaders.set("access-control-expose-headers", "Nonce, Cart-Token, X-WC-Store-API-Nonce");
                 // CORS: allow the frontend origin
-                responseHeaders["access-control-allow-origin"] = request.headers.get("origin") || "*";
-                responseHeaders["access-control-allow-credentials"] = "true";
+                responseHeaders.set("access-control-allow-origin", request.headers.get("origin") || "*");
+                responseHeaders.set("access-control-allow-credentials", "true");
 
                 // Check if this is a binary response (images, fonts, etc.)
                 const contentType = proxyRes.headers["content-type"] || "";
