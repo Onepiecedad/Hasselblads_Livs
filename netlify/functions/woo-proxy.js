@@ -1,9 +1,14 @@
 /**
- * WooCommerce API Proxy - Netlify Serverless Function (v1 handler format)
+ * WooCommerce API Proxy - Netlify Serverless Function
  * 
  * This proxy allows the PIM to make WooCommerce API calls without
- * running into CORS issues. Credentials are stored in Netlify environment variables.
+ * running into CORS issues. The WordPress backend runs on Pressable
+ * at a specific IP, while the domain points to this Netlify site.
  */
+
+// WordPress backend on Pressable (same as wordpress-proxy.ts)
+const WORDPRESS_BACKEND_IP = "199.16.172.188";
+const WORDPRESS_HOST = "hasselbladslivs.se";
 
 const CORS_HEADERS = {
     'Access-Control-Allow-Origin': '*',
@@ -22,24 +27,21 @@ export const handler = async (event) => {
         };
     }
 
-    // Get WooCommerce config from environment variables
-    const WC_URL = process.env.WOOCOMMERCE_URL;
+    // Get WooCommerce credentials from environment variables
     const WC_KEY = process.env.WOOCOMMERCE_CONSUMER_KEY;
     const WC_SECRET = process.env.WOOCOMMERCE_CONSUMER_SECRET;
 
-    // Validate configuration
-    if (!WC_URL || !WC_KEY || !WC_SECRET) {
+    if (!WC_KEY || !WC_SECRET) {
         return {
             statusCode: 500,
             headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                error: 'WooCommerce not configured. Set WOOCOMMERCE_URL, WOOCOMMERCE_CONSUMER_KEY, WOOCOMMERCE_CONSUMER_SECRET in Netlify environment variables.'
+                error: 'WooCommerce credentials not configured.'
             }),
         };
     }
 
     try {
-        // Parse request body
         const body = JSON.parse(event.body || '{}');
         const { endpoint, method = 'GET', data } = body;
 
@@ -51,16 +53,17 @@ export const handler = async (event) => {
             };
         }
 
-        // Build WooCommerce URL with auth
-        const wcUrl = `${WC_URL}/wp-json/wc/v3${endpoint}`;
+        // Build URL pointing to the Pressable backend IP
+        const wcUrl = `https://${WORDPRESS_BACKEND_IP}/wp-json/wc/v3${endpoint}`;
         const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString('base64');
 
-        // Build fetch options
         const fetchOptions = {
             method: method,
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Basic ${auth}`,
+                'Host': WORDPRESS_HOST,
+                'X-Forwarded-Host': WORDPRESS_HOST,
             },
         };
 
@@ -70,11 +73,9 @@ export const handler = async (event) => {
 
         console.log(`WooCommerce proxy: ${method} ${wcUrl}`);
 
-        // Make request to WooCommerce
         const response = await fetch(wcUrl, fetchOptions);
         const responseText = await response.text();
 
-        // Try to parse as JSON
         let responseData;
         try {
             responseData = JSON.parse(responseText);
