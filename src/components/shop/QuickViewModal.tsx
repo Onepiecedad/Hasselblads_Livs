@@ -240,9 +240,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     </div>
 
                     {/* Weight-based price info */}
-                    {product.pricingType === 'weight_based' && product.pricePerKg && (
+                    {product.pricingType === 'weight_based' && (product.pricePerKg || product.estimatedWeightG) && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
-                        {formatPrice(product.pricePerKg)} kr/kg · ca {product.estimatedWeightG} g
+                        {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
+                        {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                        {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
                       </p>
                     )}
 

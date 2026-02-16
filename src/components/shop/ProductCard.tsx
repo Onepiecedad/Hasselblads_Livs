@@ -200,9 +200,13 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         </span>
                       )}
                     </p>
-                    <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
-                      {formatPrice(product.pricePerKg!)} kr/kg · ca {product.estimatedWeightG} g
-                    </p>
+                    {(product.pricePerKg || product.estimatedWeightG) && (
+                      <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                        {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
+                        {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                        {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                      </p>
+                    )}
                   </>
                 ) : (
                   <>

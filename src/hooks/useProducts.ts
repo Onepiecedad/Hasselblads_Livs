@@ -280,6 +280,9 @@ function transformProduct(pim: PIMProduct): Product {
     let price: number;
     if (isWeightBased && (pim.estimated_piece_price || (pim.price_per_kg && pim.estimated_weight_g))) {
         price = pim.estimated_piece_price ?? (pim.price_per_kg! * pim.estimated_weight_g! / 1000);
+    } else if (isWeightBased && pim.price_per_kg && !pim.estimated_weight_g) {
+        // Weight-based but missing estimated weight — use kg-price as-is and mark unit as 'kg'
+        price = pim.price_per_kg;
     } else {
         price = pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0');
     }
@@ -295,7 +298,9 @@ function transformProduct(pim: PIMProduct): Product {
         price,
         salePrice: pim.sale_price || undefined,
         unit: parseUnit(kgSt),
-        priceUnit: isWeightBased ? 'st' : parsePriceUnit(kgSt),
+        priceUnit: isWeightBased
+            ? (pim.estimated_weight_g || pim.estimated_piece_price ? 'st' : 'kg')
+            : parsePriceUnit(kgSt),
         pricingType: pim.pricing_type,
         pricePerKg: isWeightBased ? pim.price_per_kg : undefined,
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
