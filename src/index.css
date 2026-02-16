@@ -348,3 +348,25 @@ All colors MUST be HSL.
   letter-spacing: 0.025em;
 }
 
+/* ============================================
+   Centered Mini Cart Drawer
+   ============================================ */
+.mini-cart-centered {
+  inset: 0 !important;
+  margin: auto !important;
+  border-radius: 10px !important;
+  max-width: 32rem;
+}
+
+.mini-cart-centered::after {
+  display: none !important;
+}
+
+.mini-cart-centered[data-state="open"] {
+  animation: none !important;
+}
+
+.mini-cart-centered[data-state="closed"] {
+  animation: none !important;
+}
+

@@ -40,7 +40,7 @@ const MiniCartDrawer = () => {
 
   return (
     <Drawer open={isOpen} onOpenChange={setOpen}>
-      <DrawerContent className="h-[85vh] max-h-[680px] w-full overflow-hidden border-border/80 bg-background p-0 shadow-2xl sm:mx-auto sm:max-w-lg">
+      <DrawerContent className="mini-cart-centered h-[85vh] max-h-[680px] w-full overflow-hidden border-border/80 bg-background p-0 shadow-2xl sm:mx-auto sm:max-w-lg">
         <div className="flex h-full flex-col">
           <DrawerHeader className="border-b border-border/60 text-left relative">
             <DrawerTitle className="flex items-center gap-2">
