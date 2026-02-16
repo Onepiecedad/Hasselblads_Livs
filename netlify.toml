@@ -7,17 +7,30 @@
   targetPort = 8080
   port = 8888
 
-# WordPress admin – redirect directly to WordPress at Pressable
+# WordPress admin – proxy through to WordPress backend at Pressable
 [[redirects]]
   from = "/wp-login.php"
-  to = "https://hasselbladslivs.se/wp-login.php"
-  status = 301
+  to = "/.netlify/functions/wordpress-proxy/wp-login.php"
+  status = 200
   force = true
 
 [[redirects]]
   from = "/wp-admin/*"
-  to = "https://hasselbladslivs.se/wp-admin/:splat"
-  status = 301
+  to = "/.netlify/functions/wordpress-proxy/wp-admin/:splat"
+  status = 200
+  force = true
+
+# WordPress assets needed for admin & checkout styling
+[[redirects]]
+  from = "/wp-content/*"
+  to = "/.netlify/functions/wordpress-proxy/wp-content/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/wp-includes/*"
+  to = "/.netlify/functions/wordpress-proxy/wp-includes/:splat"
+  status = 200
   force = true
 
 [[redirects]]
