@@ -109,6 +109,17 @@ const Delivery = () => {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
 
+          {/* Ordering Info Banner */}
+          <div className="max-w-3xl mx-auto mb-16 rounded-2xl border border-primary/20 bg-primary/5 p-6 md:p-8 text-center">
+            <p className="text-xl md:text-2xl font-semibold text-foreground mb-3">
+              Beställ idag – få dina varor redan nästa dag.
+            </p>
+            <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+              Beställer du två eller fler dagar i förväg kan tillgång och pris förändras.
+              För att vara säker rekommenderar vi att du beställer dagen innan leverans.
+            </p>
+          </div>
+
           {/* Delivery Options Grid */}
           <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto mb-20">
 
