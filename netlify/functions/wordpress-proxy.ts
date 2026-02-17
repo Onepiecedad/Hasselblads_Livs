@@ -185,14 +185,23 @@ export default async (request: Request, context: Context): Promise<Response> => 
     var data = (wcSettings.paymentMethodData || {});
     if (!data.stripe_swish && !data.stripe_cc) return false;
 
+    // Helper: patch a map and fix Swish Payment Element issue
+    function patchMap(map, srcData, isLocalPayment) {
+      if (map && Object.keys(map).length === 0 && srcData) {
+        Object.assign(map, srcData);
+      }
+      // Delete elementOptions for Swish — the Payment Element iframe
+      // renders at 4px and breaks. Removing it forces the working
+      // redirect-based flow instead.
+      if (isLocalPayment && map && map.elementOptions) {
+        delete map.elementOptions;
+      }
+    }
+
     // If wcStripeBlocks already exists, patch it directly
     if (typeof wcStripeBlocks !== 'undefined') {
-      if (wcStripeBlocks['wc-stripe-local-payment'] && Object.keys(wcStripeBlocks['wc-stripe-local-payment']).length === 0 && data.stripe_swish) {
-        Object.assign(wcStripeBlocks['wc-stripe-local-payment'], data.stripe_swish);
-      }
-      if (wcStripeBlocks['wc-stripe-credit-card'] && Object.keys(wcStripeBlocks['wc-stripe-credit-card']).length === 0 && data.stripe_cc) {
-        Object.assign(wcStripeBlocks['wc-stripe-credit-card'], data.stripe_cc);
-      }
+      patchMap(wcStripeBlocks['wc-stripe-local-payment'], data.stripe_swish, true);
+      patchMap(wcStripeBlocks['wc-stripe-credit-card'], data.stripe_cc, false);
       return true;
     }
 
@@ -205,11 +214,9 @@ export default async (request: Request, context: Context): Promise<Response> => 
         realValue = val;
         // Patch each map as it gets populated
         setTimeout(function() {
-          if (val && data.stripe_swish && val['wc-stripe-local-payment'] && Object.keys(val['wc-stripe-local-payment']).length === 0) {
-            Object.assign(val['wc-stripe-local-payment'], data.stripe_swish);
-          }
-          if (val && data.stripe_cc && val['wc-stripe-credit-card'] && Object.keys(val['wc-stripe-credit-card']).length === 0) {
-            Object.assign(val['wc-stripe-credit-card'], data.stripe_cc);
+          if (val) {
+            patchMap(val['wc-stripe-local-payment'], data.stripe_swish, true);
+            patchMap(val['wc-stripe-credit-card'], data.stripe_cc, false);
           }
         }, 0);
       }
