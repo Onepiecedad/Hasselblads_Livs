@@ -8,8 +8,8 @@ import https from "node:https";
  * Uses rejectUnauthorized: false to bypass SSL certificate mismatch.
  */
 
-const WORDPRESS_BACKEND_IP = "199.16.172.188";
-const WORDPRESS_HOST = "hasselbladslivs.se";
+const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
+const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 
 export default async (request: Request, context: Context): Promise<Response> => {
   // Handle CORS preflight (OPTIONS) requests for Store API custom headers

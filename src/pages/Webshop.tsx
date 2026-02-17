@@ -21,6 +21,7 @@ import { useFeaturedContent, type FeatureCardId } from "@/hooks/useFeaturedConte
 import { toast } from "sonner";
 
 const STORAGE_KEY = "webshop-filters";
+const svCollator = new Intl.Collator('sv', { sensitivity: 'base', numeric: true });
 
 type FiltersState = {
     category: string | null; // Single-select category
@@ -300,7 +301,7 @@ const Webshop = () => {
                 result.sort((a, b) => b.price - a.price);
                 break;
             case "name-asc":
-                result.sort((a, b) => new Intl.Collator('sv', { sensitivity: 'base', numeric: true }).compare(a.name, b.name));
+                result.sort((a, b) => svCollator.compare(a.name, b.name));
                 break;
             default:
                 // leave original order for "popular"
@@ -334,7 +335,7 @@ const Webshop = () => {
 
         // Sort groups alphabetically (Swedish locale)
         const sortedGroupNames = Object.keys(groups).sort((a, b) =>
-            new Intl.Collator('sv', { sensitivity: 'base' }).compare(a, b)
+            svCollator.compare(a, b)
         );
 
         // Build ordered result with uncategorized at the end

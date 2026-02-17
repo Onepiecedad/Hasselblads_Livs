@@ -16,8 +16,8 @@ import https from "node:https";
  * URL: /.netlify/functions/wc-add-to-cart?items=ID:QTY,ID:QTY&delivery_note=...
  */
 
-const WORDPRESS_BACKEND_IP = "199.16.172.188";
-const WORDPRESS_HOST = "hasselbladslivs.se";
+const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
+const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 
 interface WcItem {
     id: number;
