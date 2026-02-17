@@ -21,8 +21,15 @@ import LegacyRedirects from "./components/seo/LegacyRedirects";
 import RootLayout from "./layouts/RootLayout";
 import ScrollToTop from "./components/ScrollToTop";
 import { useScrollRestoration } from "./hooks/useScrollRestoration";
+import ErrorBoundary from "./components/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 min — avoids refetching on every mount
+    },
+  },
+});
 
 // Simple loading fallback - matches site background
 const PageLoader = () => (
@@ -44,28 +51,30 @@ const App = () => (
       <Sonner />
       <CartProvider>
         <BrowserRouter>
-          <ScrollRestoration />
-          <LegacyRedirects />
-          <BreadcrumbSchema />
-          <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<RootLayout />}>
-                <Route index element={<Home />} />
-                <Route path="webbutik" element={<Webshop />} />
-                <Route path="hemleverans" element={<Delivery />} />
-                <Route path="butiken" element={<About />} />
-                <Route path="om-oss" element={<About />} />
+          <ErrorBoundary>
+            <ScrollRestoration />
+            <LegacyRedirects />
+            <BreadcrumbSchema />
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/" element={<RootLayout />}>
+                  <Route index element={<Home />} />
+                  <Route path="webbutik" element={<Webshop />} />
+                  <Route path="hemleverans" element={<Delivery />} />
+                  <Route path="butiken" element={<About />} />
+                  <Route path="om-oss" element={<About />} />
 
-                <Route path="kundservice" element={<CustomerService />} />
-                <Route path="kassa" element={<Checkout />} />
-                <Route path="kopvillkor" element={<About />} />
-                <Route path="hallbarhet" element={<About />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-          </Suspense>
-          <MiniCartDrawer />
-          <ScrollToTop />
+                  <Route path="kundservice" element={<CustomerService />} />
+                  <Route path="kassa" element={<Checkout />} />
+                  <Route path="kopvillkor" element={<About />} />
+                  <Route path="hallbarhet" element={<About />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </Suspense>
+            <MiniCartDrawer />
+            <ScrollToTop />
+          </ErrorBoundary>
         </BrowserRouter>
       </CartProvider>
     </TooltipProvider>

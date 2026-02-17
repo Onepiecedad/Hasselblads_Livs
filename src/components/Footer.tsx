@@ -45,8 +45,9 @@ const Footer = () => {
             <img
               src="/Logo_HasselbladsLivs_vit.png"
               alt="Hasselblads Livs logotyp"
-              className="h-40 md:h-48 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
               decoding="async"
+              className="h-40 md:h-48 w-auto object-contain transition-transform duration-500 group-hover:scale-110"
             />
           </Link>
         </div>

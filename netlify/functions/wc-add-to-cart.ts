@@ -137,9 +137,11 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     }
 
     // Build redirect URL to /kassa
-    const redirectUrl = deliveryNote
-        ? `https://${WORDPRESS_HOST}/kassa?delivery_note=${encodeURIComponent(deliveryNote)}`
-        : `https://${WORDPRESS_HOST}/kassa`;
+    const redirectParams = new URLSearchParams();
+    if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
+    if (successCount < items.length) redirectParams.set("partial", "1");
+    const qs = redirectParams.toString();
+    const redirectUrl = `https://${WORDPRESS_HOST}/kassa${qs ? '?' + qs : ''}`;
 
     // Build Set-Cookie headers to pass WooCommerce session to the user's browser
     const setCookieHeaders: string[] = [];

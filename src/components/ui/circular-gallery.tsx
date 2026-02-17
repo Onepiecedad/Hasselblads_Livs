@@ -226,6 +226,8 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                     <img
                                         src={item.image}
                                         alt={item.name}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="absolute inset-0 w-full h-full object-cover"
                                         draggable={false}
                                     />

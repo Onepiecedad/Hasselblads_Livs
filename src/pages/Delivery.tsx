@@ -100,6 +100,8 @@ const Delivery = () => {
           <img
             src="/Hemleverans.png"
             alt="Hemleverans – Hasselblads Livs"
+            loading="lazy"
+            decoding="async"
             className="w-36 h-36 md:w-52 md:h-52 lg:w-60 lg:h-60 drop-shadow-2xl"
           />
         </div>

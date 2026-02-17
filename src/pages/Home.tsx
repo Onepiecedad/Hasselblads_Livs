@@ -199,6 +199,7 @@ const Home = () => {
                 key={image}
                 src={image}
                 alt={`Hasselblads Livs butik ${index + 1}`}
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover will-change-[opacity]"
                 style={{
                   opacity: isActive ? 1 : 0,
@@ -249,8 +250,9 @@ const Home = () => {
                     <img
                       src={card.image}
                       alt={card.title}
-                      className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       loading="lazy"
+                      decoding="async"
+                      className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                     />
                     {/* Text overlay - positioned based on decoration location */}
                     <div className={`absolute inset-0 flex p-6 md:p-8 items-center ${card.textPosition === 'center-right'

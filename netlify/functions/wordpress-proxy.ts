@@ -138,6 +138,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
     };
 
     const proxyReq = https.request(options, (proxyRes) => {
+      // Clear the timeout once we start receiving a response
+      proxyReq.setTimeout(0);
       const chunks: Buffer[] = [];
       proxyRes.on("data", (chunk: Buffer) => chunks.push(chunk));
       proxyRes.on("end", () => {
@@ -185,6 +187,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
         responseHeaders.set("access-control-allow-origin", request.headers.get("origin") || "*");
         responseHeaders.set("access-control-allow-credentials", "true");
         responseHeaders.set("access-control-allow-headers", "Content-Type, Nonce, Cart-Token, X-WP-Nonce, X-WC-Store-API-Nonce, X-HTTP-Method-Override, Authorization, Cookie");
+
+        // Cache static assets from WordPress (images, fonts, CSS/JS bundles)
+        const isStaticAsset = /^\/wp-content\/.+\.(js|css|woff2?|ttf|eot|svg|png|jpe?g|gif|webp|ico)$/i.test(targetPath);
+        if (isStaticAsset && !responseHeaders.has("cache-control")) {
+          responseHeaders.set("cache-control", "public, max-age=31536000, immutable");
+        }
 
         // Check if this is a binary response (images, fonts, etc.)
         const contentType = proxyRes.headers["content-type"] || "";
@@ -412,13 +420,19 @@ export default async (request: Request, context: Context): Promise<Response> => 
       });
     });
 
+    // 15s timeout — prevents indefinite hangs when WordPress is unresponsive
+    proxyReq.setTimeout(15_000, () => {
+      proxyReq.destroy(new Error("Upstream request timed out after 15s"));
+    });
+
     proxyReq.on("error", (error: Error) => {
       console.error("WordPress proxy error:", error);
+      const isTimeout = error.message.includes("timed out");
       resolve(new Response(JSON.stringify({
-        error: "Failed to connect to WordPress backend",
+        error: isTimeout ? "WordPress backend timed out" : "Failed to connect to WordPress backend",
         details: error.message,
       }), {
-        status: 502,
+        status: isTimeout ? 504 : 502,
         headers: { "Content-Type": "application/json" },
       }));
     });

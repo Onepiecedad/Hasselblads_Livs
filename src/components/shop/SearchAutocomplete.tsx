@@ -137,7 +137,7 @@ const SearchAutocomplete = ({
                         <li
                             key={product.id}
                             role="option"
-                            aria-selected={index === highlightedIndex ? "true" : "false"}
+                            aria-selected={index === highlightedIndex}
                             className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${index === highlightedIndex
                                 ? "bg-primary/10"
                                 : "hover:bg-muted/50"
@@ -148,6 +148,8 @@ const SearchAutocomplete = ({
                             <img
                                 src={product.image}
                                 alt=""
+                                loading="lazy"
+                                decoding="async"
                                 className="h-10 w-10 rounded-lg object-cover bg-muted"
                             />
                             <div className="flex-1 min-w-0">
