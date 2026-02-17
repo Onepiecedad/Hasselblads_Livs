@@ -94,6 +94,39 @@ export default async (request: Request, context: Context): Promise<Response> => 
     }
   }
 
+  // Server-side fix: For checkout POST requests, ensure the shipping address
+  // passes the WooCommerce delivery zone validation plugin.
+  // The plugin requires the shipping address to be one of ~36 specific streets.
+  // For pickup orders ("Hämta i butik"), we replace the address with a valid one.
+  const isCheckoutPost = request.method === "POST" && targetPath.includes("/wc/store/v1/checkout");
+  if (isCheckoutPost && body) {
+    try {
+      const checkoutData = JSON.parse(body);
+      const shippingAddr = checkoutData?.shipping_address;
+      // Detect pickup order: first_name contains "Hämta" or address is placeholder
+      if (shippingAddr && (
+        shippingAddr.first_name?.includes("Hämta") ||
+        shippingAddr.address_1 === "Hasselblads Livs" ||
+        shippingAddr.address_1 === "Hämtas i butik" ||
+        shippingAddr.address_1 === "Frejagatan 9"
+      )) {
+        // Replace with a valid street from the delivery zone whitelist
+        checkoutData.shipping_address = {
+          ...shippingAddr,
+          first_name: "Hämta",
+          last_name: "I butik",
+          address_1: "Blomstervägen 1",
+          city: "Kullavik",
+          postcode: "42943",
+          country: "SE",
+        };
+        body = JSON.stringify(checkoutData);
+      }
+    } catch {
+      // If JSON parse fails, leave body unchanged
+    }
+  }
+
   return new Promise((resolve) => {
     const options: https.RequestOptions = {
       hostname: WORDPRESS_BACKEND_IP,
@@ -305,9 +338,9 @@ export default async (request: Request, context: Context): Promise<Response> => 
     var fills = {
       'shipping-first_name': 'Hämta',
       'shipping-last_name': 'I butik',
-      'shipping-address_1': 'Hasselblads Livs',
-      'shipping-postcode': '42734',
-      'shipping-city': 'Billdal'
+      'shipping-address_1': 'Blomstervägen 1',
+      'shipping-postcode': '42943',
+      'shipping-city': 'Kullavik'
     };
     Object.keys(fills).forEach(function(id) {
       var el = document.getElementById(id);
