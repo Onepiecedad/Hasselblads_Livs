@@ -167,17 +167,83 @@ export default async (request: Request, context: Context): Promise<Response> => 
                     // Return text-based content (HTML, JSON, CSS, JS)
                     let textBody = responseBuffer.toString("utf-8");
 
-                    // Inject delivery-note script into WooCommerce checkout pages
+                    // Inject scripts into WooCommerce checkout pages
                     const isCheckoutPage = /^\/(kassa|kassan)(\/|$)/.test(targetPath);
                     const deliveryNote = url.searchParams.get("delivery_note");
                     const isHtml = /text\/html/i.test(contentType);
 
-                    if (isCheckoutPage && deliveryNote && isHtml && textBody.includes("</body>")) {
-                        const safeNote = deliveryNote
-                            .replace(/\\/g, "\\\\")
-                            .replace(/'/g, "\\'")
-                            .replace(/\n/g, "\\n");
-                        const injectScript = `
+                    if (isCheckoutPage && isHtml) {
+                        // 1. Stripe Swish bridge fix — inject EARLY, right after wcSettings is defined
+                        // The woo-stripe-payment plugin creates wcStripeBlocks with empty maps.
+                        // This script intercepts the creation and populates maps from wcSettings data.
+                        const stripeBridgeScript = `
+<script id="stripe-blocks-bridge">
+(function(){
+  // Wait for wcSettings to exist, then set a trap for wcStripeBlocks
+  function tryPatch() {
+    if (typeof wcSettings === 'undefined') return false;
+    var data = (wcSettings.paymentMethodData || {});
+    if (!data.stripe_swish && !data.stripe_cc) return false;
+
+    // If wcStripeBlocks already exists, patch it directly
+    if (typeof wcStripeBlocks !== 'undefined') {
+      if (wcStripeBlocks['wc-stripe-local-payment'] && Object.keys(wcStripeBlocks['wc-stripe-local-payment']).length === 0 && data.stripe_swish) {
+        Object.assign(wcStripeBlocks['wc-stripe-local-payment'], data.stripe_swish);
+      }
+      if (wcStripeBlocks['wc-stripe-credit-card'] && Object.keys(wcStripeBlocks['wc-stripe-credit-card']).length === 0 && data.stripe_cc) {
+        Object.assign(wcStripeBlocks['wc-stripe-credit-card'], data.stripe_cc);
+      }
+      return true;
+    }
+
+    // wcStripeBlocks doesn't exist yet — intercept its creation via Object.defineProperty
+    var realValue;
+    Object.defineProperty(window, 'wcStripeBlocks', {
+      configurable: true,
+      get: function() { return realValue; },
+      set: function(val) {
+        realValue = val;
+        // Patch each map as it gets populated
+        setTimeout(function() {
+          if (val && data.stripe_swish && val['wc-stripe-local-payment'] && Object.keys(val['wc-stripe-local-payment']).length === 0) {
+            Object.assign(val['wc-stripe-local-payment'], data.stripe_swish);
+          }
+          if (val && data.stripe_cc && val['wc-stripe-credit-card'] && Object.keys(val['wc-stripe-credit-card']).length === 0) {
+            Object.assign(val['wc-stripe-credit-card'], data.stripe_cc);
+          }
+        }, 0);
+      }
+    });
+    return true;
+  }
+
+  // Try immediately
+  if (!tryPatch()) {
+    // Retry a few times if wcSettings isn't ready
+    var attempts = 0;
+    var timer = setInterval(function() {
+      if (tryPatch() || ++attempts > 50) clearInterval(timer);
+    }, 50);
+  }
+})();
+</script>`;
+                        // Inject right after wc-settings-js-before script (where wcSettings is defined)
+                        const settingsScriptEnd = textBody.indexOf('</script>', textBody.indexOf('wc-settings-js-before'));
+                        if (settingsScriptEnd !== -1) {
+                            const insertAt = settingsScriptEnd + '</script>'.length;
+                            textBody = textBody.substring(0, insertAt) + stripeBridgeScript + textBody.substring(insertAt);
+                        } else if (textBody.includes("</head>")) {
+                            // Fallback: inject before </head>
+                            textBody = textBody.replace("</head>", stripeBridgeScript + "\n</head>");
+                        }
+
+                        // 2. Delivery-note pre-fill script (at end of body)
+                        if (deliveryNote && textBody.includes("</body>")) {
+                            const safeNote = deliveryNote
+                                .replace(/\\/g, "\\\\")
+                                .replace(/'/g, "\\'")
+                                .replace(/\n/g, "\\n");
+                            const deliveryScript = `
 <script>
 (function(){
   var note = decodeURIComponent('${safeNote}');
@@ -190,7 +256,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
   else fill();
 })();
 </script>`;
-                        textBody = textBody.replace("</body>", injectScript + "\n</body>");
+                            textBody = textBody.replace("</body>", deliveryScript + "\n</body>");
+                        }
                     }
 
                     resolve(new Response(textBody, {
