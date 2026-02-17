@@ -12,6 +12,20 @@ const WORDPRESS_BACKEND_IP = "199.16.172.188";
 const WORDPRESS_HOST = "hasselbladslivs.se";
 
 export default async (request: Request, context: Context): Promise<Response> => {
+    // Handle CORS preflight (OPTIONS) requests for Store API custom headers
+    if (request.method === "OPTIONS") {
+        return new Response(null, {
+            status: 204,
+            headers: {
+                "Access-Control-Allow-Origin": request.headers.get("origin") || "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type, Nonce, Cart-Token, X-WP-Nonce, X-WC-Store-API-Nonce, X-HTTP-Method-Override, Authorization, Cookie",
+                "Access-Control-Allow-Credentials": "true",
+                "Access-Control-Max-Age": "86400",
+            },
+        });
+    }
+
     const url = new URL(request.url);
 
     // Extract the actual WordPress path from the redirect
@@ -57,6 +71,18 @@ export default async (request: Request, context: Context): Promise<Response> => 
     if (nonce) headers["Nonce"] = nonce;
     const cartToken = request.headers.get("cart-token");
     if (cartToken) headers["Cart-Token"] = cartToken;
+
+    // Forward X-WP-Nonce (WordPress REST API session nonce — critical for authenticated requests)
+    const wpNonce = request.headers.get("x-wp-nonce");
+    if (wpNonce) headers["X-WP-Nonce"] = wpNonce;
+
+    // Forward X-WC-Store-API-Nonce (WooCommerce Store API specific nonce)
+    const wcStoreNonce = request.headers.get("x-wc-store-api-nonce");
+    if (wcStoreNonce) headers["X-WC-Store-API-Nonce"] = wcStoreNonce;
+
+    // Forward X-HTTP-Method-Override (used by WC Blocks for PUT/PATCH via POST)
+    const methodOverride = request.headers.get("x-http-method-override");
+    if (methodOverride) headers["X-HTTP-Method-Override"] = methodOverride;
 
     // Get request body for non-GET requests
     let body: string | undefined;
@@ -121,10 +147,11 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 }
 
                 // Expose Store API headers to the browser (nonce, cart-token)
-                responseHeaders.set("access-control-expose-headers", "Nonce, Cart-Token, X-WC-Store-API-Nonce");
+                responseHeaders.set("access-control-expose-headers", "Nonce, Cart-Token, X-WC-Store-API-Nonce, X-WP-Nonce");
                 // CORS: allow the frontend origin
                 responseHeaders.set("access-control-allow-origin", request.headers.get("origin") || "*");
                 responseHeaders.set("access-control-allow-credentials", "true");
+                responseHeaders.set("access-control-allow-headers", "Content-Type, Nonce, Cart-Token, X-WP-Nonce, X-WC-Store-API-Nonce, X-HTTP-Method-Override, Authorization, Cookie");
 
                 // Check if this is a binary response (images, fonts, etc.)
                 const contentType = proxyRes.headers["content-type"] || "";
