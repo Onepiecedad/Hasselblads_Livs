@@ -265,6 +265,99 @@ export default async (request: Request, context: Context): Promise<Response> => 
 </script>`;
                             textBody = textBody.replace("</body>", deliveryScript + "\n</body>");
                         }
+
+                        // 3. Pickup mode: hide address fields & auto-select free shipping
+                        if (deliveryNote && decodeURIComponent(deliveryNote).includes('Hämta i butik') && textBody.includes("</head>")) {
+                            const pickupStyle = `
+<style id="pickup-hide-address">
+  /* Immediately hide shipping address section for pickup orders */
+  .wc-block-checkout__shipping-fields,
+  .wp-block-woocommerce-checkout-shipping-address-block {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+</style>`;
+                            textBody = textBody.replace("</head>", pickupStyle + "\n</head>");
+
+                            const pickupScript = `
+<script id="pickup-address-hide">
+(function(){
+  // Auto-select pickup shipping and hide address fields
+  function setup() {
+    // 1. Auto-select free_shipping (pickup) radio if not already selected
+    var radios = document.querySelectorAll('.wc-block-components-radio-control__input');
+    radios.forEach(function(r) {
+      if (r.id && r.id.indexOf('free_shipping') !== -1 && !r.checked) {
+        r.click();
+      }
+    });
+
+    // 2. Pre-fill required address fields with store address (hidden, for server validation)
+    var fills = {
+      'shipping-first_name': 'Hämta',
+      'shipping-last_name': 'I butik',
+      'shipping-address_1': 'Hasselblads Livs',
+      'shipping-postcode': '42734',
+      'shipping-city': 'Billdal'
+    };
+    Object.keys(fills).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && !el.value) {
+        // React-controlled inputs need nativeInputValueSetter
+        var nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        nativeSetter.call(el, fills[id]);
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+
+    // 3. Also ensure the address section stays hidden
+    var addressSection = document.querySelector('.wc-block-checkout__shipping-fields');
+    if (addressSection) addressSection.style.display = 'none';
+  }
+
+  // 4. MutationObserver: suppress address validation banners & keep fields hidden
+  function observe() {
+    var observer = new MutationObserver(function(mutations) {
+      // Hide any error banners related to address validation
+      document.querySelectorAll('.wc-block-components-notice-banner.is-error').forEach(function(banner) {
+        var text = banner.innerText || '';
+        if (text.indexOf('adress') !== -1 || text.indexOf('address') !== -1 ||
+            text.indexOf('Leveransadress') !== -1 || text.indexOf('saknas') !== -1 ||
+            text.indexOf('gatuadress') !== -1 || text.indexOf('postnummer') !== -1) {
+          banner.style.display = 'none';
+        }
+      });
+      // Hide field-level validation errors in the (hidden) address section
+      document.querySelectorAll('.wc-block-checkout__shipping-fields .wc-block-components-validation-error').forEach(function(err) {
+        err.style.display = 'none';
+      });
+      // Keep address section hidden (React may re-render)
+      var s = document.querySelector('.wc-block-checkout__shipping-fields');
+      if (s) s.style.display = 'none';
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // Run setup when DOM is ready, then start observing
+  function init() {
+    setup();
+    observe();
+    // Re-run setup after a delay (WooCommerce Blocks loads async)
+    setTimeout(setup, 1000);
+    setTimeout(setup, 3000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>`;
+                            textBody = textBody.replace("</body>", pickupScript + "\n</body>");
+                        }
                     }
 
                     resolve(new Response(textBody, {
