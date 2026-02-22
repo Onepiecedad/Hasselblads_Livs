@@ -1,4 +1,5 @@
 import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
+import { calculateLineTotal } from "@/lib/products";
 
 export type PortionSize = 'hel' | 'halv' | 'kvart';
 
@@ -26,6 +27,8 @@ export type CartItem = {
   portionLabel?: string; // T.ex. "Halv"
   weightGrams?: number;  // Vikt i gram för kg-produkter (t.ex. 300 = 300g)
   woocommerce_id?: number; // WooCommerce product ID for checkout
+  multiOffers?: { quantity: number; price: number; label: string }[]; // Alla erbjudanden produkten har
+  lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
 };
 
 type CartState = {
@@ -137,19 +140,24 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Use lazy initialization to load from localStorage
   const [state, dispatch] = useReducer(cartReducer, undefined, getInitialState);
 
-  // Persist cart to localStorage whenever items change
-  useEffect(() => {
-    saveCartToStorage(state.items);
+  const computedItems = useMemo(() => {
+    return state.items.map(item => {
+      if (!item.multiOffers || item.multiOffers.length === 0) {
+        return { ...item, lineTotal: item.price * item.quantity };
+      }
+
+      const currentItemTotal = calculateLineTotal(item.quantity, item.price, item.multiOffers);
+      return { ...item, lineTotal: currentItemTotal };
+    });
   }, [state.items]);
 
-  const subtotal = useMemo(() => state.items.reduce((total, item) => total + item.price * item.quantity, 0), [state.items]);
+  const subtotal = useMemo(() => computedItems.reduce((total, item) => total + (item.lineTotal || 0), 0), [computedItems]);
   const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 49;
   const total = subtotal + shippingFee;
 
-
   const value = useMemo<CartContextValue>(
     () => ({
-      items: state.items,
+      items: computedItems,
       isOpen: state.isOpen,
       subtotal,
       shippingFee,
@@ -160,7 +168,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       clearCart: () => dispatch({ type: "CLEAR_CART" }),
       setOpen: (isOpen) => dispatch({ type: "SET_OPEN", payload: { isOpen } }),
     }),
-    [state.items, state.isOpen, subtotal, shippingFee, total],
+    [computedItems, state.isOpen, subtotal, shippingFee, total],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -166,7 +166,9 @@ const MiniCartDrawer = () => {
                           </Button>
                         </div>
                         <div className="text-right">
-                          <p className="text-base font-bold tabular-nums">{formatPrice(item.price * item.quantity)} kr</p>
+                          <p className="text-base font-bold tabular-nums">
+                            {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                          </p>
                           <button
                             type="button"
                             onClick={() => removeItem(item.id)}
@@ -203,7 +205,9 @@ const MiniCartDrawer = () => {
 
                     {/* Desktop: Price and remove */}
                     <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px]">
-                      <p className="text-base md:text-lg font-bold tabular-nums whitespace-nowrap">{formatPrice(item.price * item.quantity)} kr</p>
+                      <p className="text-base md:text-lg font-bold tabular-nums whitespace-nowrap">
+                        {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                      </p>
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}

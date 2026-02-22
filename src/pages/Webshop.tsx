@@ -357,14 +357,13 @@ const Webshop = () => {
             ? product.salePrice
             : product.price;
 
-        // For multiköp offers, use the offer price per item
-        const itemPrice = multiOffer
-            ? Math.round((multiOffer.price / multiOffer.quantity) * 100) / 100
-            : weightGrams
-                ? Math.round((basePrice / 1000) * weightGrams * 100) / 100
-                : portion
-                    ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
-                    : basePrice;
+        // För multiköp använder vi alltid baspriset per styck, 
+        // eftersom CartContext beräknar rabatten dynamiskt baserat på totalt antal.
+        const itemPrice = weightGrams
+            ? Math.round((basePrice / 1000) * weightGrams * 100) / 100
+            : portion
+                ? Math.round(basePrice * PORTION_MULTIPLIERS[portion])
+                : basePrice;
 
         addItem({
             id: product.id,
@@ -377,6 +376,7 @@ const Webshop = () => {
             portion,
             portionLabel: portion ? PORTION_LABELS[portion] : undefined,
             weightGrams,
+            multiOffers: product.multiOffers,
         }, quantity);
 
         const weightLabel = weightGrams ? `${weightGrams}g ` : '';

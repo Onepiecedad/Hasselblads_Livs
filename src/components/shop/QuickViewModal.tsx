@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
-import { type MultiOffer, getAutoOffer } from "@/lib/products";
+import { type MultiOffer, getAutoOffer, calculateLineTotal } from "@/lib/products";
 
 export type QuickViewProduct = {
   id: string;
@@ -133,8 +133,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     }
   };
 
-  const activeMultiPrice = selectedOffer ? selectedOffer.price : null;
-  const displayTotalPrice = activeMultiPrice ?? (product ? displayPrice * quantity : 0);
+  const displayTotalPrice = product ? calculateLineTotal(quantity, displayPrice, product.multiOffers) : 0;
 
   const handleQuantityChange = (value: string) => {
     const next = Number.parseInt(value, 10);
@@ -419,9 +418,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       <ShoppingCart className="h-5 w-5" />
                       {isKgProduct
                         ? `${selectedWeight} g · ≈ ${formatPrice(kgTotalPrice)} kr — Lägg i varukorg`
-                        : selectedOffer
-                          ? `${selectedOffer.quantity} st för ${selectedOffer.price}:- — Lägg i varukorg`
-                          : 'Lägg i varukorg'}
+                        : `${quantity} st · ${product?.pricingType === 'weight_based' ? '≈ ' : ''}${formatPrice(displayTotalPrice)} kr — Lägg i varukorg`}
                     </Button>
                   </div>
                 </div>
@@ -474,9 +471,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   <ShoppingCart className="h-5 w-5" />
                   {isKgProduct
                     ? `${selectedWeight} g · ≈ ${formatPrice(kgTotalPrice)} kr`
-                    : selectedOffer
-                      ? `${selectedOffer.quantity} st — ${selectedOffer.price}:-`
-                      : showEstimate ? `Cirka ${formatPrice(estimatedTotalPrice)} kr` : `${formatPrice(displayPrice * quantity)} kr`}
+                    : `${quantity} st · ${product?.pricingType === 'weight_based' ? '≈ ' : ''}${formatPrice(displayTotalPrice)} kr`}
                 </Button>
               </div>
             </div>

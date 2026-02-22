@@ -106,3 +106,26 @@ export const getAutoOffer = (quantity: number, offers?: MultiOffer[]): MultiOffe
   return sorted.find(o => quantity >= o.quantity);
 };
 
+export const calculateLineTotal = (quantity: number, price: number, offers?: MultiOffer[]): number => {
+  if (!offers || offers.length === 0 || quantity <= 0) {
+    return price * quantity;
+  }
+
+  // Sort descending by quantity to apply the largest offers first (greedy algorithm)
+  const sortedOffers = [...offers].sort((a, b) => b.quantity - a.quantity);
+  let remainingQty = quantity;
+  let currentTotal = 0;
+
+  for (const offer of sortedOffers) {
+    if (remainingQty >= offer.quantity && offer.quantity > 0) {
+      const numOffers = Math.floor(remainingQty / offer.quantity);
+      currentTotal += numOffers * offer.price;
+      remainingQty -= numOffers * offer.quantity;
+    }
+  }
+
+  // Add the regular price for the remaining single items
+  currentTotal += remainingQty * price;
+  return currentTotal;
+};
+

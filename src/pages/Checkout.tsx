@@ -500,7 +500,7 @@ const Checkout = () => {
                                                 {item.quantity}× {item.name}
                                             </span>
                                             <span className="font-medium tabular-nums">
-                                                {formatPrice(item.price * item.quantity)} kr
+                                                {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
                                             </span>
                                         </li>
                                     ))}
