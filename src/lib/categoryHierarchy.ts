@@ -80,7 +80,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         subcategories: [
             {
                 name: "Oliver",
-                detailCategories: ["Svarta", "Gröna", "Meraki färska", "Cusa", "Fratepietro"]
+                detailCategories: ["Svarta", "Gröna"]
             },
             {
                 name: "Kryddor & Smaksättare",
@@ -127,8 +127,8 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 detailCategories: ["Kapris", "Cornichon", "Oliver"]
             },
             {
-                name: "Inläggningar färska",
-                detailCategories: ["Tistelvind"]
+                name: "Färskvaror",
+                detailCategories: ["Tistelvind", "Meraki färska", "Cusa", "Fratepietro"]
             },
             {
                 name: "Ketchup, Senap & Dressing",
