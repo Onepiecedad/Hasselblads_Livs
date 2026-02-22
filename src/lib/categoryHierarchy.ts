@@ -100,7 +100,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             },
             {
                 name: "Kaffe & Te",
-                detailCategories: ["Kaffe", "Te"]
+                detailCategories: ["Kaffe", "Te", "Hela bönor"]
             },
             {
                 name: "Sylt & Marmelad",
@@ -120,7 +120,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             },
             {
                 name: "Konserver",
-                detailCategories: ["Bönor", "Tomater", "Fiskkonserver"]
+                detailCategories: ["Tomater", "Fiskkonserver"]
             },
             {
                 name: "Inläggningar",
