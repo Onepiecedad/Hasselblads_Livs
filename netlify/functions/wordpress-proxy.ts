@@ -84,6 +84,13 @@ export default async (request: Request, context: Context): Promise<Response> => 
   const methodOverride = request.headers.get("x-http-method-override");
   if (methodOverride) headers["X-HTTP-Method-Override"] = methodOverride;
 
+  // Forward all Stripe headers (critical for Stripe webhooks, e.g., Stripe-Signature)
+  for (const [key, value] of request.headers.entries()) {
+    if (key.toLowerCase().startsWith("stripe-")) {
+      headers[key] = value;
+    }
+  }
+
   // Get request body for non-GET requests
   let body: string | undefined;
   if (request.method !== "GET" && request.method !== "HEAD") {
