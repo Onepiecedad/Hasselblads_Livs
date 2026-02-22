@@ -292,10 +292,11 @@ const Home = () => {
           </div>
 
           <CircularGallery
-            items={categoryCards.slice(0, 9).map(c => ({
+            items={categoryCards.map(c => ({
               name: c.name,
               image: c.image,
               href: c.href,
+              imageClassName: c.imageClassName,
             }))}
             radius={350}
             mobileRadius={200}

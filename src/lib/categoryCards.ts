@@ -18,6 +18,8 @@ export type CategoryCardData = {
   titleLines: string[];
   /** Bakgrundsfärg för kort utan illustration */
   bgColor?: string;
+  /** Custom CSS klasser för bilden, t.ex. för scaling */
+  imageClassName?: string;
 };
 
 export const categoryCards: CategoryCardData[] = [
@@ -100,5 +102,6 @@ export const categoryCards: CategoryCardData[] = [
     href: "/webbutik?kategori=farskvaror",
     filterValue: "farskvaror",
     titleLines: ["FÄRSK", "VAROR"],
+    imageClassName: "scale-[1.3] group-hover:scale-[1.35] origin-center",
   },
 ];

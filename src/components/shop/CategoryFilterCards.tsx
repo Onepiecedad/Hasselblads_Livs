@@ -74,7 +74,7 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                             aria-selected={isActive ? "true" : "false"}
                             onClick={() => handleSelect(card.filterValue || "")}
                             className={cn(
-                                "flex-shrink-0 relative overflow-hidden rounded-2xl scroll-snap-start",
+                                "group flex-shrink-0 relative overflow-hidden rounded-2xl scroll-snap-start",
                                 // Larger size
                                 "w-24 sm:w-28 h-28 sm:h-32",
                                 "transition-all duration-300 ease-out",
@@ -91,7 +91,7 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                                     alt={card.name}
                                     className={cn(
                                         "absolute inset-0 w-full h-full object-cover transition-transform duration-500",
-                                        isActive ? "scale-105" : "hover:scale-105"
+                                        card.imageClassName ? card.imageClassName : (isActive ? "scale-105" : "group-hover:scale-105")
                                     )}
                                     loading="lazy"
                                 />

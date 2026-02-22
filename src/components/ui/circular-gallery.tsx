@@ -6,6 +6,7 @@ export interface GalleryItem {
     name: string;
     image: string;
     href: string;
+    imageClassName?: string;
 }
 
 // Define the props for the CircularGallery component
@@ -228,7 +229,7 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                         alt={item.name}
                                         loading="lazy"
                                         decoding="async"
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        className={cn("absolute inset-0 w-full h-full object-cover", item.imageClassName)}
                                         draggable={false}
                                     />
                                 </div>
