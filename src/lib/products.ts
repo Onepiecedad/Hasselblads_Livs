@@ -6,6 +6,7 @@ export type ProductCategory =
   | "konfektyr"
   | "kakor-skorpor"
   | "brod"
+  | "kott"
   | "snacks-dryck"
   | "notter-torkad-frukt"
   | "hogtidsvaror"
@@ -78,6 +79,7 @@ export const categories: { label: string; value: string }[] = [
   { label: "Konfektyr", value: "konfektyr" },
   { label: "Kakor & Skorpor", value: "kakor-skorpor" },
   { label: "Bröd", value: "brod" },
+  { label: "Kött", value: "kott" },
   { label: "Snacks & Dryck", value: "snacks-dryck" },
   { label: "Nötter & Torkad frukt", value: "notter-torkad-frukt" },
   { label: "Högtidsvaror", value: "hogtidsvaror" },

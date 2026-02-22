@@ -77,6 +77,14 @@ export const categoryCards: CategoryCardData[] = [
     titleLines: ["SNACKS", "DRYCK"],
   },
   {
+    name: "KÖTT",
+    description: "Noga utvalt kött och fågel",
+    image: cardKott,
+    href: "/webbutik?kategori=kott",
+    filterValue: "kott",
+    titleLines: ["KÖTT"],
+  },
+  {
     name: "NÖTTER & TORKAD FRUKT",
     description: "Krispiga snacks och energirika mellanmål",
     image: cardNotter,

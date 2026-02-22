@@ -265,6 +265,11 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         ]
     },
 
+    "kott": {
+        label: "Kött",
+        value: "kott",
+        subcategories: []
+    },
     "hogtidsvaror": {
         label: "Högtidsvaror",
         value: "hogtidsvaror",
@@ -294,9 +299,7 @@ const LEGACY_SLUG_MAP: Record<string, string> = {
     "snacks": "snacks-dryck",
     "dryck": "snacks-dryck",
     "kakor-skorpor": "brod",
-    // Borttagna → bästa matchning
     "sott-gott": "konfektyr",
-    "kott": "ovrigt",
 };
 
 /**
