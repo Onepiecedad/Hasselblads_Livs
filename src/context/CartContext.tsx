@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
 import { calculateLineTotal } from "@/lib/products";
+import { useProducts } from "@/hooks/useProducts";
 
 export type PortionSize = 'hel' | 'halv' | 'kvart';
 
@@ -100,7 +101,7 @@ const cartReducer = (state: CartState, action: Action): CartState => {
       if (existingIndex >= 0) {
         const updatedItems = [...state.items];
         updatedItems[existingIndex] = {
-          ...updatedItems[existingIndex],
+          ...item, // Merge new item data (e.g., to catch recently added multiOffers)
           quantity: Math.min(updatedItems[existingIndex].quantity + quantity, 99),
         };
         return { ...state, items: updatedItems };
@@ -139,17 +140,34 @@ const getInitialState = (): CartState => ({
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Use lazy initialization to load from localStorage
   const [state, dispatch] = useReducer(cartReducer, undefined, getInitialState);
+  const { products } = useProducts();
+
+  // Save cart to local storage whenever items change
+  useEffect(() => {
+    saveCartToStorage(state.items);
+  }, [state.items]);
 
   const computedItems = useMemo(() => {
     return state.items.map(item => {
-      if (!item.multiOffers || item.multiOffers.length === 0) {
-        return { ...item, lineTotal: item.price * item.quantity };
+      // Find the corresponding live product from the backend to ensure we have the latest multiOffers
+      const liveProduct = products.find(p => p.id === item.productId);
+      const effectiveMultiOffers = liveProduct?.multiOffers || item.multiOffers;
+      const effectivePrice = liveProduct?.price || item.price;
+
+      const computedItem = {
+        ...item,
+        multiOffers: effectiveMultiOffers,
+        price: effectivePrice
+      };
+
+      if (!effectiveMultiOffers || effectiveMultiOffers.length === 0) {
+        return { ...computedItem, lineTotal: effectivePrice * item.quantity };
       }
 
-      const currentItemTotal = calculateLineTotal(item.quantity, item.price, item.multiOffers);
-      return { ...item, lineTotal: currentItemTotal };
+      const currentItemTotal = calculateLineTotal(item.quantity, effectivePrice, effectiveMultiOffers);
+      return { ...computedItem, lineTotal: currentItemTotal };
     });
-  }, [state.items]);
+  }, [state.items, products]);
 
   const subtotal = useMemo(() => computedItems.reduce((total, item) => total + (item.lineTotal || 0), 0), [computedItems]);
   const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 49;
