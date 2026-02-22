@@ -80,7 +80,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
         subcategories: [
             {
                 name: "Oliver",
-                detailCategories: ["Svarta", "Gröna"]
+                detailCategories: ["Svarta", "Gröna", "Meraki färska", "Cusa", "Fratepietro"]
             },
             {
                 name: "Kryddor & Smaksättare",
@@ -125,6 +125,10 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             {
                 name: "Inläggningar",
                 detailCategories: ["Kapris", "Cornichon", "Oliver"]
+            },
+            {
+                name: "Inläggningar färska",
+                detailCategories: ["Tistelvind"]
             },
             {
                 name: "Ketchup, Senap & Dressing",
@@ -260,20 +264,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             }
         ]
     },
-    "farskvaror": {
-        label: "Färskvaror",
-        value: "farskvaror",
-        subcategories: [
-            {
-                name: "Inläggningar färska",
-                detailCategories: ["Tistelvind"]
-            },
-            {
-                name: "Oliver",
-                detailCategories: ["Meraki färska", "Cusa", "Fratepietro"]
-            }
-        ]
-    },
+
     "hogtidsvaror": {
         label: "Högtidsvaror",
         value: "hogtidsvaror",

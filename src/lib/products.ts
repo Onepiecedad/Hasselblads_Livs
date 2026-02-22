@@ -8,7 +8,6 @@ export type ProductCategory =
   | "brod"
   | "snacks-dryck"
   | "notter-torkad-frukt"
-  | "farskvaror"
   | "hogtidsvaror"
   | "ovrigt";
 
@@ -81,7 +80,6 @@ export const categories: { label: string; value: string }[] = [
   { label: "Bröd", value: "brod" },
   { label: "Snacks & Dryck", value: "snacks-dryck" },
   { label: "Nötter & Torkad frukt", value: "notter-torkad-frukt" },
-  { label: "Färskvaror", value: "farskvaror" },
   { label: "Högtidsvaror", value: "hogtidsvaror" },
   { label: "Övrigt", value: "ovrigt" },
 ];
