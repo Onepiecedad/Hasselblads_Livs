@@ -3,14 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Plus, Minus, RotateCcw } from "lucide-react";
-import { Product } from "@/lib/products";
+import { type MultiOffer, Product, getAutoOffer } from "@/lib/products";
 import { NutritionTable } from "./NutritionTable";
 import { formatPrice } from "@/lib/utils";
 import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product, quantity?: number, portion?: PortionSize, weightGrams?: number) => void;
+  onAddToCart: (product: Product, quantity?: number, portion?: PortionSize, weightGrams?: number, multiOffer?: MultiOffer) => void;
   onQuickView: (product: Product) => void;
   setQuickViewButtonRef?: (node: HTMLElement | null) => void;
 }
@@ -69,7 +69,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (showQuantity) {
-      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
+      const autoOffer = getAutoOffer(quantity, product.multiOffers);
+      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
       setQuantity(1);
       setShowQuantity(false);
     } else {
@@ -84,7 +85,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
+    const autoOffer = getAutoOffer(quantity, product.multiOffers);
+    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
     setShowQuantity(false);
   };

@@ -97,3 +97,12 @@ export const sortOptions = [
   { label: "Pris – högst först", value: "price-desc" },
   { label: "Namn A–Ö", value: "name-asc" },
 ];
+
+export const getAutoOffer = (quantity: number, offers?: MultiOffer[]): MultiOffer | undefined => {
+  if (!offers || offers.length === 0) return undefined;
+  // Sort descending by quantity so we test the largest applicable offers first
+  const sorted = [...offers].sort((a, b) => b.quantity - a.quantity);
+  // Auto-apply if quantity is at least the offer quantity
+  return sorted.find(o => quantity >= o.quantity);
+};
+

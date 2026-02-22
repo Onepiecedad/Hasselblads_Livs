@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
-import type { MultiOffer } from "@/lib/products";
+import { type MultiOffer, getAutoOffer } from "@/lib/products";
 
 export type QuickViewProduct = {
   id: string;
@@ -60,7 +60,7 @@ function formatWeight(grams: number): string {
 
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedOffer, setSelectedOffer] = useState<MultiOffer | null>(null);
+  const selectedOffer = useMemo(() => getAutoOffer(quantity, product?.multiOffers) ?? null, [quantity, product?.multiOffers]);
   const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
 
   // Portionsval
@@ -118,7 +118,6 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   useEffect(() => {
     if (open) {
       setQuantity(1);
-      setSelectedOffer(null);
       setSelectedWeight(DEFAULT_WEIGHT);
       if (product?.sold_as?.[0]) {
         setSelectedPortion(product.sold_as[0]);
@@ -128,10 +127,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   const handleSelectOffer = (offer: MultiOffer | null) => {
     if (offer) {
-      setSelectedOffer(offer);
       setQuantity(offer.quantity);
     } else {
-      setSelectedOffer(null);
       setQuantity(1);
     }
   };
