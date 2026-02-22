@@ -18,6 +18,8 @@ export type QuickViewProduct = {
   id: string;
   name: string;
   description: string;
+  brand?: string;
+  variety?: string;
   price: number;
   salePrice?: number;
   unit: string;

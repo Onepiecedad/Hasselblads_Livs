@@ -14,6 +14,7 @@ interface PIMProduct {
     display_name?: string;
     description?: string;
     brand?: string;
+    sort?: string;
     price?: number;
     sale_price?: number;
     main_category?: string;
@@ -297,6 +298,8 @@ function transformProduct(pim: PIMProduct): Product {
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
         detailCategory: extractDetailCategory(mainCategory),
+        brand: pim.brand,
+        variety: pim.sort,
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price,
         salePrice: pim.sale_price || undefined,

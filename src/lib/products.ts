@@ -41,6 +41,8 @@ export type Product = {
   category: ProductCategory;
   subcategory?: string; // For grouping within large categories
   detailCategory?: string; // For filtering within subcategories (level 3)
+  brand?: string; // From PIM "brand"
+  variety?: string; // From PIM "sort"
   tags: ProductTag[];
   price: number;
   salePrice?: number;            // Rabatterat pris (extrapris/rea)
