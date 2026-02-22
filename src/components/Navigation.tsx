@@ -10,6 +10,7 @@ const Navigation = () => {
   const { items, setOpen } = useCart();
 
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
+  const isCheckout = location.pathname === '/kassa';
 
   const navItems = [
     { name: "Webbutik", path: "/webbutik" },
@@ -35,68 +36,64 @@ const Navigation = () => {
               />
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-10">
-              {navItems.map((item) => {
-                const active = isActive(item.path);
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:text-white relative py-2 group ${active ? "text-white" : "text-white/70"
-                      }`}
-                    aria-current={active ? "page" : undefined}
+            {!isCheckout && (
+              <>
+                {/* Desktop Navigation */}
+                <div className="hidden lg:flex items-center space-x-10">
+                  {navItems.map((item) => {
+                    const active = isActive(item.path);
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`text-sm font-semibold uppercase tracking-widest transition-all duration-300 hover:text-white relative py-2 group ${active ? "text-white" : "text-white/70"
+                          }`}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        {item.name}
+                        <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-white transition-transform duration-300 ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Right Icons */}
+                <div className="flex items-center space-x-2 md:space-x-4">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative rounded-full text-white hover:bg-white/10"
+                    onClick={() => setOpen(true)}
+                    aria-label="Öppna varukorgen"
+                    aria-haspopup="dialog"
                   >
-                    {item.name}
-                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-white transition-transform duration-300 ${active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-                  </Link>
-                );
-              })}
-            </div>
+                    <ShoppingBag className="h-6 w-6" />
+                    {cartCount > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-lg animate-in fade-in zoom-in">
+                        {cartCount}
+                      </span>
+                    )}
+                  </Button>
 
-            {/* Right Icons */}
-            <div className="flex items-center space-x-2 md:space-x-4">
-
-              <a
-                href="https://hasselbladslivs.se/mitt-konto/"
-                className="hidden sm:flex items-center justify-center h-10 w-10 rounded-full text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-                aria-label="Mitt konto"
-              >
-                <User className="h-5 w-5" />
-              </a>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative rounded-full text-white hover:bg-white/10"
-                onClick={() => setOpen(true)}
-                aria-label="Öppna varukorgen"
-                aria-haspopup="dialog"
-              >
-                <ShoppingBag className="h-6 w-6" />
-                {cartCount > 0 && (
-                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-lg animate-in fade-in zoom-in">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-
-              {/* Mobile Menu Button */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden rounded-full text-white hover:bg-white/10"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-expanded={mobileMenuOpen}
-                aria-controls="mobile-navigation"
-                aria-label="Meny"
-              >
-                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-            </div>
+                  {/* Mobile Menu Button */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="lg:hidden rounded-full text-white hover:bg-white/10"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="mobile-navigation"
+                    aria-label="Meny"
+                  >
+                    {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
-          {mobileMenuOpen && (
+          {!isCheckout && mobileMenuOpen && (
             <div
               id="mobile-navigation"
               className="lg:hidden py-8 space-y-6 border-t border-white/20 animate-in slide-in-from-top duration-300"
