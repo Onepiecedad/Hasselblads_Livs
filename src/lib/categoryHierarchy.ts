@@ -29,7 +29,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 detailCategories: [
                     "Banan", "Äpple", "Päron", "Citrus", "Stenfrukt",
                     "Melon", "Druvor", "Exotisk frukt",
-                    "Ingefära", "Övrig frukt"
+                    "Övrig frukt"
                 ]
             },
             {
@@ -52,7 +52,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                     "Gräslök", "Dill", "Persilja Krus", "Persilja Blad",
                     "Basilika", "Timjan", "Oregano", "Rosmarin",
                     "Koriander", "Mynta", "Dragon", "Citronmeliss",
-                    "Ingefära", "Uteryddor", "Övriga färska kryddor"
+                    "Uteryddor", "Övriga färska kryddor"
                 ]
             }
         ]
@@ -104,7 +104,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             },
             {
                 name: "Sylt & Marmelad",
-                detailCategories: ["Sylt", "Marmelad", "Gelé", "Ostmarmelad", "Nötkräm"]
+                detailCategories: ["Sylt", "Marmelad", "Gelé"]
             },
             {
                 name: "Bakning",
@@ -144,7 +144,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 name: "Ost, kex och marmelad",
                 detailCategories: [
                     "Hårdost", "Färskost", "Vitmögelost", "Getost",
-                    "Kittost", "Blåmögelost", "Ostkaka", "Ostkex", "Ostmarmelad"
+                    "Kittost", "Blåmögelost", "Ostkaka", "Ostkex"
                 ]
             },
             {
@@ -234,7 +234,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             },
             {
                 name: "Tonic",
-                detailCategories: ["San Pellegrino", "Gbg Soda"]
+                detailCategories: ["Gbg Soda"]
             },
             {
                 name: "Övrig dryck",
