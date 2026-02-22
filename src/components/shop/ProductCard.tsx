@@ -167,7 +167,17 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
           <CardContent className="flex flex-1 flex-col p-2 sm:p-5">
             <div className="flex-1 space-y-1.5">
-              <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">{product.name}</h3>
+              {product.brand && (
+                <div className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                  {product.brand}
+                </div>
+              )}
+              <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">
+                {product.name}
+                {product.variety && (
+                  <span className="ml-1.5 text-xs sm:text-sm font-normal text-muted-foreground">{product.variety}</span>
+                )}
+              </h3>
               {product.description && (
                 <p className="hidden sm:block text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
               )}

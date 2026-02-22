@@ -194,7 +194,17 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                 {/* Product details */}
                 <div className="flex flex-col">
                   <DialogHeader className="space-y-3 text-left">
-                    <DialogTitle className="text-2xl font-semibold leading-tight">{product.name}</DialogTitle>
+                    {product.brand && (
+                      <div className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                        {product.brand}
+                      </div>
+                    )}
+                    <DialogTitle className="text-2xl font-semibold leading-tight">
+                      {product.name}
+                      {product.variety && (
+                        <span className="ml-2 text-lg sm:text-xl font-normal text-muted-foreground">{product.variety}</span>
+                      )}
+                    </DialogTitle>
                     <DialogDescription className="text-base text-muted-foreground leading-relaxed">
                       {product.description}
                     </DialogDescription>
