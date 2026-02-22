@@ -84,12 +84,4 @@ export const categoryCards: CategoryCardData[] = [
     filterValue: "notter-torkad-frukt",
     titleLines: ["NÖTTER", "TORKAD", "FRUKT"],
   },
-  {
-    name: "FÄRSKVAROR",
-    description: "Färska inläggningar, oliver och delikatesser",
-    image: cardKott,
-    href: "/webbutik?kategori=farskvaror",
-    filterValue: "farskvaror",
-    titleLines: ["FÄRSK", "VAROR"],
-  },
 ];
