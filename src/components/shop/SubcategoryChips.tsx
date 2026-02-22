@@ -17,8 +17,9 @@ const SubcategoryChips = ({
     // Don't show if no category selected
     if (!category) return null;
 
-    const subcategories = getSubcategories(category);
-
+    const subcategories = [...getSubcategories(category)].sort((a, b) =>
+        a.localeCompare(b, 'sv')
+    );
     // Don't show if category has no subcategories
     if (subcategories.length === 0) return null;
 

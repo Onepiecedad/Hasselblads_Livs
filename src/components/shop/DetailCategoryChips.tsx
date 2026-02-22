@@ -19,8 +19,9 @@ const DetailCategoryChips = ({
     // Don't show if no category or subcategory is selected
     if (!category || !subcategory) return null;
 
-    const detailCategories = getDetailCategories(category, subcategory);
-
+    const detailCategories = [...getDetailCategories(category, subcategory)].sort((a, b) =>
+        a.localeCompare(b, 'sv')
+    );
     // Don't show if subcategory has no detail categories
     if (detailCategories.length === 0) return null;
 
