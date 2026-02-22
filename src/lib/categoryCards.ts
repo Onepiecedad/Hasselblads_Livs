@@ -102,6 +102,6 @@ export const categoryCards: CategoryCardData[] = [
     href: "/webbutik?kategori=farskvaror",
     filterValue: "farskvaror",
     titleLines: ["FÄRSK", "VAROR"],
-    imageClassName: "scale-[1.3] group-hover:scale-[1.35] origin-center",
+    imageClassName: "scale-[1.25] pb-2 group-hover:scale-[1.3] origin-center",
   },
 ];

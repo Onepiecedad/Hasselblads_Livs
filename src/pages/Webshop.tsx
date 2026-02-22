@@ -50,6 +50,7 @@ const Webshop = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [quickViewOpen, setQuickViewOpen] = useState(false);
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+    const [visibleCount, setVisibleCount] = useState(40); // Number of products to show initially
     const returnFocusRef = useRef<HTMLElement | null>(null);
     const quickViewTriggerRefs = useRef<Record<string, HTMLElement | null>>({});
     const parallaxContainerRef = useRef<HTMLDivElement>(null);
@@ -243,6 +244,11 @@ const Webshop = () => {
         setSearchTerm(value);
         updateFilters({ search: value.trim() });
     };
+
+    // Reset pagination when filters change
+    useEffect(() => {
+        setVisibleCount(40);
+    }, [activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, searchTerm]);
 
     const filteredProducts = useMemo(() => {
         const term = (searchParams.get("sok") ?? "").toLowerCase();
@@ -597,7 +603,7 @@ const Webshop = () => {
                                 <ProductCardSkeleton key={i} />
                             ))
                         ) : (
-                            filteredProducts.map((product) => (
+                            filteredProducts.slice(0, visibleCount).map((product) => (
                                 <ProductCard
                                     key={product.id}
                                     product={product}
@@ -610,6 +616,17 @@ const Webshop = () => {
                             ))
                         )}
                     </div>
+
+                    {!isLoading && filteredProducts.length > visibleCount && (
+                        <div className="mt-12 mb-24 flex justify-center w-full">
+                            <button
+                                onClick={() => setVisibleCount(prev => prev + 40)}
+                                className="px-8 py-3.5 bg-white border border-border shadow-sm rounded-full text-base font-medium text-foreground hover:bg-neutral-50 hover:shadow-md transition-all duration-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            >
+                                Visa fler produkter ({filteredProducts.length - visibleCount} kvar)
+                            </button>
+                        </div>
+                    )}
 
                     {!isLoading && filteredProducts.length === 0 && (
                         <div className="py-24 text-center">
