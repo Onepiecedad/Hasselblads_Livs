@@ -7,6 +7,7 @@ import cardNotter from "@/assets/category-cards/alt1-final/category-notter.webp"
 import cardSnacksDryck from "@/assets/category-cards/alt1-final/category-snacks-dryck.webp";
 import cardSottGott from "@/assets/category-cards/alt1-final/category-sott-gott.webp";
 import cardKott from "@/assets/category-cards/alt1-final/category-kott.webp";
+import cardFarskvaror from "@/assets/category-cards/alt1-final/category-farskvaror.webp";
 
 export type CategoryCardData = {
   name: string;
@@ -91,5 +92,13 @@ export const categoryCards: CategoryCardData[] = [
     href: "/webbutik?kategori=notter-torkad-frukt",
     filterValue: "notter-torkad-frukt",
     titleLines: ["NÖTTER", "TORKAD", "FRUKT"],
+  },
+  {
+    name: "FÄRSKVAROR",
+    description: "Färska inläggningar, oliver och delikatesser",
+    image: cardFarskvaror,
+    href: "/webbutik?kategori=farskvaror",
+    filterValue: "farskvaror",
+    titleLines: ["FÄRSK", "VAROR"],
   },
 ];

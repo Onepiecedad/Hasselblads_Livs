@@ -152,9 +152,9 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'snacks-dryck';
         }
 
-        // Färskvaror (nu mappad till Skafferi)
+        // Färskvaror
         if (part.includes('färskvar') || (part.includes('färsk') && (part.includes('inlägg') || part.includes('oliver')))) {
-            return 'skafferi';
+            return 'farskvaror';
         }
 
         // Högtidsvaror

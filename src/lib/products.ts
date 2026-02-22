@@ -9,6 +9,7 @@ export type ProductCategory =
   | "kott"
   | "snacks-dryck"
   | "notter-torkad-frukt"
+  | "farskvaror"
   | "hogtidsvaror"
   | "ovrigt";
 
