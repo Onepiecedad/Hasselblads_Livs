@@ -303,13 +303,16 @@ const Webshop = () => {
             case "name-asc":
                 result.sort((a, b) => svCollator.compare(a.name, b.name));
                 break;
+            case "name-desc":
+                result.sort((a, b) => svCollator.compare(b.name, a.name));
+                break;
             default:
                 // leave original order for "popular"
                 break;
         }
 
         return result;
-    }, [products, searchParams, activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, getCardProducts]);
+    }, [products, searchParams, activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, getCardProducts, isLoading]);
 
     const groupedProducts = useMemo(() => {
         // Only group when exactly one category is selected and there are many products

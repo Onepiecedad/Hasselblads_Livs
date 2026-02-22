@@ -330,56 +330,69 @@ function transformProduct(pim: PIMProduct): Product {
     };
 }
 
-// Module-level cache to persist products across navigations
+// Module-level state to persist products across navigations
 let cachedProducts: Product[] | null = null;
+let isGlobalLoading = true;
+let globalError: Error | null = null;
 let unsubscribeRef: (() => void) | null = null;
 
+type Listener = () => void;
+const listeners = new Set<Listener>();
+
+function notify() {
+    listeners.forEach(l => l());
+}
+
 export function useProducts() {
-    const [products, setProducts] = useState<Product[]>(cachedProducts || []);
-    const [isLoading, setIsLoading] = useState(!cachedProducts);
-    const [error, setError] = useState<Error | null>(null);
+    const [, forceRender] = useState({});
 
     useEffect(() => {
-        // If we already have cached products, use them immediately
+        const listener = () => forceRender({});
+        listeners.add(listener);
+
         if (cachedProducts && cachedProducts.length > 0) {
-            setProducts(cachedProducts);
-            setIsLoading(false);
+            isGlobalLoading = false;
         }
 
-        // If we already have an active subscription, don't create another
-        if (unsubscribeRef) {
-            return;
+        if (!unsubscribeRef) {
+            const productsRef = collection(db, PRODUCTS_PATH);
+            const q = query(
+                productsRef,
+                where('status', '==', 'completed'),
+                where('is_published', '==', true)
+            );
+
+            unsubscribeRef = onSnapshot(
+                q,
+                (snapshot) => {
+                    const productList = snapshot.docs
+                        .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
+                        .map(p => transformProduct(p));
+
+                    console.log(`[useProducts] Loaded ${productList.length} products from Firestore`);
+
+                    cachedProducts = productList;
+                    isGlobalLoading = false;
+                    globalError = null;
+                    notify();
+                },
+                (err) => {
+                    console.error("[useProducts] Error loading products:", err);
+                    globalError = err;
+                    isGlobalLoading = false;
+                    notify();
+                }
+            );
         }
 
-        const productsRef = collection(db, PRODUCTS_PATH);
-        const q = query(
-            productsRef,
-            where('status', '==', 'completed'),
-            where('is_published', '==', true)
-        );
-
-        unsubscribeRef = onSnapshot(
-            q,
-            (snapshot) => {
-                const productList = snapshot.docs
-                    .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
-                    .map(p => transformProduct(p));
-
-                // Update cache
-                cachedProducts = productList;
-                setProducts(productList);
-                setIsLoading(false);
-                setError(null);
-            },
-            (err) => {
-                setError(err);
-                setIsLoading(false);
-            }
-        );
-
-        // Don't unsubscribe - keep the subscription active for real-time updates
-        // The subscription will be shared across all components using useProducts
+        return () => {
+            listeners.delete(listener);
+        };
     }, []);
 
-    return { products, isLoading, error };
+    return {
+        products: cachedProducts || [],
+        isLoading: isGlobalLoading,
+        error: globalError
+    };
 }
