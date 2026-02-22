@@ -274,7 +274,7 @@ function parseMultiOffers(multiStr?: string): Product['multiOffers'] {
 
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
-    const country = pim.origin_country || pim.csvData?.['Etiketter land'] || '';
+    const country = pim.origin_country || pim.csvData?.['Ursprungsland'] || pim.csvData?.['Nationsflagg'] || pim.csvData?.['Etiketter land'] || '';
     const mainCategory = pim.main_category || pim.csvData?.['Huvudkategori'];
     const kgSt = pim.csvData?.['Kg/st'];
 
