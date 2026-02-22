@@ -28,7 +28,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 name: "Frukt",
                 detailCategories: [
                     "Banan", "Äpple", "Päron", "Citrus", "Stenfrukt",
-                    "Melon", "Druvor", "Exotisk frukt", "Avokado",
+                    "Melon", "Druvor", "Exotisk frukt",
                     "Ingefära", "Övrig frukt"
                 ]
             },
