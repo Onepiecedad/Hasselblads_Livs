@@ -36,6 +36,27 @@ const FeaturedContent = () => {
         scrollToIndex((activeIndex - 1 + cardsWithVideo.length) % cardsWithVideo.length);
     }, [activeIndex, cardsWithVideo.length, scrollToIndex]);
 
+    // ── Wrap-around: swipe past edges → loop to other end ──
+    const touchStartX = useRef<number | null>(null);
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    }, []);
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+        if (touchStartX.current === null || cardsWithVideo.length < 2) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        const threshold = 40;
+
+        // At the last item and swiped left → go to first
+        if (activeIndex === cardsWithVideo.length - 1 && deltaX < -threshold) {
+            scrollToIndex(0);
+        }
+        // At the first item and swiped right → go to last
+        else if (activeIndex === 0 && deltaX > threshold) {
+            scrollToIndex(cardsWithVideo.length - 1);
+        }
+    }, [activeIndex, cardsWithVideo.length, scrollToIndex]);
+
     // Detect which slide is visible after a native swipe/scroll
     useEffect(() => {
         const container = scrollRef.current;
@@ -202,6 +223,8 @@ const FeaturedContent = () => {
                         ref={scrollRef}
                         className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-[280px] md:w-[340px]"
                         style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
                     >
                         {cardsWithVideo.map((item, index) => (
                             <div
