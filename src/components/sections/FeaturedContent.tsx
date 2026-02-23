@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useFeaturedContent, getVideoEmbedInfo, getCardTitle, CardWithVideo } from "@/hooks/useFeaturedContent";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
@@ -21,6 +21,19 @@ const FeaturedContent = () => {
     const goPrev = useCallback(() => {
         setActiveIndex(prev => (prev - 1 + cardsWithVideo.length) % cardsWithVideo.length);
     }, [cardsWithVideo.length]);
+
+    // ── Touch / swipe support for mobile ──
+    const touchStartX = useRef<number | null>(null);
+    const handleTouchStart = useCallback((e: React.TouchEvent) => {
+        touchStartX.current = e.touches[0].clientX;
+    }, []);
+    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+        if (touchStartX.current === null) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+        touchStartX.current = null;
+        if (deltaX < -50) goNext();
+        else if (deltaX > 50) goPrev();
+    }, [goNext, goPrev]);
 
     // Render a single video player
     const renderVideo = (item: CardWithVideo) => {
@@ -157,8 +170,12 @@ const FeaturedContent = () => {
                         </button>
                     )}
 
-                    {/* Video container */}
-                    <div className="relative">
+                    {/* Video container – swipeable on mobile */}
+                    <div
+                        className="relative"
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                    >
                         <div
                             className="rounded-2xl overflow-hidden shadow-lg w-[280px] md:w-[340px]"
                             style={{ aspectRatio: '9/16' }}
