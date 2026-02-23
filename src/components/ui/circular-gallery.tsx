@@ -157,6 +157,10 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
 
         const anglePerItem = 360 / items.length;
 
+        // Card size varies by viewport
+        const cardSize = isMobile ? 100 : 220;
+        const cardOffset = cardSize / 2;
+
         return (
             <div
                 ref={(node) => {
@@ -167,7 +171,8 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                 role="region"
                 aria-label="Circular 3D Gallery"
                 className={cn(
-                    "relative w-full h-[280px] md:h-[320px] flex items-center justify-center select-none",
+                    "relative w-full flex items-center justify-center select-none",
+                    isMobile ? "h-[240px]" : "h-[320px]",
                     className
                 )}
                 style={{ perspective: '1200px' }}
@@ -202,18 +207,19 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                 role="button"
                                 tabIndex={0}
                                 aria-label={item.name}
-                                className="absolute w-[140px] h-[140px] md:w-[220px] md:h-[220px] transition-opacity duration-300"
+                                className="absolute transition-opacity duration-300"
                                 style={{
+                                    width: cardSize,
+                                    height: cardSize,
                                     transform: `rotateY(${itemAngle}deg) translateZ(${effectiveRadius}px) scale(${scale})`,
                                     left: '50%',
                                     top: '50%',
-                                    marginLeft: isMobile ? '-70px' : '-110px',
-                                    marginTop: isMobile ? '-70px' : '-110px',
+                                    marginLeft: `-${cardOffset}px`,
+                                    marginTop: `-${cardOffset}px`,
                                     opacity: opacity,
                                     zIndex: isFront ? 10 : 1,
                                 }}
                                 onClick={() => {
-                                    // Only trigger click if we haven't dragged
                                     if (!hasDragged.current && dragDistance.current < 10) {
                                         onItemClick?.(item);
                                     }

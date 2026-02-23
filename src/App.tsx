@@ -44,6 +44,8 @@ function ScrollRestoration() {
   return null;
 }
 
+import AnnouncementBar from "./components/AnnouncementBar";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -55,6 +57,7 @@ const App = () => (
             <ScrollRestoration />
             <LegacyRedirects />
             <BreadcrumbSchema />
+            <AnnouncementBar />
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<RootLayout />}>
