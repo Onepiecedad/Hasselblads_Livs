@@ -105,7 +105,6 @@ export const categoryCards: CategoryCardData[] = [
     filterValue: "farskvaror",
     titleLines: [],
     bgColor: "#fef7cf",
-    imageClassName: "scale-[1.27] translate-y-2",
-    filterImageClassName: "scale-[1.35] -translate-x-2 translate-y-2",
+    imageClassName: "scale-[1.35] -translate-x-2 translate-y-2",
   },
 ];

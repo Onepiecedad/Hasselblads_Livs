@@ -7,6 +7,7 @@ export interface GalleryItem {
     image: string;
     href: string;
     imageClassName?: string;
+    bgColor?: string;
 }
 
 // Define the props for the CircularGallery component
@@ -223,7 +224,9 @@ const CircularGallery = React.forwardRef<HTMLDivElement, CircularGalleryProps>(
                                     "relative w-full h-full rounded-2xl overflow-hidden transition-all duration-300",
                                     "shadow-lg hover:shadow-2xl",
                                     isFront && "ring-2 ring-primary/30"
-                                )}>
+                                )}
+                                    style={item.bgColor ? { backgroundColor: item.bgColor } : undefined}
+                                >
                                     <img
                                         src={item.image}
                                         alt={item.name}
