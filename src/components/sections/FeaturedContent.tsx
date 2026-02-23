@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useFeaturedContent, getVideoEmbedInfo, getCardTitle, CardWithVideo } from "@/hooks/useFeaturedContent";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
@@ -7,33 +7,60 @@ import { cn } from "@/lib/utils";
 /**
  * FeaturedContent - Video carousel on the homepage.
  *
- * Displays one video at a time (one per feature card), with
- * navigation arrows and a dynamic CTA button.
+ * Uses native CSS scroll-snap for mobile swipe support.
+ * Scroll-snap works reliably with iframes (YouTube/Facebook)
+ * because the browser handles it at the compositor level.
  */
 const FeaturedContent = () => {
     const { cardsWithVideo, isLoading, error } = useFeaturedContent();
     const [activeIndex, setActiveIndex] = useState(0);
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const isScrolling = useRef(false);
+
+    const scrollToIndex = useCallback((index: number) => {
+        const container = scrollRef.current;
+        if (!container) return;
+        const child = container.children[index] as HTMLElement;
+        if (!child) return;
+        isScrolling.current = true;
+        container.scrollTo({ left: child.offsetLeft - container.offsetLeft, behavior: "smooth" });
+        setActiveIndex(index);
+        setTimeout(() => { isScrolling.current = false; }, 400);
+    }, []);
 
     const goNext = useCallback(() => {
-        setActiveIndex(prev => (prev + 1) % cardsWithVideo.length);
-    }, [cardsWithVideo.length]);
+        scrollToIndex((activeIndex + 1) % cardsWithVideo.length);
+    }, [activeIndex, cardsWithVideo.length, scrollToIndex]);
 
     const goPrev = useCallback(() => {
-        setActiveIndex(prev => (prev - 1 + cardsWithVideo.length) % cardsWithVideo.length);
-    }, [cardsWithVideo.length]);
+        scrollToIndex((activeIndex - 1 + cardsWithVideo.length) % cardsWithVideo.length);
+    }, [activeIndex, cardsWithVideo.length, scrollToIndex]);
 
-    // ── Touch / swipe support for mobile ──
-    const touchStartX = useRef<number | null>(null);
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        touchStartX.current = e.touches[0].clientX;
-    }, []);
-    const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-        if (touchStartX.current === null) return;
-        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-        touchStartX.current = null;
-        if (deltaX < -50) goNext();
-        else if (deltaX > 50) goPrev();
-    }, [goNext, goPrev]);
+    // Detect which slide is visible after a native swipe/scroll
+    useEffect(() => {
+        const container = scrollRef.current;
+        if (!container) return;
+        let timer: ReturnType<typeof setTimeout>;
+
+        const handleScroll = () => {
+            if (isScrolling.current) return;
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                const scrollLeft = container.scrollLeft;
+                const width = container.offsetWidth;
+                const newIndex = Math.round(scrollLeft / width);
+                if (newIndex >= 0 && newIndex < cardsWithVideo.length && newIndex !== activeIndex) {
+                    setActiveIndex(newIndex);
+                }
+            }, 80);
+        };
+
+        container.addEventListener("scroll", handleScroll, { passive: true });
+        return () => {
+            container.removeEventListener("scroll", handleScroll);
+            clearTimeout(timer);
+        };
+    }, [cardsWithVideo.length, activeIndex]);
 
     // Render a single video player
     const renderVideo = (item: CardWithVideo) => {
@@ -157,8 +184,8 @@ const FeaturedContent = () => {
                     <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">Aktuellt</h2>
                 </div>
 
-                {/* Video Carousel */}
-                <div className="flex items-center justify-center gap-4">
+                {/* Carousel wrapper with arrows */}
+                <div className="flex items-center justify-center gap-2 md:gap-4">
                     {/* Left arrow */}
                     {hasMultiple && (
                         <button
@@ -170,41 +197,30 @@ const FeaturedContent = () => {
                         </button>
                     )}
 
-                    {/* Video container – swipeable on mobile */}
+                    {/* Scroll-snap container — native mobile swipe */}
                     <div
-                        className="relative"
-                        onTouchStart={handleTouchStart}
-                        onTouchEnd={handleTouchEnd}
+                        ref={scrollRef}
+                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-[280px] md:w-[340px]"
+                        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
                     >
-                        <div
-                            className="rounded-2xl overflow-hidden shadow-lg w-[280px] md:w-[340px]"
-                            style={{ aspectRatio: '9/16' }}
-                        >
-                            {renderVideo(activeItem)}
-                        </div>
-
-                        {/* Card title badge */}
-                        <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full z-20">
-                            {activeItem.title}
-                        </div>
-
-                        {/* Invisible swipe zones on left/right edges (above iframe) */}
-                        {hasMultiple && (
-                            <>
+                        {cardsWithVideo.map((item, index) => (
+                            <div
+                                key={item.cardId}
+                                className="relative w-[280px] md:w-[340px] shrink-0 snap-center"
+                            >
                                 <div
-                                    className="absolute left-0 top-0 bottom-0 w-12 z-10"
-                                    onTouchStart={handleTouchStart}
-                                    onTouchEnd={handleTouchEnd}
-                                    aria-hidden="true"
-                                />
-                                <div
-                                    className="absolute right-0 top-0 bottom-0 w-12 z-10"
-                                    onTouchStart={handleTouchStart}
-                                    onTouchEnd={handleTouchEnd}
-                                    aria-hidden="true"
-                                />
-                            </>
-                        )}
+                                    className="rounded-2xl overflow-hidden shadow-lg w-full"
+                                    style={{ aspectRatio: '9/16' }}
+                                >
+                                    {renderVideo(item)}
+                                </div>
+
+                                {/* Card title badge */}
+                                <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full z-20">
+                                    {item.title}
+                                </div>
+                            </div>
+                        ))}
                     </div>
 
                     {/* Right arrow */}
@@ -225,7 +241,7 @@ const FeaturedContent = () => {
                         {cardsWithVideo.map((item, index) => (
                             <button
                                 key={item.cardId}
-                                onClick={() => setActiveIndex(index)}
+                                onClick={() => scrollToIndex(index)}
                                 className={cn(
                                     "w-2.5 h-2.5 rounded-full transition-all duration-300",
                                     index === activeIndex
