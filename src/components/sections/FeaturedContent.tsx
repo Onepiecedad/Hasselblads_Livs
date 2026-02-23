@@ -184,9 +184,27 @@ const FeaturedContent = () => {
                         </div>
 
                         {/* Card title badge */}
-                        <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full">
+                        <div className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white text-xs font-medium px-3 py-1.5 rounded-full z-20">
                             {activeItem.title}
                         </div>
+
+                        {/* Invisible swipe zones on left/right edges (above iframe) */}
+                        {hasMultiple && (
+                            <>
+                                <div
+                                    className="absolute left-0 top-0 bottom-0 w-12 z-10"
+                                    onTouchStart={handleTouchStart}
+                                    onTouchEnd={handleTouchEnd}
+                                    aria-hidden="true"
+                                />
+                                <div
+                                    className="absolute right-0 top-0 bottom-0 w-12 z-10"
+                                    onTouchStart={handleTouchStart}
+                                    onTouchEnd={handleTouchEnd}
+                                    aria-hidden="true"
+                                />
+                            </>
+                        )}
                     </div>
 
                     {/* Right arrow */}
