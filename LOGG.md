@@ -4,6 +4,109 @@
 
 ---
 
+## 📅 2026-02-23
+
+### 🧭 Checkout-navigation — Renare kassan
+
+Dolde den gamla WordPress-navigationsmenyn på checkout-sidan (`/kassan/`) för en renare upplevelse.
+
+#### Vad som doldes
+
+| Element | Metod |
+|---------|-------|
+| Huvudmenylänkar (Webbutik, Hemleverans, Utvalt, Butiken) | `display: none` |
+| Sekundära ikoner (sök, konto, önskelista) | `display: none` |
+| Mobilmeny | `display: none` |
+
+#### Vad som behölls
+
+- ✅ Loggan (Hasselblads Livs)
+- ✅ Varukorgsikonen
+
+#### Teknisk lösning
+
+Custom CSS i WordPress Customizer (Anpassar → Extra CSS) med `.woocommerce-checkout`-selektorn:
+
+```css
+.woocommerce-checkout .header-nav.nav-center { display: none !important; }
+.woocommerce-checkout .header-nav.nav-right > li:not(.cart-item) { display: none !important; }
+.woocommerce-checkout .mobile-nav { display: none !important; }
+```
+
+| Fil | Ändring |
+|-----|---------|
+| WordPress Customizer (Extra CSS) | CSS publicerad live |
+| `wordpress-snippets/hide-checkout-nav.php` | Referenskopia i repo |
+
+---
+
+### 📱 Video-karusell — Swipe-stöd på mobil
+
+Lade till swipe-gester för video-karusellen under "Aktuellt" på förstasidan.
+
+#### Problem & iterationer
+
+| Försök | Teknik | Resultat |
+|--------|--------|----------|
+| 1 | `onTouchStart`/`onTouchEnd` på parent div | ❌ Iframes fångar alla touch-events |
+| 2 | Transparenta swipe-zoner (z-10 overlays) på kanterna | ❌ Fungerade inte på iOS |
+| 3 | **Native CSS scroll-snap** | ✅ Fungerar perfekt |
+
+#### Lösning — CSS Scroll-snap
+
+Bytte från enstaka-video-rendering till en horisontell scroll-container med `snap-x snap-mandatory`. Webbläsaren hanterar swipe på compositor-nivå, vilket fungerar även med iframes (YouTube, Facebook).
+
+```tsx
+<div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-[280px]">
+    {cardsWithVideo.map(item => (
+        <div className="shrink-0 snap-center w-[280px]">...</div>
+    ))}
+</div>
+```
+
+#### Wrap-around looping
+
+Swipar man förbi sista videon → hoppar till första. Förbi första → hoppar till sista. Detekteras via `touchstart`/`touchend` och triggar `scrollToIndex()`.
+
+| Fil | Ändring |
+|-----|---------|
+| `src/components/sections/FeaturedContent.tsx` | Komplett omskrivning med scroll-snap + wrap-around |
+
+---
+
+### 🎯 Premium Sticky Header — Hide/Reveal on Scroll
+
+Implementerade scroll-direction-aware header som gäller alla sidor.
+
+#### Beteende
+
+| Tillstånd | Effekt |
+|-----------|--------|
+| Vid toppen | Alltid synlig, full storlek |
+| Scrollar ner | Header glider upp och göms (smooth `translate-y`) |
+| Scrollar upp | Header glider ner och syns igen |
+| Scrollat förbi 40px | Condensed mode — mindre höjd och logo |
+
+#### Teknisk implementation
+
+- Bytte från `sticky top-0` till `fixed top-0 left-0 right-0`
+- Scroll-direction detection via `window.scrollY` delta (ner >8px → göm, upp >4px → visa)
+- Spacer-div (`h-20 md:h-24`) kompenserar för fixed positioning
+- Mobilmeny stängs automatiskt vid göm + route-byte
+
+| Fil | Ändring |
+|-----|---------|
+| `src/components/Navigation.tsx` | Fixed header med scroll-detection, condensed mode |
+
+#### Commits
+
+- `593032a` — feat: add swipe support to video carousel + hide checkout nav menu
+- `f1c882b` — fix: add swipe overlay zones for iframe video carousel on mobile
+- `cf60cc1` — feat: scroll-snap video carousel + premium sticky header
+- `cc22da6` — feat: add wrap-around looping to video carousel swipe
+
+---
+
 ## 📅 2026-02-09
 
 ### 🚀 Prestandaoptimering — Deploy till produktion
