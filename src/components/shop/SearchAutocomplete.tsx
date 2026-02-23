@@ -95,7 +95,7 @@ const SearchAutocomplete = ({
             <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/60" />
             <Input
                 ref={inputRef}
-                type="search"
+                type="text"
                 placeholder="Sök produkter..."
                 value={value}
                 onChange={(e) => {
