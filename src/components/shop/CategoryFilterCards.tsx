@@ -85,16 +85,23 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                             )}
                         >
                             {card.image ? (
-                                /* Background Image - illustrations have text baked in */
-                                <img
-                                    src={card.image}
-                                    alt={card.name}
+                                <div
                                     className={cn(
-                                        "absolute inset-0 w-full h-full object-cover transition-transform duration-500",
-                                        card.imageClassName ? card.imageClassName : (isActive ? "scale-105" : "group-hover:scale-105")
+                                        "absolute inset-0 w-full h-full transition-transform duration-500",
+                                        isActive ? "scale-105" : "group-hover:scale-105"
                                     )}
-                                    loading="lazy"
-                                />
+                                    style={card.bgColor ? { backgroundColor: card.bgColor } : undefined}
+                                >
+                                    <img
+                                        src={card.image}
+                                        alt={card.name}
+                                        className={cn(
+                                            "w-full h-full object-cover",
+                                            card.filterImageClassName || card.imageClassName
+                                        )}
+                                        loading="lazy"
+                                    />
+                                </div>
                             ) : (
                                 /* Text-based fallback for categories without illustrations */
                                 <div

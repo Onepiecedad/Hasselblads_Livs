@@ -7,7 +7,7 @@ import cardNotter from "@/assets/category-cards/alt1-final/category-notter.webp"
 import cardSnacksDryck from "@/assets/category-cards/alt1-final/category-snacks-dryck.webp";
 import cardSottGott from "@/assets/category-cards/alt1-final/category-sott-gott.webp";
 import cardKott from "@/assets/category-cards/alt1-final/category-kott.webp";
-import cardFarskvaror from "@/assets/category-cards/alt1-final/category-farskvaror.webp";
+import cardFarskvaror from "@/assets/category-cards/alt1-final/category-farskvaror.png";
 
 export type CategoryCardData = {
   name: string;
@@ -20,6 +20,8 @@ export type CategoryCardData = {
   bgColor?: string;
   /** Custom CSS klasser för bilden, t.ex. för scaling */
   imageClassName?: string;
+  /** Custom CSS klasser för bilden i filterkorten */
+  filterImageClassName?: string;
 };
 
 export const categoryCards: CategoryCardData[] = [
@@ -101,6 +103,9 @@ export const categoryCards: CategoryCardData[] = [
     image: cardFarskvaror,
     href: "/webbutik?kategori=farskvaror",
     filterValue: "farskvaror",
-    titleLines: ["FÄRSK", "VAROR"],
+    titleLines: [],
+    bgColor: "#fef7cf",
+    imageClassName: "scale-[1.27] translate-y-2",
+    filterImageClassName: "scale-[1.35] -translate-x-2 translate-y-2",
   },
 ];
