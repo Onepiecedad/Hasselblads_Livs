@@ -14,7 +14,7 @@ export type ProductCategory =
   | "ovrigt";
 
 
-export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade";
+export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade" | "lokalt";
 
 // Typ för näringsvärde
 export type NutritionData = {
@@ -59,6 +59,7 @@ export type Product = {
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
   sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar (t.ex. halv ost)
+  quality_class?: 'Klass 1' | 'Klass 2';  // Kvalitetsklass (t.ex. Klass 1)
 
   // Baksideinformation (från PIM-appen)
   backImageUrl?: string;        // Bild på förpackningens baksida

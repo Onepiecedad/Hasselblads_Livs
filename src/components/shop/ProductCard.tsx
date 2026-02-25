@@ -35,8 +35,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   // Kolla om produkten har baksideinformation
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
 
-  // Bygg lista av taggar att visa (max 2)
-  const displayTags: { label: string; variant: 'default' | 'eco' | 'fair' }[] = [];
+  // Bygg lista av taggar att visa (max 3)
+  const displayTags: { label: string; variant: 'default' | 'eco' | 'fair' | 'klassiker' | 'lokalt' }[] = [];
 
   if (product.tags.includes("eko")) {
     displayTags.push({ label: "🌱 Eko", variant: "eco" });
@@ -44,14 +44,20 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   if (product.tags.includes("fairtrade")) {
     displayTags.push({ label: "🤝 Fairtrade", variant: "fair" });
   }
-  if (product.tags.includes("sasong") && displayTags.length < 2) {
+  if (product.tags.includes("sasong") && displayTags.length < 3) {
     displayTags.push({ label: "Säsong", variant: "default" });
   }
-  if (product.tags.includes("erbjudande") && displayTags.length < 2) {
+  if (product.tags.includes("erbjudande") && displayTags.length < 3) {
     displayTags.push({ label: "Erbjudande", variant: "default" });
   }
-  if (product.tags.includes("nyhet") && displayTags.length < 2) {
+  if (product.tags.includes("nyhet") && displayTags.length < 3) {
     displayTags.push({ label: "Nyhet", variant: "default" });
+  }
+  if (product.tags.includes("klassiker") && displayTags.length < 3) {
+    displayTags.push({ label: "⭐ Klassiker", variant: "klassiker" });
+  }
+  if (product.tags.includes("lokalt") && displayTags.length < 3) {
+    displayTags.push({ label: "🌾 Lokalt", variant: "lokalt" });
   }
 
   const handleCardClick = () => {
@@ -142,7 +148,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
                         : tag.variant === "fair"
                           ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
-                          : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
+                          : tag.variant === "klassiker"
+                            ? "bg-amber-500 text-white shadow-lg backdrop-blur-sm"
+                            : tag.variant === "lokalt"
+                              ? "bg-emerald-700 text-white shadow-lg backdrop-blur-sm"
+                              : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
                     }
                   >
                     {tag.label}
@@ -167,11 +177,18 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
           <CardContent className="flex flex-1 flex-col p-2 sm:p-5">
             <div className="flex-1 space-y-1.5">
-              {product.brand && (
-                <div className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                  {product.brand}
-                </div>
-              )}
+              <div className="flex justify-between items-start gap-2">
+                {product.brand && (
+                  <div className="text-[10px] sm:text-xs font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                    {product.brand}
+                  </div>
+                )}
+                {product.quality_class && (
+                  <div className="text-[9px] sm:text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide bg-emerald-100 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded-sm">
+                    {product.quality_class}
+                  </div>
+                )}
+              </div>
               <h3 className="text-sm font-semibold leading-snug line-clamp-2 text-foreground/90 sm:text-base">
                 {product.name}
                 {product.variety && (

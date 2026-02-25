@@ -17,6 +17,8 @@ import { type MultiOffer, getAutoOffer, calculateLineTotal } from "@/lib/product
 export type QuickViewProduct = {
   id: string;
   name: string;
+  brand?: string;
+  variety?: string;
   description: string;
   brand?: string;
   variety?: string;
@@ -32,6 +34,7 @@ export type QuickViewProduct = {
   image: string;
   tags: string[];
   sold_as?: ('hel' | 'halv' | 'kvart')[];
+  quality_class?: 'Klass 1' | 'Klass 2';
   multiOffers?: MultiOffer[];
   weightInGrams?: number;
 };
@@ -196,11 +199,18 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                 {/* Product details */}
                 <div className="flex flex-col">
                   <DialogHeader className="space-y-3 text-left">
-                    {product.brand && (
-                      <div className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
-                        {product.brand}
-                      </div>
-                    )}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {product.brand && (
+                        <div className="text-xs sm:text-sm font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                          {product.brand}
+                        </div>
+                      )}
+                      {product.quality_class && (
+                        <div className="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide bg-emerald-100 dark:bg-emerald-950/50 px-2 py-0.5 rounded-sm">
+                          {product.quality_class}
+                        </div>
+                      )}
+                    </div>
                     <DialogTitle className="text-2xl font-semibold leading-tight">
                       {product.name}
                       {product.variety && (

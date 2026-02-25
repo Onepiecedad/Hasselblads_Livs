@@ -27,6 +27,7 @@ interface PIMProduct {
     woocommerce_id?: number; // WooCommerce product ID
     tags?: string[];         // Produkttaggar (sasong, eko, etc.)
     sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar
+    quality_class?: 'Klass 1' | 'Klass 2'; // Kvalitetsklass
     csvData?: Record<string, string>;
 
     // Viktbaserad prissättning (från PIM)
@@ -294,6 +295,7 @@ function transformProduct(pim: PIMProduct): Product {
     return {
         id: pim.id,
         name: pim.display_name || pim.product_name,
+        brand: pim.brand,
         description: pim.description || '',
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),
@@ -324,6 +326,7 @@ function transformProduct(pim: PIMProduct): Product {
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
         woocommerce_id: pim.woocommerce_id,
         sold_as: pim.sold_as,
+        quality_class: pim.quality_class,
 
         // Baksideinformation (mappa från PIM om det finns)
         backImageUrl: pim.backImageUrl,
