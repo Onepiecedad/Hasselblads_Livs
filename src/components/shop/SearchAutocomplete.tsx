@@ -137,7 +137,7 @@ const SearchAutocomplete = ({
                         <li
                             key={product.id}
                             role="option"
-                            aria-selected={index === highlightedIndex}
+                            aria-selected={index === highlightedIndex ? "true" : "false"}
                             className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors ${index === highlightedIndex
                                 ? "bg-primary/10"
                                 : "hover:bg-muted/50"
@@ -154,8 +154,19 @@ const SearchAutocomplete = ({
                             />
                             <div className="flex-1 min-w-0">
                                 <p className="font-medium text-sm truncate">{product.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {product.origin?.flag} {product.category} · {formatPrice(product.price)} kr
+                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
+                                    {product.origin?.flag ? (
+                                        <img
+                                            src={`https://flagcdn.com/w20/${product.origin.flag}.png`}
+                                            srcSet={`https://flagcdn.com/w40/${product.origin.flag}.png 2x`}
+                                            alt=""
+                                            className="w-3.5 h-auto rounded-[1px]"
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <span>🌍</span>
+                                    )}
+                                    {product.category} · {formatPrice(product.price)} kr
                                 </p>
                             </div>
                         </li>

@@ -162,15 +162,15 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             )}
 
             {/* Origin flag - small badge in corner */}
-            {product.origin?.flag && product.origin.flag !== "🌍" && !hasBackInfo && (
-              <div className="absolute right-2 top-2 z-10">
-                <span
-                  className="text-lg drop-shadow-sm"
-                  title={product.origin.country}
-                  aria-label={`Ursprung: ${product.origin.country}`}
-                >
-                  {product.origin.flag}
-                </span>
+            {product.origin?.flag && !hasBackInfo && (
+              <div className="absolute right-2 top-2 z-10" title={product.origin.country} aria-label={`Ursprung: ${product.origin.country}`}>
+                <img
+                  src={`https://flagcdn.com/w40/${product.origin.flag}.png`}
+                  srcSet={`https://flagcdn.com/w80/${product.origin.flag}.png 2x`}
+                  alt={product.origin.country || 'Country'}
+                  className="w-6 h-auto drop-shadow-sm rounded-sm"
+                  loading="lazy"
+                />
               </div>
             )}
           </div>
@@ -276,8 +276,19 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   </span>
                 )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
-                  <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
-                    {product.origin.flag} {product.origin.country}
+                  <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 sm:text-xs">
+                    {product.origin?.flag ? (
+                      <img
+                        src={`https://flagcdn.com/w20/${product.origin.flag}.png`}
+                        srcSet={`https://flagcdn.com/w40/${product.origin.flag}.png 2x`}
+                        alt=""
+                        className="w-3.5 h-auto rounded-[1px]"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span>🌍</span>
+                    )}
+                    {product.origin.country}
                   </p>
                 )}
               </div>

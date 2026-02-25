@@ -17,8 +17,6 @@ import { type MultiOffer, getAutoOffer, calculateLineTotal } from "@/lib/product
 export type QuickViewProduct = {
   id: string;
   name: string;
-  brand?: string;
-  variety?: string;
   description: string;
   brand?: string;
   variety?: string;
@@ -225,8 +223,18 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                   <div className="mt-4 space-y-4">
                     {/* Origin and unit badges */}
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary" className="bg-primary/10 text-primary border-0 text-sm px-3 py-1">
-                        <span className="mr-1.5 text-base">{product.origin.flag}</span>
+                      <Badge variant="secondary" className="bg-primary/10 flex items-center text-primary border-0 text-sm px-3 py-1">
+                        {product.origin?.flag ? (
+                          <img
+                            src={`https://flagcdn.com/w20/${product.origin.flag}.png`}
+                            srcSet={`https://flagcdn.com/w40/${product.origin.flag}.png 2x`}
+                            alt=""
+                            className="mr-1.5 w-4 h-auto rounded-[1px]"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <span className="mr-1.5 text-base">🌍</span>
+                        )}
                         {product.origin.country}
                       </Badge>
                       <Badge variant="outline" className="text-muted-foreground text-sm px-3 py-1">

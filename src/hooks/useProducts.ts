@@ -58,29 +58,29 @@ interface PIMProduct {
 
 // Mappa ursprungsland till flagga
 const FLAG_MAP: Record<string, string> = {
-    'Sverige': '🇸🇪',
-    'Spanien': '🇪🇸',
-    'Italien': '🇮🇹',
-    'Frankrike': '🇫🇷',
-    'Nederländerna': '🇳🇱',
-    'Tyskland': '🇩🇪',
-    'Danmark': '🇩🇰',
-    'Norge': '🇳🇴',
-    'Finland': '🇫🇮',
-    'Grekland': '🇬🇷',
-    'Portugal': '🇵🇹',
-    'Belgien': '🇧🇪',
-    'Polen': '🇵🇱',
-    'USA': '🇺🇸',
-    'Brasilien': '🇧🇷',
-    'Chile': '🇨🇱',
-    'Argentina': '🇦🇷',
-    'Sydafrika': '🇿🇦',
-    'Marocko': '🇲🇦',
-    'Israel': '🇮🇱',
-    'Turkiet': '🇹🇷',
-    'Ecuador': '🇪🇨',
-    'Cypern': '🇨🇾',
+    'Sverige': 'se',
+    'Spanien': 'es',
+    'Italien': 'it',
+    'Frankrike': 'fr',
+    'Nederländerna': 'nl',
+    'Tyskland': 'de',
+    'Danmark': 'dk',
+    'Norge': 'no',
+    'Finland': 'fi',
+    'Grekland': 'gr',
+    'Portugal': 'pt',
+    'Belgien': 'be',
+    'Polen': 'pl',
+    'USA': 'us',
+    'Brasilien': 'br',
+    'Chile': 'cl',
+    'Argentina': 'ar',
+    'Sydafrika': 'za',
+    'Marocko': 'ma',
+    'Israel': 'il',
+    'Turkiet': 'tr',
+    'Ecuador': 'ec',
+    'Cypern': 'cy',
 };
 
 // Legacy-aliasnamn som PIM kan skicka (gamla kategorinamn)
@@ -320,7 +320,7 @@ function transformProduct(pim: PIMProduct): Product {
 
         origin: {
             country: country || 'Okänt',
-            flag: FLAG_MAP[country] || '🌍'
+            flag: FLAG_MAP[country] || ''
         },
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
         woocommerce_id: pim.woocommerce_id,
