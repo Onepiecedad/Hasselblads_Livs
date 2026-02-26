@@ -226,12 +226,12 @@ const Webshop = () => {
     const handleSubcategoryChange = (value: string | null) => {
         // Clear detailCategory when switching subcategory
         updateFilters({ subcategory: value, detailCategory: null });
-        if (value) scrollToProducts();
+        // Don't scroll - stay at top so user can see the menu
     };
 
     const handleDetailCategoryChange = (value: string | null) => {
         updateFilters({ detailCategory: value });
-        if (value) scrollToProducts();
+        // Don't scroll - stay at top so user can see the menu
     };
 
     const handleSortChange = (value: string) => {

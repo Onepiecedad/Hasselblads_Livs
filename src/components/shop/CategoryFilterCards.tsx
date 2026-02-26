@@ -36,32 +36,7 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                 aria-orientation="horizontal"
                 aria-multiselectable="false"
             >
-                {/* "Alla" button - solid green background */}
-                <button
-                    type="button"
-                    role="option"
-                    aria-selected={isAllaActive ? "true" : "false"}
-                    onClick={() => handleSelect("alla")}
-                    className={cn(
-                        "flex-shrink-0 flex flex-col items-center justify-center gap-1.5 scroll-snap-start",
-                        // Larger size
-                        "w-24 sm:w-28 h-28 sm:h-32 rounded-2xl",
-                        "transition-all duration-300 ease-out",
-                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2F5852] focus-visible:ring-offset-2",
-                        // Nice green background
-                        "bg-[#2F5852] border-2 border-[#2F5852]",
-                        isAllaActive
-                            ? "shadow-lg scale-[1.02] ring-2 ring-white ring-offset-2"
-                            : "hover:bg-[#3a6b62] hover:shadow-md hover:scale-[1.02]"
-                    )}
-                >
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20">
-                        <Leaf className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-xs sm:text-sm font-bold text-white">
-                        Alla
-                    </span>
-                </button>
+
 
                 {/* Category cards - single-select */}
                 {categoryCards.map((card) => {
