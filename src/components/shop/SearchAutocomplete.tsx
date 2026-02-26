@@ -105,7 +105,7 @@ const SearchAutocomplete = ({
                 }}
                 onFocus={() => setIsOpen(true)}
                 onKeyDown={handleKeyDown}
-                className="pl-12 pr-10 h-12 rounded-2xl border-2 border-border/60 bg-white text-base placeholder:text-muted-foreground/70 shadow-sm focus-visible:border-primary/50 focus-visible:ring-0"
+                className="pl-12 pr-10 h-12 rounded-2xl border-2 border-[#2d5a3d]/40 bg-white text-base placeholder:text-muted-foreground/70 shadow-sm focus-visible:border-[#2d5a3d]/70 focus-visible:ring-0"
                 aria-label="Sök produkter"
                 aria-expanded={isOpen && suggestions.length > 0}
                 aria-haspopup="listbox"

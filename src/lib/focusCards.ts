@@ -18,7 +18,7 @@ export const focusCards: FocusCardData[] = [
     {
         name: "Godast\njust nu",
         filterValue: "godast",
-        fallbackTag: "sasong",
+        fallbackTag: "godast",
         image: "/Puffar_startsida_Stora_Rityta%201.jpg",
         textPosition: "right", // Illustration is on left
     },
@@ -32,7 +32,7 @@ export const focusCards: FocusCardData[] = [
     {
         name: "Varor i\nsäsong",
         filterValue: "isasong",
-        fallbackTag: "klassiker",
+        fallbackTag: "sasong",
         image: "/Puffar_startsida_Stora-03.jpg",
         textPosition: "right", // Illustration is on left
     },

@@ -14,7 +14,10 @@ export type ProductCategory =
   | "ovrigt";
 
 
-export type ProductTag = "godast" | "nyheter" | "isasong" | "erbjudanden";
+export type ProductTag =
+  | "godast" | "nyheter" | "isasong" | "erbjudanden"  // Legacy focus card IDs
+  | "sasong" | "nyhet" | "erbjudande" | "klassiker"    // PIM tags
+  | "eko" | "fairtrade" | "lokalt";                    // PIM badge-only tags
 
 // Typ för näringsvärde
 export type NutritionData = {

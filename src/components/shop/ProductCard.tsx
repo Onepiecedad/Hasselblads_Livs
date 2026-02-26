@@ -35,20 +35,43 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   // Kolla om produkten har baksideinformation
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
 
-  // Bygg lista av taggar att visa (max 2)
-  const displayTags: { label: string; variant: 'default' | 'season' | 'new' | 'offer' | 'featured' }[] = [];
+  // Bygg lista av taggar att visa (max 3)
+  const displayTags: { label: string; variant: 'default' | 'season' | 'new' | 'offer' | 'featured' | 'klassiker' | 'eko' | 'fairtrade' | 'lokalt' }[] = [];
 
-  if (product.tags?.includes("godast") && displayTags.length < 2) {
+  const MAX_TAGS = 3;
+  const tags = product.tags || [];
+
+  // Erbjudande (prioritet — syns alltid om den finns)
+  if ((tags.includes("erbjudanden") || tags.includes("erbjudande")) && displayTags.length < MAX_TAGS) {
+    displayTags.push({ label: "Erbjudande", variant: "offer" });
+  }
+  // Godast just nu
+  if (tags.includes("godast") && displayTags.length < MAX_TAGS) {
     displayTags.push({ label: "Godast just nu", variant: "featured" });
   }
-  if (product.tags?.includes("nyheter") && displayTags.length < 2) {
+  // Nyhet
+  if ((tags.includes("nyheter") || tags.includes("nyhet")) && displayTags.length < MAX_TAGS) {
     displayTags.push({ label: "Nyhet", variant: "new" });
   }
-  if (product.tags?.includes("isasong") && displayTags.length < 2) {
+  // I säsong
+  if ((tags.includes("isasong") || tags.includes("sasong")) && displayTags.length < MAX_TAGS) {
     displayTags.push({ label: "I säsong", variant: "season" });
   }
-  if (product.tags?.includes("erbjudanden") && displayTags.length < 2) {
-    displayTags.push({ label: "Erbjudande", variant: "offer" });
+  // Klassiker
+  if (tags.includes("klassiker") && displayTags.length < MAX_TAGS) {
+    displayTags.push({ label: "Klassiker", variant: "klassiker" });
+  }
+  // Ekologisk
+  if (tags.includes("eko") && displayTags.length < MAX_TAGS) {
+    displayTags.push({ label: "Ekologisk", variant: "eko" });
+  }
+  // Fairtrade
+  if (tags.includes("fairtrade") && displayTags.length < MAX_TAGS) {
+    displayTags.push({ label: "Fairtrade", variant: "fairtrade" });
+  }
+  // Lokalt / Närodlat
+  if (tags.includes("lokalt") && displayTags.length < MAX_TAGS) {
+    displayTags.push({ label: "Lokalt", variant: "lokalt" });
   }
 
   const handleCardClick = () => {
@@ -135,15 +158,17 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   <Badge
                     key={i}
                     className={
-                      tag.variant === "featured"
-                        ? "bg-amber-500 text-white shadow-lg backdrop-blur-sm"
-                        : tag.variant === "new"
-                          ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
-                          : tag.variant === "season"
-                            ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
-                            : tag.variant === "offer"
-                              ? "bg-red-600 text-white shadow-lg backdrop-blur-sm"
-                              : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
+                      ({
+                        featured: "bg-amber-500 text-white shadow-lg backdrop-blur-sm",
+                        new: "bg-blue-600 text-white shadow-lg backdrop-blur-sm",
+                        season: "bg-green-600 text-white shadow-lg backdrop-blur-sm",
+                        offer: "bg-red-600 text-white shadow-lg backdrop-blur-sm",
+                        klassiker: "bg-amber-600 text-white shadow-lg backdrop-blur-sm",
+                        eko: "bg-emerald-600 text-white shadow-lg backdrop-blur-sm",
+                        fairtrade: "bg-yellow-700 text-white shadow-lg backdrop-blur-sm",
+                        lokalt: "bg-teal-600 text-white shadow-lg backdrop-blur-sm",
+                        default: "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm",
+                      }[tag.variant] || "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm")
                     }
                   >
                     {tag.label}
@@ -159,7 +184,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   src={`https://flagcdn.com/w40/${product.origin.flag}.png`}
                   srcSet={`https://flagcdn.com/w80/${product.origin.flag}.png 2x`}
                   alt={product.origin.country || 'Country'}
-                  className="w-6 h-auto drop-shadow-sm rounded-sm"
+                  className="w-6 h-auto drop-shadow-sm rounded-[1px]"
                   loading="lazy"
                 />
               </div>

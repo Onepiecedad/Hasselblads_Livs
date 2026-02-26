@@ -207,7 +207,7 @@ function parseTags(pimTags?: string[], _symbolField?: string): Product['tags'] {
     if (pimTags && pimTags.length > 0) {
         const validTags: Product['tags'] = [];
         for (const tag of pimTags) {
-            if (['godast', 'nyheter', 'isasong', 'erbjudanden'].includes(tag)) {
+            if (['godast', 'nyheter', 'isasong', 'erbjudanden', 'sasong', 'nyhet', 'erbjudande', 'klassiker', 'eko', 'fairtrade', 'lokalt'].includes(tag)) {
                 validTags.push(tag as Product['tags'][number]);
             }
         }

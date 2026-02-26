@@ -4,6 +4,31 @@
 
 ---
 
+## 📅 2026-02-26
+
+### 🧹 Webshop Filter-UI — Rensning & UX-förbättringar
+
+Städade upp filter- och sökgränssnittet i webbutiken för en renare och tydligare användarupplevelse.
+
+#### Ändringar
+
+| Komponent | Ändring |
+|-----------|---------|
+| `SubcategoryChips.tsx` | Tog bort "Filtrera:"-etiketten. "Alla"-knappen visar nu aktiv kategoris namn (t.ex. "Frukt & Grönt") |
+| `DetailCategoryChips.tsx` | Tog bort "Typ:"-etiketten |
+| `ActiveFilterBadges.tsx` | Tog bort "FILTER:"-etiketten |
+| `CategoryFilterCards.tsx` | Tog bort det gröna "Alla"-kortet — kategoriraderna börjar nu direkt med Frukt Grönt etc. |
+| `SearchAutocomplete.tsx` | Sökfält gjort tydligare: vit bakgrund, `border-2`, `shadow-sm`, opak placeholder-text |
+| `Webshop.tsx` | Tog bort `<Breadcrumbs>` + import, tog bort `<SortDropdown>` + import, tog bort `sortOptions`-import |
+| `Webshop.tsx` | Tog bort `scrollToProducts()`-anrop från alla tre filterhandlers — sidan stannar kvar högst upp (menyn synlig) vid alla filterval |
+
+#### Commits
+
+- `6dd895a` — UI: ta bort filtreringsetiketter, breadcrumbs, sortering – förtydliga sökfält
+- `7709783` — UI: ta bort Alla-kortet, ingen auto-scroll vid under/detaljkategori
+
+---
+
 ## 📅 2026-02-23
 
 ### 🧭 Checkout-navigation — Renare kassan
