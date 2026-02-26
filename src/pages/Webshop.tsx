@@ -5,14 +5,12 @@ import FocusFilterCards from "@/components/shop/FocusFilterCards";
 import CategoryFilterCards from "@/components/shop/CategoryFilterCards";
 import SubcategoryChips from "@/components/shop/SubcategoryChips";
 import DetailCategoryChips from "@/components/shop/DetailCategoryChips";
-import Breadcrumbs from "@/components/shop/Breadcrumbs";
 import ActiveFilterBadges from "@/components/shop/ActiveFilterBadges";
-import SortDropdown from "@/components/shop/SortDropdown";
 import ProductCard from "@/components/shop/ProductCard";
 import ProductCardSkeleton from "@/components/shop/ProductCardSkeleton";
 import SearchAutocomplete from "@/components/shop/SearchAutocomplete";
 import QuickViewModal from "@/components/shop/QuickViewModal";
-import { sortOptions, tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { focusCards, getFallbackTag } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart, type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
@@ -216,7 +214,7 @@ const Webshop = () => {
     const handleCategoryChange = (value: string | null) => {
         // Clear subcategory, detailCategory and focus/tag filter when selecting a new category
         updateFilters({ category: value, subcategory: null, detailCategory: null, tag: value ? "" : DEFAULT_FILTERS.tag });
-        if (value) scrollToProducts();
+        // Don't scroll - stay at top so user can see the menu
     };
 
     const handleTagChange = (value: string | null) => {
@@ -535,16 +533,6 @@ const Webshop = () => {
                         className="mb-6"
                     />
 
-                    {/* Breadcrumbs - shows current navigation path */}
-                    <Breadcrumbs
-                        category={activeCategory}
-                        subcategory={activeSubcategory}
-                        detailCategory={activeDetailCategory}
-                        searchTerm={searchTerm}
-                        focusTag={activeTag || null}
-                        className="mb-4"
-                    />
-
                     {/* Active Filter Badges - clickable to remove filters */}
                     <ActiveFilterBadges
                         category={activeCategory}
@@ -567,7 +555,7 @@ const Webshop = () => {
                         className="mb-4"
                     />
 
-                    {/* Search, Sort & Controls */}
+                    {/* Search */}
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
                         <SearchAutocomplete
                             products={products}
@@ -578,7 +566,6 @@ const Webshop = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground/70 pb-4 border-b border-border/20">
-                        <SortDropdown options={sortOptions} value={activeSort} onChange={handleSortChange} />
                         <span className="font-medium">{isLoading ? 'Laddar produkter…' : `${filteredProducts.length} produkter`}</span>
                         {(activeCategory || activeTag || searchTerm) && (
                             <button

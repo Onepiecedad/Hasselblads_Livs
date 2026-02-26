@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { getSubcategories } from "@/lib/categoryHierarchy";
+import { getSubcategories, getCategoryLabel } from "@/lib/categoryHierarchy";
+
 
 interface SubcategoryChipsProps {
     category: string | null;
@@ -25,11 +26,7 @@ const SubcategoryChips = ({
 
     return (
         <div className={cn("flex flex-wrap items-center gap-2", className)}>
-            <span className="text-sm font-medium text-muted-foreground mr-1">
-                Filtrera:
-            </span>
-
-            {/* "Visa alla" chip */}
+            {/* "Visa alla" chip - shows main category name */}
             <button
                 type="button"
                 onClick={() => onSubcategoryChange(null)}
@@ -40,7 +37,7 @@ const SubcategoryChips = ({
                         : "bg-white text-foreground/70 border-border/50 hover:bg-muted/50 hover:text-foreground hover:border-border"
                 )}
             >
-                Alla
+                {getCategoryLabel(category)}
             </button>
 
             {/* Subcategory chips */}

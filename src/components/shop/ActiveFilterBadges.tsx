@@ -54,9 +54,6 @@ const ActiveFilterBadges = ({
                 className
             )}
         >
-            <span className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                Filter:
-            </span>
 
             <div className="flex items-center gap-2 flex-wrap">
                 {/* Category badge */}
