@@ -20,6 +20,7 @@ export type QuickViewProduct = {
   description: string;
   brand?: string;
   variety?: string;
+  category?: string;
   price: number;
   salePrice?: number;
   unit: string;
@@ -203,7 +204,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                           {product.brand}
                         </div>
                       )}
-                      {product.quality_class && (
+                      {product.quality_class && product.category === 'frukt-gront' && (
                         <div className="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide bg-emerald-100 dark:bg-emerald-950/50 px-2 py-0.5 rounded-sm">
                           {product.quality_class}
                         </div>

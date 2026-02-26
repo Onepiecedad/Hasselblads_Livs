@@ -317,7 +317,7 @@ function transformProduct(pim: PIMProduct): Product {
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
         woocommerce_id: pim.woocommerce_id,
         sold_as: pim.sold_as,
-        quality_class: pim.quality_class || 'Klass 1',
+        quality_class: pim.main_category?.includes('Frukt & Grönt') ? (pim.quality_class || 'Klass 1') : undefined,
 
         // Baksideinformation (mappa från PIM om det finns)
         backImageUrl: pim.backImageUrl,

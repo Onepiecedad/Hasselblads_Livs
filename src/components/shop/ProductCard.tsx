@@ -174,7 +174,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     {product.brand}
                   </div>
                 )}
-                {product.quality_class && (
+                {product.quality_class && product.category === 'frukt-gront' && (
                   <div className="text-[9px] sm:text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide bg-emerald-100 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded-sm">
                     {product.quality_class}
                   </div>
