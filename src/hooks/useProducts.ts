@@ -25,7 +25,7 @@ interface PIMProduct {
     status: 'pending' | 'processing' | 'completed' | 'skipped' | 'failed';
     is_published?: boolean;  // true = visas på hemsidan
     woocommerce_id?: number; // WooCommerce product ID
-    tags?: string[];         // Produkttaggar (sasong, eko, etc.)
+    tags?: string[];         // Produkttaggar (godast, nyheter, isasong, erbjudanden)
     sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar
     quality_class?: 'Klass 1' | 'Klass 2'; // Kvalitetsklass
     csvData?: Record<string, string>;
@@ -201,28 +201,20 @@ function extractDetailCategory(mainCategory?: string): string | undefined {
     return undefined;
 }
 
-// Parsa taggar - prioritera produktens tags-fält, fallback till CSV-symbol
-function parseTags(pimTags?: string[], symbolField?: string): Product['tags'] {
+// Parsa taggar - prioritera produktens tags-fält från PIM
+function parseTags(pimTags?: string[], _symbolField?: string): Product['tags'] {
     // Om produkten har taggar satta i PIM, använd dessa
     if (pimTags && pimTags.length > 0) {
         const validTags: Product['tags'] = [];
         for (const tag of pimTags) {
-            if (['sasong', 'erbjudande', 'nyhet', 'klassiker', 'eko', 'fairtrade'].includes(tag)) {
+            if (['godast', 'nyheter', 'isasong', 'erbjudanden'].includes(tag)) {
                 validTags.push(tag as Product['tags'][number]);
             }
         }
         return validTags;
     }
 
-    // Fallback: Parsa från CSV-symbol (bakåtkompatibilitet)
-    if (!symbolField) return [];
-
-    const tags: Product['tags'] = [];
-    const normalized = symbolField.toLowerCase();
-
-    if (normalized.includes('nyhet')) tags.push('nyhet');
-
-    return tags;
+    return [];
 }
 
 // Parsa enhet från CSV-data

@@ -221,8 +221,8 @@ const FeaturedContent = () => {
                     {/* Scroll-snap container — native mobile swipe */}
                     <div
                         ref={scrollRef}
-                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-[280px] md:w-[340px]"
-                        style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+                        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-elegant w-[280px] md:w-[340px]"
+                        style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                     >

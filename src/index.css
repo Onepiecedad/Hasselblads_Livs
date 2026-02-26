@@ -200,14 +200,29 @@ All colors MUST be HSL.
   @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary/40;
 }
 
-/* Horizontal scroll utilities for smooth swiping */
-.scrollbar-hide {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+/* Elegant scrollbar for smooth swiping */
+.scrollbar-elegant {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--primary) / 0.2) transparent;
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
+.scrollbar-elegant::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--primary) / 0.2);
+  border-radius: 10px;
+}
+
+.scrollbar-elegant:hover::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--primary) / 0.4);
 }
 
 .scroll-smooth-x {

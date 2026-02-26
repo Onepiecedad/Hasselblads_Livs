@@ -14,7 +14,7 @@ export type ProductCategory =
   | "ovrigt";
 
 
-export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker" | "eko" | "fairtrade" | "lokalt";
+export type ProductTag = "godast" | "nyheter" | "isasong" | "erbjudanden";
 
 // Typ för näringsvärde
 export type NutritionData = {
@@ -89,10 +89,10 @@ export const categories: { label: string; value: string }[] = [
 ];
 
 export const tagFilters: { label: string; value: string; tag: ProductTag }[] = [
-  { label: "Säsong & Erbjudanden", value: "sasong-och-erbjudanden", tag: "sasong" },
-  { label: "Erbjudanden", value: "erbjudanden", tag: "erbjudande" },
-  { label: "Nyheter", value: "nyheter", tag: "nyhet" },
-  { label: "Klassiker", value: "klassiker", tag: "klassiker" },
+  { label: "Godast just nu", value: "godast", tag: "godast" },
+  { label: "Nyheter & Premiärer", value: "nyheter", tag: "nyheter" },
+  { label: "I säsong", value: "isasong", tag: "isasong" },
+  { label: "Erbjudanden", value: "erbjudanden", tag: "erbjudanden" },
 ];
 
 export const sortOptions = [

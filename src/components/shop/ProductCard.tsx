@@ -35,29 +35,20 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   // Kolla om produkten har baksideinformation
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
 
-  // Bygg lista av taggar att visa (max 3)
-  const displayTags: { label: string; variant: 'default' | 'eco' | 'fair' | 'klassiker' | 'lokalt' }[] = [];
+  // Bygg lista av taggar att visa (max 2)
+  const displayTags: { label: string; variant: 'default' | 'season' | 'new' | 'offer' | 'featured' }[] = [];
 
-  if (product.tags.includes("eko")) {
-    displayTags.push({ label: "🌱 Eko", variant: "eco" });
+  if (product.tags?.includes("godast") && displayTags.length < 2) {
+    displayTags.push({ label: "Godast just nu", variant: "featured" });
   }
-  if (product.tags.includes("fairtrade")) {
-    displayTags.push({ label: "🤝 Fairtrade", variant: "fair" });
+  if (product.tags?.includes("nyheter") && displayTags.length < 2) {
+    displayTags.push({ label: "Nyhet", variant: "new" });
   }
-  if (product.tags.includes("sasong") && displayTags.length < 3) {
-    displayTags.push({ label: "Säsong", variant: "default" });
+  if (product.tags?.includes("isasong") && displayTags.length < 2) {
+    displayTags.push({ label: "I säsong", variant: "season" });
   }
-  if (product.tags.includes("erbjudande") && displayTags.length < 3) {
-    displayTags.push({ label: "Erbjudande", variant: "default" });
-  }
-  if (product.tags.includes("nyhet") && displayTags.length < 3) {
-    displayTags.push({ label: "Nyhet", variant: "default" });
-  }
-  if (product.tags.includes("klassiker") && displayTags.length < 3) {
-    displayTags.push({ label: "⭐ Klassiker", variant: "klassiker" });
-  }
-  if (product.tags.includes("lokalt") && displayTags.length < 3) {
-    displayTags.push({ label: "🌾 Lokalt", variant: "lokalt" });
+  if (product.tags?.includes("erbjudanden") && displayTags.length < 2) {
+    displayTags.push({ label: "Erbjudande", variant: "offer" });
   }
 
   const handleCardClick = () => {
@@ -144,14 +135,14 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   <Badge
                     key={i}
                     className={
-                      tag.variant === "eco"
-                        ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
-                        : tag.variant === "fair"
+                      tag.variant === "featured"
+                        ? "bg-amber-500 text-white shadow-lg backdrop-blur-sm"
+                        : tag.variant === "new"
                           ? "bg-blue-600 text-white shadow-lg backdrop-blur-sm"
-                          : tag.variant === "klassiker"
-                            ? "bg-amber-500 text-white shadow-lg backdrop-blur-sm"
-                            : tag.variant === "lokalt"
-                              ? "bg-emerald-700 text-white shadow-lg backdrop-blur-sm"
+                          : tag.variant === "season"
+                            ? "bg-green-600 text-white shadow-lg backdrop-blur-sm"
+                            : tag.variant === "offer"
+                              ? "bg-red-600 text-white shadow-lg backdrop-blur-sm"
                               : "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm"
                     }
                   >
@@ -369,7 +360,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
           )}
 
           {/* Baksideinnehåll */}
-          <CardContent className={`flex-1 ${product.backImageUrl ? 'p-2' : 'p-3'} overflow-y-auto scrollbar-hide`}>
+          <CardContent className={`flex-1 ${product.backImageUrl ? 'p-2' : 'p-3'} overflow-y-auto scrollbar-elegant`}>
             <div className="space-y-2.5">
               {/* Produktnamn på baksidan */}
               <h4 className="text-xs font-semibold text-foreground/80 border-b border-border/50 pb-1.5 line-clamp-1">

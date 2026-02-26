@@ -20,7 +20,7 @@ const FilterChips = ({ chips, activeValue, onChange, className, ariaLabel }: Fil
 
   return (
     <div
-      className={cn("flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-hide", className)}
+      className={cn("flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-elegant", className)}
       aria-label={ariaLabel}
       role="listbox"
       aria-orientation="horizontal"

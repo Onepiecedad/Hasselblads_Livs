@@ -30,7 +30,7 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                 Avdelningar
             </p>
             <div
-                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-3 scrollbar-hide scroll-smooth-x scroll-snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
+                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-3 scrollbar-elegant scroll-smooth-x scroll-snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
                 role="listbox"
                 aria-label="Filtrera på avdelning"
                 aria-orientation="horizontal"
