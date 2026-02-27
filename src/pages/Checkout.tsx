@@ -1,7 +1,8 @@
 import { FormEvent, useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
-import { addItemsAndRedirectToCheckout } from "@/lib/woocommerce";
+import { useAuth } from "@/context/AuthContext";
+import { addItemsAndRedirectToCheckout, authenticateAndCheckout } from "@/lib/woocommerce";
 import {
     DELIVERY_AREAS,
     PICKUP_INFO,
@@ -97,6 +98,7 @@ const Checkout = () => {
 
     const navigate = useNavigate();
     const { items, subtotal, shippingFee, total, clearCart } = useCart();
+    const { user } = useAuth();
     const hasItems = items.length > 0;
 
     const [step, setStep] = useState(0);
@@ -170,8 +172,18 @@ const Checkout = () => {
         }
         const deliveryNote = lines.join("\n");
 
-        await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
-    }, [selection, items, clearCart]);
+        if (user) {
+            try {
+                const token = await user.getIdToken();
+                await authenticateAndCheckout(items, token, clearCart, deliveryNote);
+            } catch (error) {
+                console.error("Failed to get Firebase token", error);
+                await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+            }
+        } else {
+            await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+        }
+    }, [selection, items, clearCart, user]);
 
     // ─── Empty cart ───
     if (!hasItems && !isRedirecting) {

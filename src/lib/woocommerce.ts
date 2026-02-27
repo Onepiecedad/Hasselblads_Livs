@@ -142,6 +142,57 @@ export async function addItemsAndRedirectToCheckout(
 }
 
 /**
+ * Autentiserad utcheckning som loggar in kunden i WordPress bakom kulisserna.
+ * Om detta misslyckas faller vi tillbaka på gäst-checkout.
+ */
+export async function authenticateAndCheckout(
+    items: CartItem[],
+    token: string,
+    clearLocalCart?: () => void,
+    deliveryNote?: string
+): Promise<void> {
+    const validItems = items.filter(item => item.woocommerce_id);
+
+    if (validItems.length === 0) {
+        console.warn('[WooCommerce] Inga produkter har woocommerce_id – visar checkout-sida');
+        return;
+    }
+
+    console.log(`[WooCommerce] Autentiserar och lägger till ${validItems.length} produkter via checkout session...`);
+
+    try {
+        const response = await fetch('/.netlify/functions/checkout-session', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ items: validItems, deliveryNote }),
+        });
+
+        if (!response.ok) {
+            console.error("[WooCommerce] Serverfel från checkout session:", response.status);
+            throw new Error('Server error');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            if (clearLocalCart) clearLocalCart();
+            window.location.href = data.redirectUrl || getWooCommerceCheckoutUrl();
+        } else {
+            console.error("[WooCommerce] Checkout session misslyckades:", data.error);
+            // Fallback to guest checkout
+            addItemsAndRedirectToCheckout(items, clearLocalCart, deliveryNote);
+        }
+    } catch (error) {
+        console.error("[WooCommerce] Fel vid anrop till checkout session:", error);
+        // Fallback to guest checkout
+        addItemsAndRedirectToCheckout(items, clearLocalCart, deliveryNote);
+    }
+}
+
+/**
  * Bygg WooCommerce Add-to-Cart URL (legacy, för fallback)
  * 
  * Bygger en URL som lägger till produkter via query params.
