@@ -128,8 +128,8 @@ export default async (request, context) => {
 
         const customerId = customerRes.data[0].id;
 
-        // 3. Get the TeraWallet balance for this customer
-        const walletRes = await makeWooCommerceRequest(`/wp-json/wc/v3/wallet/balance/${customerId}`);
+        // 3. Get the TeraWallet balance for this customer using the v2 endpoint
+        const walletRes = await makeWooCommerceRequest(`/wp-json/wc/v2/wallet/balance/${customerId}`);
 
         if (walletRes.statusCode !== 200) {
             console.error(`Failed to fetch wallet for WC ID ${customerId}:`, walletRes.data);
@@ -139,10 +139,10 @@ export default async (request, context) => {
             });
         }
 
-        // Return the formatted balance
+        // The v2 endpoint returns the balance as a plain string, e.g. "5500.00"
         return new Response(JSON.stringify({
-            balance: walletRes.data.balance || "0", // TeraWallet returns balance as string, e.g. "5500.00"
-            currency: walletRes.data.currency || "SEK"
+            balance: walletRes.data || "0",
+            currency: "SEK"
         }), {
             status: 200,
             headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
