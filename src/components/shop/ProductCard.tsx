@@ -155,15 +155,15 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     key={i}
                     className={
                       ({
-                        featured: "bg-amber-500 text-white shadow-lg backdrop-blur-sm",
-                        new: "bg-blue-600 text-white shadow-lg backdrop-blur-sm",
-                        season: "bg-green-600 text-white shadow-lg backdrop-blur-sm",
-                        offer: "bg-red-600 text-white shadow-lg backdrop-blur-sm",
-                        eko: "bg-emerald-600 text-white shadow-lg backdrop-blur-sm",
-                        fairtrade: "bg-yellow-700 text-white shadow-lg backdrop-blur-sm",
-                        lokalt: "bg-teal-600 text-white shadow-lg backdrop-blur-sm",
-                        default: "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm",
-                      }[tag.variant] || "bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm")
+                        featured: "bg-amber-100/90 text-amber-900 border-amber-200 shadow-sm font-semibold",
+                        new: "bg-blue-100/90 text-blue-900 border-blue-200 shadow-sm font-medium",
+                        season: "bg-lime-100/90 text-lime-900 border-lime-200 shadow-sm font-medium",
+                        offer: "bg-red-100/90 text-red-900 border-red-200 shadow-sm font-semibold",
+                        eko: "bg-emerald-100/90 text-emerald-900 border-emerald-200 shadow-sm font-medium",
+                        fairtrade: "bg-orange-100/90 text-orange-900 border-orange-200 shadow-sm font-medium",
+                        lokalt: "bg-teal-100/90 text-teal-900 border-teal-200 shadow-sm font-medium",
+                        default: "bg-slate-100/90 text-slate-800 border-slate-200 shadow-sm font-medium",
+                      }[tag.variant] || "bg-slate-100/90 text-slate-800 border-slate-200 shadow-sm font-medium")
                     }
                   >
                     {tag.label}
