@@ -160,38 +160,28 @@ export async function authenticateAndCheckout(
 
     console.log(`[WooCommerce] Autentiserar och lägger till ${validItems.length} produkter via checkout session...`);
 
-    try {
-        const response = await fetch('/.netlify/functions/checkout-session', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ items: validItems, deliveryNote }),
-        });
+    // We will construct a GET request with query params for the Netlify function
+    const itemsParam = validItems.map(item => `${item.woocommerce_id}:${item.quantity}`).join(',');
 
-        if (!response.ok) {
-            console.error("[WooCommerce] Serverfel från checkout session:", response.status);
-            throw new Error('Server error');
-        }
+    const params = new URLSearchParams();
+    params.set('items', itemsParam);
+    params.set('token', token);
+    if (deliveryNote) params.set('delivery_note', deliveryNote);
 
-        const data = await response.json();
+    const gatewayUrl = `/.netlify/functions/checkout-session?${params.toString()}`;
 
-        if (data.success) {
-            if (clearLocalCart) clearLocalCart();
-            window.location.href = data.redirectUrl || getWooCommerceCheckoutUrl();
-        } else {
-            console.error("[WooCommerce] Checkout session misslyckades:", data.error);
-            // Fallback to guest checkout
-            addItemsAndRedirectToCheckout(items, clearLocalCart, deliveryNote);
-        }
-    } catch (error) {
-        console.error("[WooCommerce] Fel vid anrop till checkout session:", error);
-        // Fallback to guest checkout
-        addItemsAndRedirectToCheckout(items, clearLocalCart, deliveryNote);
+    // Local cart is cleared when we successfully leave the site
+    if (clearLocalCart) {
+        clearLocalCart();
     }
-}
 
+    console.log(`[WooCommerce] Redirecting to authenticated checkout gateway: ${gatewayUrl}`);
+
+    // 3. Redirect directly to the checkout-session endpoint
+    // This causes a top-level navigation, where the serverless function acts as
+    // a gateway, sets the cookies directly in the browser, and then 302 redirects to /kassa.
+    window.location.href = gatewayUrl;
+}
 /**
  * Bygg WooCommerce Add-to-Cart URL (legacy, för fallback)
  * 
