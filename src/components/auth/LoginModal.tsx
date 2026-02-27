@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { toast } from "sonner";
+import { fetchWalletBalance, WalletBalance } from "@/lib/wallet";
 
 export function LoginModal() {
     const { user, isAdmin, logout } = useAuth();
@@ -15,6 +16,27 @@ export function LoginModal() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [wallet, setWallet] = useState<WalletBalance | null>(null);
+    const [fetchingWallet, setFetchingWallet] = useState(false);
+
+    // Fetch wallet balance when user is logged in
+    useEffect(() => {
+        let isMounted = true;
+        const loadWallet = async () => {
+            if (user && !isAdmin) {
+                setFetchingWallet(true);
+                const data = await fetchWalletBalance();
+                if (isMounted) {
+                    setWallet(data);
+                    setFetchingWallet(false);
+                }
+            } else {
+                if (isMounted) setWallet(null);
+            }
+        };
+        loadWallet();
+        return () => { isMounted = false; };
+    }, [user, isAdmin]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -71,7 +93,16 @@ export function LoginModal() {
     if (user) {
         return (
             <div className="flex items-center gap-4">
-                <span className="text-white text-sm hidden md:inline-block">Inloggad som {user.email} {isAdmin && "(Admin)"}</span>
+                <div className="flex flex-col items-end hidden md:flex">
+                    <span className="text-white text-sm font-medium">
+                        Inloggad som {user.email} {isAdmin && "(Admin)"}
+                    </span>
+                    {!isAdmin && (
+                        <span className="text-white/80 text-xs mt-0.5 font-medium flex items-center gap-1">
+                            Saldo: {fetchingWallet ? "Laddar..." : wallet ? `${wallet.balance} kr` : "0 kr"}
+                        </span>
+                    )}
+                </div>
                 <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white hover:bg-white/10">
                     Logga ut
                 </Button>
