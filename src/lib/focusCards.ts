@@ -25,21 +25,21 @@ export const focusCards: FocusCardData[] = [
     {
         name: "Säsongs-\npremiärer\n& nyheter",
         filterValue: "nyheter",
-        fallbackTag: "nyhet",
+        fallbackTag: "nyheter",
         image: "/Puffar_startsida_Stora-02.jpg",
         textPosition: "left", // Illustration is on right
     },
     {
         name: "Varor i\nsäsong",
         filterValue: "isasong",
-        fallbackTag: "sasong",
+        fallbackTag: "isasong",
         image: "/Puffar_startsida_Stora-03.jpg",
         textPosition: "right", // Illustration is on left
     },
     {
         name: "Erbjudanden",
         filterValue: "erbjudanden",
-        fallbackTag: "erbjudande",
+        fallbackTag: "erbjudanden",
         image: "/Puffar_startsida_Stora-04.jpg",
         textPosition: "left", // Illustration is on right
     },

@@ -207,8 +207,14 @@ function parseTags(pimTags?: string[], _symbolField?: string): Product['tags'] {
     if (pimTags && pimTags.length > 0) {
         const validTags: Product['tags'] = [];
         for (const tag of pimTags) {
-            if (['godast', 'nyheter', 'isasong', 'erbjudanden', 'sasong', 'nyhet', 'erbjudande', 'eko', 'fairtrade', 'lokalt'].includes(tag)) {
-                validTags.push(tag as Product['tags'][number]);
+            // Mappa PIM-taggar till förväntade taggar där det behövs
+            let parsedTag = tag;
+            if (tag === 'erbjudande') parsedTag = 'erbjudanden';
+            if (tag === 'nyhet') parsedTag = 'nyheter';
+            if (tag === 'sasong') parsedTag = 'isasong';
+
+            if (['godast', 'nyheter', 'isasong', 'erbjudanden', 'sasong', 'nyhet', 'erbjudande', 'eko', 'fairtrade', 'lokalt'].includes(parsedTag)) {
+                validTags.push(parsedTag as Product['tags'][number]);
             }
         }
         return validTags;
