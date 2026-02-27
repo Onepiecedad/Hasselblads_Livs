@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import {
     initializeFirestore,
     persistentLocalCache,
@@ -15,6 +16,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 
 // Modern multi-tab offline persistence (replaces deprecated enableMultiTabIndexedDbPersistence)
 // Cached data loads instantly on repeat visits and syncs across tabs

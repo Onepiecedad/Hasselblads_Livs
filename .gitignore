@@ -30,3 +30,6 @@ dist-ssr
 # Original large image folders (use optimized versions instead)
 public/Butiken 2/
 public/Om oss och butiken 2.docx
+
+# Environment variables
+.env

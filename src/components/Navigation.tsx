@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ShoppingBag, User } from "lucide-react";
+import { Menu, X, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { LoginModal } from "@/components/auth/LoginModal";
 
 const Navigation = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -113,6 +114,8 @@ const Navigation = () => {
 
                 {/* Right Icons */}
                 <div className="flex items-center space-x-2 md:space-x-4">
+                  <LoginModal />
+
                   <Button
                     variant="ghost"
                     size="icon"
