@@ -287,7 +287,7 @@ const Webshop = () => {
                 }
             }
         } else if (focusCardId) {
-            // Direct tag-based filtering (for non-focus-card tags like eko, fairtrade, lokalt, klassiker)
+            // Direct tag-based filtering (for non-focus-card tags like eko, fairtrade, lokalt)
             result = result.filter((product) => product.tags.includes(focusCardId as ProductTag));
         }
 

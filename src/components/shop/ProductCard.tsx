@@ -36,7 +36,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
 
   // Bygg lista av taggar att visa (max 3)
-  const displayTags: { label: string; variant: 'default' | 'season' | 'new' | 'offer' | 'featured' | 'klassiker' | 'eko' | 'fairtrade' | 'lokalt' }[] = [];
+  const displayTags: { label: string; variant: 'default' | 'season' | 'new' | 'offer' | 'featured' | 'eko' | 'fairtrade' | 'lokalt' }[] = [];
 
   const MAX_TAGS = 3;
   const tags = product.tags || [];
@@ -56,10 +56,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   // I säsong
   if ((tags.includes("isasong") || tags.includes("sasong")) && displayTags.length < MAX_TAGS) {
     displayTags.push({ label: "I säsong", variant: "season" });
-  }
-  // Klassiker
-  if (tags.includes("klassiker") && displayTags.length < MAX_TAGS) {
-    displayTags.push({ label: "Klassiker", variant: "klassiker" });
   }
   // Ekologisk
   if (tags.includes("eko") && displayTags.length < MAX_TAGS) {
@@ -163,7 +159,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         new: "bg-blue-600 text-white shadow-lg backdrop-blur-sm",
                         season: "bg-green-600 text-white shadow-lg backdrop-blur-sm",
                         offer: "bg-red-600 text-white shadow-lg backdrop-blur-sm",
-                        klassiker: "bg-amber-600 text-white shadow-lg backdrop-blur-sm",
                         eko: "bg-emerald-600 text-white shadow-lg backdrop-blur-sm",
                         fairtrade: "bg-yellow-700 text-white shadow-lg backdrop-blur-sm",
                         lokalt: "bg-teal-600 text-white shadow-lg backdrop-blur-sm",

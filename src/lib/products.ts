@@ -16,7 +16,7 @@ export type ProductCategory =
 
 export type ProductTag =
   | "godast" | "nyheter" | "isasong" | "erbjudanden"  // Legacy focus card IDs
-  | "sasong" | "nyhet" | "erbjudande" | "klassiker"    // PIM tags
+  | "sasong" | "nyhet" | "erbjudande"                   // PIM tags
   | "eko" | "fairtrade" | "lokalt";                    // PIM badge-only tags
 
 // Typ för näringsvärde
