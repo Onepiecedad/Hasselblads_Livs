@@ -10,6 +10,9 @@ export const PORTION_LABELS: Record<PortionSize, string> = {
   kvart: 'Kvart',
 };
 
+/** Canonical display order for portion buttons */
+export const PORTION_ORDER: PortionSize[] = ['hel', 'halv', 'kvart'];
+
 export const PORTION_MULTIPLIERS: Record<PortionSize, number> = {
   hel: 1,
   halv: 0.5,

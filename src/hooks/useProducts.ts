@@ -56,31 +56,149 @@ interface PIMProduct {
     };
 }
 
-// Mappa ursprungsland till flagga
+// Mappa ursprungsland till ISO 3166-1 alpha-2 flaggkod (för flagcdn.com)
+// Innehåller alla länder som kan förekomma som ursprungsland i en svensk livsmedelsbutik,
+// inklusive vanliga alternativa stavningar och alias.
 const FLAG_MAP: Record<string, string> = {
+    // ── Norden ──
     'Sverige': 'se',
-    'Spanien': 'es',
-    'Italien': 'it',
-    'Frankrike': 'fr',
-    'Nederländerna': 'nl',
-    'Tyskland': 'de',
     'Danmark': 'dk',
     'Norge': 'no',
     'Finland': 'fi',
-    'Grekland': 'gr',
-    'Portugal': 'pt',
+    'Island': 'is',
+    'Färöarna': 'fo',
+
+    // ── Västeuropa ──
+    'Tyskland': 'de',
+    'Frankrike': 'fr',
+    'Nederländerna': 'nl',
+    'Holland': 'nl',
     'Belgien': 'be',
+    'Luxemburg': 'lu',
+    'Österrike': 'at',
+    'Schweiz': 'ch',
+    'Storbritannien': 'gb',
+    'England': 'gb',
+    'UK': 'gb',
+    'Irland': 'ie',
+
+    // ── Sydeuropa ──
+    'Spanien': 'es',
+    'Italien': 'it',
+    'Portugal': 'pt',
+    'Grekland': 'gr',
+    'Cypern': 'cy',
+    'Malta': 'mt',
+    'Kroatien': 'hr',
+    'Slovenien': 'si',
+    'Serbien': 'rs',
+    'Bosnien': 'ba',
+    'Montenegro': 'me',
+    'Nordmakedonien': 'mk',
+    'Albanien': 'al',
+
+    // ── Östeuropa ──
     'Polen': 'pl',
+    'Tjeckien': 'cz',
+    'Slovakien': 'sk',
+    'Ungern': 'hu',
+    'Rumänien': 'ro',
+    'Bulgarien': 'bg',
+    'Litauen': 'lt',
+    'Lettland': 'lv',
+    'Estland': 'ee',
+    'Ukraina': 'ua',
+    'Moldavien': 'md',
+
+    // ── Turkiet & Mellanöstern ──
+    'Turkiet': 'tr',
+    'Israel': 'il',
+    'Libanon': 'lb',
+    'Jordanien': 'jo',
+    'Iran': 'ir',
+    'Irak': 'iq',
+    'Syrien': 'sy',
+    'Saudiarabien': 'sa',
+    'Förenade Arabemiraten': 'ae',
+    'UAE': 'ae',
+
+    // ── Afrika ──
+    'Marocko': 'ma',
+    'Marocco': 'ma',
+    'Tunisien': 'tn',
+    'Egypten': 'eg',
+    'Sydafrika': 'za',
+    'Kenya': 'ke',
+    'Tanzania': 'tz',
+    'Etiopien': 'et',
+    'Ghana': 'gh',
+    'Elfenbenskusten': 'ci',
+    'Kamerun': 'cm',
+    'Uganda': 'ug',
+    'Senegal': 'sn',
+    'Mozambique': 'mz',
+    'Madagaskar': 'mg',
+    'Nigeria': 'ng',
+    'Rwanda': 'rw',
+    'Zimbabwe': 'zw',
+
+    // ── Nordamerika ──
     'USA': 'us',
+    'Kanada': 'ca',
+    'Mexiko': 'mx',
+
+    // ── Centralamerika & Karibien ──
+    'Costa Rica': 'cr',
+    'Guatemala': 'gt',
+    'Honduras': 'hn',
+    'Panama': 'pa',
+    'Nicaragua': 'ni',
+    'El Salvador': 'sv',
+    'Dominikanska republiken': 'do',
+    'Dominikanska Republiken': 'do',
+    'Dominikanska Rep.': 'do',
+    'Jamaica': 'jm',
+    'Kuba': 'cu',
+
+    // ── Sydamerika ──
     'Brasilien': 'br',
     'Chile': 'cl',
     'Argentina': 'ar',
-    'Sydafrika': 'za',
-    'Marocko': 'ma',
-    'Israel': 'il',
-    'Turkiet': 'tr',
     'Ecuador': 'ec',
-    'Cypern': 'cy',
+    'Peru': 'pe',
+    'Colombia': 'co',
+    'Kolumbien': 'co',
+    'Bolivia': 'bo',
+    'Uruguay': 'uy',
+    'Paraguay': 'py',
+    'Venezuela': 've',
+    'Surinam': 'sr',
+
+    // ── Asien ──
+    'Kina': 'cn',
+    'Japan': 'jp',
+    'Sydkorea': 'kr',
+    'Thailand': 'th',
+    'Vietnam': 'vn',
+    'Indien': 'in',
+    'Sri Lanka': 'lk',
+    'Indonesien': 'id',
+    'Malaysia': 'my',
+    'Filippinerna': 'ph',
+    'Pakistan': 'pk',
+    'Bangladesh': 'bd',
+    'Taiwan': 'tw',
+    'Georgien': 'ge',
+    'Azerbajdzjan': 'az',
+    'Uzbekistan': 'uz',
+
+    // ── Oceanien ──
+    'Australien': 'au',
+    'Nya Zeeland': 'nz',
+    'Fiji': 'fj',
+
+    // ── Övrigt ──
+    'EU': 'eu',
 };
 
 // Legacy-aliasnamn som PIM kan skicka (gamla kategorinamn)
@@ -274,7 +392,9 @@ function parseMultiOffers(multiStr?: string): Product['multiOffers'] {
 
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
-    const country = pim.origin_country || pim.csvData?.['Ursprungsland'] || pim.csvData?.['Nationsflagg'] || pim.csvData?.['Etiketter land'] || '';
+    // Normalisera ursprungsland (hantera smutsig data: "Eko, Sverige" → "Sverige", "-" → "")
+    const rawCountry = (pim.origin_country || pim.csvData?.['Ursprungsland'] || pim.csvData?.['Nationsflagg'] || pim.csvData?.['Etiketter land'] || '').trim();
+    const country = rawCountry === '-' ? '' : rawCountry.replace(/^[^a-zA-ZÀ-ÿ]*,\s*/, '').trim();
     const mainCategory = pim.main_category || pim.csvData?.['Huvudkategori'];
     const kgSt = pim.csvData?.['Kg/st'];
 

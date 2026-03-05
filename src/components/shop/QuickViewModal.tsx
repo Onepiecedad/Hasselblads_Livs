@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
+import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER } from "@/context/CartContext";
 import { type MultiOffer, getAutoOffer, calculateLineTotal } from "@/lib/products";
 
 export type QuickViewProduct = {
@@ -69,7 +69,10 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   // Portionsval
   const hasPortions = product?.sold_as && product.sold_as.length > 1;
-  const defaultPortion = product?.sold_as?.[0] ?? 'hel';
+  const sortedPortions = useMemo(() =>
+    hasPortions ? [...product!.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product?.sold_as,
+    [product?.sold_as, hasPortions]);
+  const defaultPortion = sortedPortions?.includes('hel') ? 'hel' : (sortedPortions?.[0] ?? 'hel');
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
 
   // Viktväljare för kg-produkter
@@ -246,7 +249,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     {/* Portionsväljare (pill-knappar) */}
                     {hasPortions && (
                       <div className="flex gap-1.5">
-                        {product.sold_as!.map((p) => (
+                        {sortedPortions!.map((p) => (
                           <button
                             key={p}
                             type="button"
