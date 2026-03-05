@@ -301,8 +301,12 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   </>
                 )}
                 {product.multiOffers && product.multiOffers.length > 0 && (
-                  <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/20">
-                    {product.multiOffers[0].label}
+                  <span className="flex flex-wrap gap-0.5 mt-0.5">
+                    {product.multiOffers.map((offer, i) => (
+                      <span key={i} className="inline-block px-1.5 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md bg-orange-500/15 text-orange-600 dark:text-orange-400 border border-orange-500/20">
+                        {offer.label}
+                      </span>
+                    ))}
                   </span>
                 )}
                 {product.origin?.country && product.origin.country !== 'Okänt' && (
