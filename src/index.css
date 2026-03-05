@@ -387,3 +387,52 @@ All colors MUST be HSL.
   animation: none !important;
 }
 
+/* ============================================
+   Cart Scroll Indicator
+   ============================================ */
+.cart-scroll-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 85%);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.cart-scroll-fade.visible {
+  opacity: 1;
+}
+
+.cart-scroll-hint {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  animation: cart-bounce 1.8s ease-in-out infinite;
+}
+
+.cart-scroll-hint.visible {
+  opacity: 1;
+}
+
+@keyframes cart-bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(5px); }
+}
+
