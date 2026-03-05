@@ -234,8 +234,13 @@ function mapCategory(pimCategory?: string): Product['category'] {
             return 'notter-torkad-frukt';
         }
 
-        // Kakor & Skorpor → tillhör Bröd (FÖRE "bröd" för tydlighet)
-        if (part.includes('kakor') || part.includes('skorpor') || part.includes('kaka')) {
+        // Knäckebröd, Skorpor & Grisini → tillhör Skafferi (FÖRE "bröd")
+        if (part.includes('knäckebröd') || part.includes('grisini') || part.includes('skorpor')) {
+            return 'skafferi';
+        }
+
+        // Kakor → tillhör Bröd (FÖRE "bröd" för tydlighet)
+        if (part.includes('kakor') || part.includes('kaka')) {
             return 'brod';
         }
 

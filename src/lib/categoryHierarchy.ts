@@ -131,6 +131,14 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 detailCategories: ["Ketchup", "Senap", "Dressing"]
             },
             {
+                name: "Knäckebröd & Skorpor",
+                detailCategories: []
+            },
+            {
+                name: "Grisini",
+                detailCategories: []
+            },
+            {
                 name: "Övrigt skafferi",
                 detailCategories: ["Majonäs"]
             }
