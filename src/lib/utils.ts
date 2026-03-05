@@ -6,11 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Format a price with two decimals and Swedish comma separator
- * @example formatPrice(99) => "99,00"
+ * Format a price with Swedish comma separator.
+ * Whole numbers display without decimals, others with two decimals.
+ * @example formatPrice(99) => "99"
  * @example formatPrice(99.9) => "99,90"
  * @example formatPrice(99.99) => "99,99"
  */
 export function formatPrice(price: number): string {
+  if (Number.isInteger(price)) return price.toString();
   return price.toFixed(2).replace('.', ',');
 }
