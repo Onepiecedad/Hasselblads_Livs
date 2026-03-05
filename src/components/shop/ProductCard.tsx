@@ -296,11 +296,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                             ({PORTION_LABELS[selectedPortion].toLowerCase()})
                           </span>
                         )}
-                        {!hasPortions && product.priceUnit === 'st' && (product.approximateWeight || product.weightInGrams) && (
-                          <span className="text-sm font-normal text-amber-600 ml-1">
-                            ≈ {product.approximateWeight || `${product.weightInGrams} g`}
-                          </span>
-                        )}
                       </p>
                     )}
                   </>
