@@ -156,9 +156,14 @@ const MiniCartDrawer = () => {
           <div className="relative flex-1 min-h-0">
             {/* Scroll fade + hint */}
             <div className={`cart-scroll-fade ${canScrollDown ? 'visible' : ''}`} />
-            <div className={`cart-scroll-hint ${canScrollDown ? 'visible' : ''}`}>
+            <button
+              type="button"
+              className={`cart-scroll-hint ${canScrollDown ? 'visible' : ''}`}
+              onClick={() => scrollRef.current?.scrollBy({ top: 200, behavior: 'smooth' })}
+              aria-label="Scrolla ner"
+            >
               <ChevronDown className="h-4 w-4" />
-            </div>
+            </button>
             <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
               {hasItems ? (
                 <ul className="divide-y divide-border/40">

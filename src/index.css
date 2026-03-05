@@ -421,7 +421,9 @@ All colors MUST be HSL.
   border-radius: 9999px;
   background: hsl(var(--primary) / 0.1);
   color: hsl(var(--primary));
-  pointer-events: none;
+  cursor: pointer;
+  border: none;
+  padding: 0;
   opacity: 0;
   transition: opacity 0.35s ease;
   animation: cart-bounce 1.8s ease-in-out infinite;
