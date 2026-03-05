@@ -4,6 +4,66 @@
 
 ---
 
+## 📅 2026-03-05
+
+### 🔧 Produktkort — UX-förbättringar & Datakvalitet
+
+Flera förbättringar av produktkortens visning i webbutiken.
+
+#### 1. Portionsordning — Hel → Halv → Kvart
+
+Portionsknapparna (Hel/Halv/Kvart) visades i fel ordning från databasen. Lade till `PORTION_ORDER` i `CartContext.tsx` och sorterar `sold_as` i `ProductCard.tsx` och `QuickViewModal.tsx`.
+
+#### 2. Flaggor — Komplett stöd för alla ursprungsländer
+
+Utökade `FLAG_MAP` i `useProducts.ts` från 22 till **90+ länder**, organiserat per region. Täcker alla 31 unika länder som finns i PIM-datan plus framtida behov.
+
+| Tillagt | Detalj |
+|---------|--------|
+| 🇨🇷 Costa Rica, 🇵🇪 Peru, 🇳🇱 Holland | Saknades helt |
+| 🇪🇺 EU | EU-flagga via flagcdn |
+| 🇿🇼 Zimbabwe | Nytt land |
+| Marocco → ma | Stavningsvariant |
+| Dominikanska Rep. → do | Förkortningsvariant |
+| Datarensning | "Eko, Sverige" → "Sverige", "-" → tom |
+
+#### 3. Prisformatering — Heltal utan decimaler
+
+Ändrade `formatPrice()` i `utils.ts` så att heltalspriser visas utan decimaler: **49 kr** istället för 49,00 kr. Priser med ören behåller decimalerna (49,90 kr).
+
+#### 4. Viktangivelse — Borttagen från produktkort
+
+Tog bort den inkonsekvent visade ungefärliga vikten (≈ 250g) från produktkorten. Vikten visas fortfarande i QuickView-modalen.
+
+#### 5. Multiköps-erbjudanden — Alla alternativ visas
+
+Produktkort visar nu **alla** multiköps-erbjudanden (t.ex. "2 för 8:-" och "3 för 12:-") istället för bara det första.
+
+#### 6. Nya underkategorier — Skafferi
+
+Lade till **Knäckebröd & Skorpor** och **Grisini** som underkategorier under Skafferi i `categoryHierarchy.ts`. Uppdaterade `mapCategory()` i `useProducts.ts` så att dessa produkter hamnar under Skafferi istället för Bröd.
+
+#### Commits
+
+- `137f168` — feat: fix portion order (Hel→Halv→Kvart) & expand FLAG_MAP to 90+ countries
+- `c95f73b` — fix: show whole-number prices without decimals
+- `633d78e` — fix: remove approximate weight from product cards (keep in QuickView only)
+- `86c210f` — feat: show all multi-buy offers on product cards (not just first)
+- `997302c` — feat: add Knäckebröd & Skorpor and Grisini subcategories under Skafferi
+
+#### Ändrade filer
+
+| Fil | Ändring |
+|-----|---------|
+| `src/context/CartContext.tsx` | Lade till `PORTION_ORDER` |
+| `src/components/shop/ProductCard.tsx` | Sorterad portionsordning, borttagen vikt, alla multiköp |
+| `src/components/shop/QuickViewModal.tsx` | Sorterad portionsordning |
+| `src/hooks/useProducts.ts` | 90+ flaggor, datarensning, Skafferi-routing |
+| `src/lib/utils.ts` | Heltalspriser utan decimaler |
+| `src/lib/categoryHierarchy.ts` | Knäckebröd & Skorpor + Grisini |
+
+---
+
 ## 📅 2026-02-26
 
 ### 🧹 Webshop Filter-UI — Rensning & UX-förbättringar
