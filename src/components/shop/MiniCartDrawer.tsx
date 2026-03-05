@@ -47,6 +47,11 @@ const MiniCartDrawer = () => {
 
   useEffect(() => {
     checkScroll();
+    // Re-check after drawer animation completes (DOM may not be measured yet)
+    if (isOpen) {
+      const timer = setTimeout(checkScroll, 150);
+      return () => clearTimeout(timer);
+    }
   }, [items, isOpen, checkScroll]);
 
   useEffect(() => {
