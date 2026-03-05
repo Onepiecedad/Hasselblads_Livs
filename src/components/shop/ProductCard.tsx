@@ -233,23 +233,44 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             <div className="mt-2 flex items-end justify-between gap-1">
               <div className="min-w-0">
                 {product.pricingType === 'weight_based' ? (
-                  <>
-                    <p className="text-lg font-bold text-primary sm:text-xl">
-                      ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
-                      {hasPortions && selectedPortion !== 'hel' && (
-                        <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
-                          ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                  product.salePrice && product.salePrice < product.price ? (
+                    <div>
+                      <p className="text-lg font-bold text-rose-600 sm:text-xl">
+                        ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
+                        <span className="ml-1.5 text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full align-middle">
+                          REA
                         </span>
-                      )}
-                    </p>
-                    {(product.pricePerKg || product.estimatedWeightG) && (
-                      <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
-                        {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
-                        {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
-                        {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
                       </p>
-                    )}
-                  </>
+                      <p className="text-xs text-muted-foreground line-through">
+                        Ord. ca {formatPrice(hasPortions ? portionPrice : product.price)} kr
+                      </p>
+                      {(product.pricePerKg || product.estimatedWeightG) && (
+                        <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                          {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
+                          {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                          {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-lg font-bold text-primary sm:text-xl">
+                        ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
+                        {hasPortions && selectedPortion !== 'hel' && (
+                          <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
+                            ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                          </span>
+                        )}
+                      </p>
+                      {(product.pricePerKg || product.estimatedWeightG) && (
+                        <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                          {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
+                          {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                          {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                        </p>
+                      )}
+                    </>
+                  )
                 ) : (
                   <>
                     {product.salePrice && product.salePrice < product.price ? (
