@@ -384,6 +384,7 @@ const Webshop = () => {
             portionLabel: portion ? PORTION_LABELS[portion] : undefined,
             weightGrams,
             multiOffers: product.multiOffers,
+            multiBuyGroup: product.multiBuyGroup,
         }, quantity);
 
         const weightLabel = weightGrams ? `${weightGrams}g ` : '';

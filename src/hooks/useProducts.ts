@@ -395,6 +395,15 @@ function parseMultiOffers(multiStr?: string): Product['multiOffers'] {
     return offers.length > 0 ? offers.sort((a, b) => a.quantity - b.quantity) : undefined;
 }
 
+// Avgör om produkten tillhör en cross-product multiköp-grupp.
+// Gruppnyckeln = familj + pris, t.ex. "avokado__19.9"
+function inferMultiBuyGroup(name: string, price: number): string | undefined {
+    const n = name.toLowerCase();
+    if (n.includes('avokado')) return `avokado__${price}`;
+    if (n.includes('sallad') && n.includes('cellofanpåse')) return `sallad-cellofan__${price}`;
+    return undefined;
+}
+
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
     // Normalisera ursprungsland (hantera smutsig data: "Eko, Sverige" → "Sverige", "-" → "")
@@ -439,6 +448,7 @@ function transformProduct(pim: PIMProduct): Product {
         multiOffers: pim.multi_buy_offers && pim.multi_buy_offers.length > 0
             ? pim.multi_buy_offers.map(o => ({ quantity: o.quantity, price: o.price, label: `${o.quantity} för ${o.price}:-` }))
             : parseMultiOffers(pim.csvData?.['Multi']),
+        multiBuyGroup: inferMultiBuyGroup(pim.display_name || pim.product_name, price),
 
 
         origin: {

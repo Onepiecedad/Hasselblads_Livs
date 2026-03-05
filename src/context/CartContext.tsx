@@ -32,6 +32,7 @@ export type CartItem = {
   weightGrams?: number;  // Vikt i gram för kg-produkter (t.ex. 300 = 300g)
   woocommerce_id?: number; // WooCommerce product ID for checkout
   multiOffers?: { quantity: number; price: number; label: string }[]; // Alla erbjudanden produkten har
+  multiBuyGroup?: string; // Gruppnyckel för cross-product multiköp (t.ex. "avokado__19.9")
   lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
 };
 
@@ -151,24 +152,42 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [state.items]);
 
   const computedItems = useMemo(() => {
-    return state.items.map(item => {
-      // Find the corresponding live product from the backend to ensure we have the latest multiOffers
+    // First pass: enrich items with live data
+    const enriched = state.items.map(item => {
       const liveProduct = products.find(p => p.id === item.productId);
       const effectiveMultiOffers = liveProduct?.multiOffers || item.multiOffers;
       const effectivePrice = liveProduct?.price || item.price;
+      const effectiveGroup = liveProduct?.multiBuyGroup || item.multiBuyGroup;
+      return { ...item, multiOffers: effectiveMultiOffers, price: effectivePrice, multiBuyGroup: effectiveGroup };
+    });
 
-      const computedItem = {
-        ...item,
-        multiOffers: effectiveMultiOffers,
-        price: effectivePrice
-      };
+    // Second pass: group items by multiBuyGroup and calculate line totals
+    // Build a map of group -> total quantity
+    const groupQty = new Map<string, number>();
+    for (const item of enriched) {
+      if (item.multiBuyGroup) {
+        groupQty.set(item.multiBuyGroup, (groupQty.get(item.multiBuyGroup) || 0) + item.quantity);
+      }
+    }
 
-      if (!effectiveMultiOffers || effectiveMultiOffers.length === 0) {
-        return { ...computedItem, lineTotal: effectivePrice * item.quantity };
+    return enriched.map(item => {
+      const offers = item.multiOffers;
+      if (!offers || offers.length === 0) {
+        return { ...item, lineTotal: item.price * item.quantity };
       }
 
-      const currentItemTotal = calculateLineTotal(item.quantity, effectivePrice, effectiveMultiOffers);
-      return { ...computedItem, lineTotal: currentItemTotal };
+      if (item.multiBuyGroup && groupQty.has(item.multiBuyGroup)) {
+        // Cross-product multi-buy: use the GROUP total quantity for pricing
+        const totalGroupQty = groupQty.get(item.multiBuyGroup)!;
+        const groupTotal = calculateLineTotal(totalGroupQty, item.price, offers);
+        // Distribute proportionally: this item's share = (item.quantity / totalGroupQty) * groupTotal
+        const lineTotal = Math.round((item.quantity / totalGroupQty) * groupTotal * 100) / 100;
+        return { ...item, lineTotal };
+      }
+
+      // Regular per-item multi-buy
+      const lineTotal = calculateLineTotal(item.quantity, item.price, offers);
+      return { ...item, lineTotal };
     });
   }, [state.items, products]);
 
