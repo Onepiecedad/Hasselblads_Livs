@@ -8,7 +8,6 @@ const LegacyRedirects = () => {
   useEffect(() => {
     const path = location.pathname;
     const redirects: Record<string, string> = {
-      "/sasong": "/säsong",
       "/kundtjanst": "/kundservice",
       "/kontakt": "/kundservice#kontakt",
       "/checkout": "/kassa",

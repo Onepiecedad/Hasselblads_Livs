@@ -64,6 +64,66 @@ Lade till **Knäckebröd & Skorpor** och **Grisini** som underkategorier under S
 
 ---
 
+### 📱 Varukorg — Scroll-indikator på mobil
+
+Varukorgen saknade visuell signal om att man kunde scrolla ner för att se fler produkter. Lade till en **fade-gradient** och en **pulserande nedåtpil (↓)** längst ner i produktlistan.
+
+- Visas automatiskt när det finns fler varor under folden
+- Försvinner mjukt (0.35s fade-out) när man scrollar ner
+- Dyker upp igen om man scrollar tillbaka
+- Visas aldrig om alla varor redan syns
+
+#### Teknisk lösning
+
+- `useRef` + `scroll`/`resize`-lyssnare på den scrollbara diven
+- CSS: `.cart-scroll-fade` (gradient) + `.cart-scroll-hint` (bounce-animation)
+- Inga nya dependencies — `ChevronDown` från befintligt lucide-react
+
+#### Commits
+
+- `8171f0f` — feat: add scroll indicator to cart drawer on mobile
+
+#### Ändrade filer
+
+| Fil | Ändring |
+|-----|---------|
+| `src/components/shop/MiniCartDrawer.tsx` | Scroll-detection + fade/hint-element |
+| `src/index.css` | `.cart-scroll-fade`, `.cart-scroll-hint`, `@keyframes cart-bounce` |
+
+---
+
+### 🛒 Cross-Product Multiköp — Avokado & Sallad i cellofanpåse
+
+Produkter i samma produktfamilj **med samma pris** delar nu multiköp-rabatt. T.ex. 1 st "Avokado 1" (19,90 kr) + 1 st "Avokado 2" (19,90 kr) → triggar "2 för 35:-". "Stor avokado" (49 kr) ingår **inte** (annan prisgrupp).
+
+#### Gruppering
+
+| Produktfamilj | Matchningsregel | Exempel-nyckel |
+|---|---|---|
+| Avokado | Namn innehåller "avokado" | `avokado__19.9` |
+| Sallad i cellofanpåse | Namn innehåller "sallad" + "cellofanpåse" | `sallad-cellofan__25` |
+
+#### Teknisk lösning
+
+- Ny `multiBuyGroup?: string` på `Product`-typen
+- `inferMultiBuyGroup(name, price)` i `useProducts.ts` sätter grupp automatiskt
+- `CartContext.tsx` aggregerar kvantitet per grupp och fördelar rabatt proportionellt
+
+#### Commits
+
+- `ebc38cb` — feat: cross-product multi-buy for avocados and salads in bags
+
+#### Ändrade filer
+
+| Fil | Ändring |
+|-----|---------|
+| `src/lib/products.ts` | Ny `multiBuyGroup`-property |
+| `src/hooks/useProducts.ts` | `inferMultiBuyGroup()` + anrop i `transformProduct()` |
+| `src/context/CartContext.tsx` | Grupp-aggregering i `computedItems` |
+| `src/pages/Webshop.tsx` | Skickar `multiBuyGroup` till cart |
+
+---
+
 ## 📅 2026-02-26
 
 ### 🧹 Webshop Filter-UI — Rensning & UX-förbättringar
