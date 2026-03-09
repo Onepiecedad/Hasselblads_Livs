@@ -229,7 +229,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   product.salePrice && product.salePrice < product.price ? (
                     <div>
                       <p className="text-lg font-bold text-rose-600 sm:text-xl leading-tight">
-                        ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
+                        ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                         <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
@@ -246,7 +246,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   ) : (
                     <>
                       <p className="text-lg font-bold text-primary sm:text-xl leading-tight">
-                        ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
+                        ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
                         {hasPortions && selectedPortion !== 'hel' && (
                           <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
                             ({PORTION_LABELS[selectedPortion].toLowerCase()})
@@ -441,7 +441,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             <div className="flex items-center justify-between">
               <p className="text-sm font-bold text-primary">
                 {product.pricingType === 'weight_based'
-                  ? <>ca {formatPrice(product.price)} kr/st</>
+                  ? <>ca {formatPrice(product.price)} kr/{product.priceUnit || 'st'}</>
                   : <>{formatPrice(product.price)} kr/{product.priceUnit || 'st'}</>
                 }
               </p>

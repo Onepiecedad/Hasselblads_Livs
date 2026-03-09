@@ -174,7 +174,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   // Unit display label
   const unitLabel = product?.pricingType === 'weight_based'
-    ? 'per st (viktpris)'
+    ? `per ${product?.priceUnit || 'st'} (viktpris)`
     : isKgProduct ? 'per kg' : `per ${product?.priceUnit || 'st'}`;
 
   // Total price for kg products (weight × quantity)
@@ -299,14 +299,14 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                         product.salePrice && product.salePrice < product.price ? (
                           <>
                             <span className="text-3xl font-bold text-rose-600">ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)}</span>
-                            <span className="text-xl text-muted-foreground">kr/st</span>
+                            <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
                             <span className="ml-2 text-xs font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded-full">REA</span>
                             <span className="text-base text-muted-foreground line-through ml-2">Ord. ca {formatPrice(displayPrice)} kr</span>
                           </>
                         ) : (
                           <>
                             <span className="text-3xl font-bold text-primary">ca {formatPrice(displayPrice)}</span>
-                            <span className="text-xl text-muted-foreground">kr/st</span>
+                            <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
                             {hasPortions && selectedPortion !== 'hel' && (
                               <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                             )}
