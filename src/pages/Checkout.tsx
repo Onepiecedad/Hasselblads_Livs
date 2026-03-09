@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
+import { getAutoOffer } from "@/lib/products";
 import {
     Truck,
     Store,
@@ -506,16 +507,25 @@ const Checkout = () => {
                                     {items.length} {items.length === 1 ? "vara" : "varor"}
                                 </h3>
                                 <ul className="divide-y divide-border/40">
-                                    {items.map((item) => (
-                                        <li key={item.id} className="flex items-center justify-between py-2 text-sm">
-                                            <span className="text-muted-foreground">
-                                                {item.quantity}× {item.name}
-                                            </span>
-                                            <span className="font-medium tabular-nums">
-                                                {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
-                                            </span>
-                                        </li>
-                                    ))}
+                                    {items.map((item) => {
+                                        const activeOffer = getAutoOffer(item.quantity, item.multiOffers);
+                                        const hasDiscount = activeOffer && item.lineTotal != null && item.lineTotal < item.price * item.quantity;
+                                        return (
+                                            <li key={item.id} className="flex items-center justify-between py-2 text-sm">
+                                                <span className="text-muted-foreground">
+                                                    {item.quantity}× {item.name}
+                                                    {hasDiscount && (
+                                                        <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
+                                                            {activeOffer.label}
+                                                        </span>
+                                                    )}
+                                                </span>
+                                                <span className="font-medium tabular-nums">
+                                                    {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                                                </span>
+                                            </li>
+                                        );
+                                    })}
                                 </ul>
                                 <Separator />
                                 <div className="flex justify-between text-sm text-muted-foreground">
