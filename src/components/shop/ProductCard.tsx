@@ -239,7 +239,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
                           {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                           {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
-                          {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                          {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                         </p>
                       )}
                     </div>
@@ -257,7 +257,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
                           {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                           {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
-                          {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                          {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                         </p>
                       )}
                     </>
@@ -274,7 +274,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                           <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasPortions ? portionPrice : product.price)} kr</span>
                           {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
                             <span className="text-[10px] sm:text-xs font-normal text-amber-600">
-                              ≈ {product.approximateWeight || `${product.weightInGrams} g`}
+                              ≈ {product.weightInGrams ? `${product.weightInGrams * quantity} g` : product.approximateWeight}
                             </span>
                           )}
                         </div>
@@ -291,7 +291,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         </p>
                         {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
                           <p className="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 leading-tight">
-                            ≈ {product.approximateWeight || `${product.weightInGrams} g`}
+                            ≈ {product.weightInGrams ? `${product.weightInGrams * quantity} g` : product.approximateWeight}
                           </p>
                         )}
                       </>
