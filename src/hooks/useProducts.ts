@@ -458,7 +458,7 @@ function transformProduct(pim: PIMProduct): Product {
         })(),
         unit: parseUnit(kgSt),
         priceUnit: isWeightBased
-            ? (pim.estimated_weight_g || pim.estimated_piece_price ? 'st' : 'kg')
+            ? (pim.estimated_weight_g || pim.estimated_piece_price ? parsePriceUnit(kgSt) : 'kg')
             : parsePriceUnit(kgSt),
         pricingType: pim.pricing_type,
         pricePerKg: isWeightBased ? pim.price_per_kg : undefined,
