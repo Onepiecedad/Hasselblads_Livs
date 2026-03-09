@@ -223,12 +223,12 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
               </div>
             )}
 
-            <div className="mt-2 flex items-end justify-between gap-1">
-              <div className="min-w-0">
+            <div className="mt-2 space-y-2">
+              <div>
                 {product.pricingType === 'weight_based' ? (
                   product.salePrice && product.salePrice < product.price ? (
                     <div>
-                      <p className="text-base font-bold text-rose-600 sm:text-xl leading-tight">
+                      <p className="text-lg font-bold text-rose-600 sm:text-xl leading-tight">
                         ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
                       </p>
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
@@ -245,7 +245,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     </div>
                   ) : (
                     <>
-                      <p className="text-base font-bold text-primary sm:text-xl leading-tight">
+                      <p className="text-lg font-bold text-primary sm:text-xl leading-tight">
                         ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
                         {hasPortions && selectedPortion !== 'hel' && (
                           <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
@@ -266,7 +266,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   <>
                     {product.salePrice && product.salePrice < product.price ? (
                       <div>
-                        <p className="text-base font-bold text-rose-600 sm:text-xl leading-tight">
+                        <p className="text-lg font-bold text-rose-600 sm:text-xl leading-tight">
                           {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
                         </p>
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
@@ -281,7 +281,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                       </div>
                     ) : (
                       <>
-                        <p className="text-base font-bold text-primary sm:text-xl leading-tight">
+                        <p className="text-lg font-bold text-primary sm:text-xl leading-tight">
                           {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
                           {hasPortions && selectedPortion !== 'hel' && (
                             <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
@@ -307,7 +307,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     ))}
                   </span>
                 )}
-                {product.origin?.country && product.origin.country !== 'Okänt' && (
+              </div>
+
+              {/* Origin flag + Quantity selector row */}
+              <div className="flex items-center justify-between gap-2">
+                {product.origin?.country && product.origin.country !== 'Okänt' ? (
                   <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 sm:text-xs">
                     {product.origin?.flag ? (
                       <img
@@ -322,41 +326,41 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     )}
                     {product.origin.country}
                   </p>
-                )}
-              </div>
+                ) : <div />}
 
-              {/* Quantity selector + Add button (always visible) */}
-              <div
-                className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                  onClick={(e) => handleQuantityChange(e, -1)}
-                  aria-label="Minska antal"
+                {/* Quantity selector + Add button (always visible) */}
+                <div
+                  className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5 shrink-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                  <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                </Button>
-                <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                  onClick={(e) => handleQuantityChange(e, 1)}
-                  aria-label="Öka antal"
-                >
-                  <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                </Button>
-                <Button
-                  size="icon"
-                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
-                  onClick={handleConfirmAdd}
-                  aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
-                >
-                  <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                    onClick={(e) => handleQuantityChange(e, -1)}
+                    aria-label="Minska antal"
+                  >
+                    <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                  <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                    onClick={(e) => handleQuantityChange(e, 1)}
+                    aria-label="Öka antal"
+                  >
+                    <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
+                    onClick={handleConfirmAdd}
+                    aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
+                  >
+                    <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </Button>
+                </div>
               </div>
             </div>
           </CardContent>
