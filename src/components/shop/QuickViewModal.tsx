@@ -176,7 +176,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   // Unit display label
   const unitLabel = product?.pricingType === 'weight_based'
-    ? `per ${product?.priceUnit || 'st'} (viktpris)`
+    ? 'säljs per vikt'
     : isKgProduct ? 'per kg' : `per ${product?.priceUnit || 'st'}`;
 
   // Total price for kg products (weight × quantity)
@@ -342,12 +342,16 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     {/* Weight-based price info */}
                     {product.pricingType === 'weight_based' && (product.pricePerKg || product.estimatedWeightG) && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
-                        {(() => {
-                          const effectiveKg = (product.salePrice && product.salePrice < product.price && product.salePricePerKg)
-                            ? product.salePricePerKg
-                            : product.pricePerKg;
-                          return effectiveKg ? `${formatPrice(effectiveKg)} kr/kg` : '';
-                        })()}
+                        {product.salePrice && product.salePrice < product.price && product.salePricePerKg ? (
+                          <>
+                            {formatPrice(product.salePricePerKg)} kr/kg
+                            {product.pricePerKg && (
+                              <span className="text-muted-foreground/60 line-through ml-1">{formatPrice(product.pricePerKg)} kr/kg</span>
+                            )}
+                          </>
+                        ) : (
+                          product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''
+                        )}
                         {(product.pricePerKg || product.salePricePerKg) && product.estimatedWeightG ? ' · ' : ''}
                         {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                       </p>
