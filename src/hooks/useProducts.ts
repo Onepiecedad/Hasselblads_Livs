@@ -448,7 +448,14 @@ function transformProduct(pim: PIMProduct): Product {
         variety: pim.sort,
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price,
-        salePrice: pim.sale_price ?? (pim.csvData?.['Rabatterat pris'] ? parseFloat(pim.csvData['Rabatterat pris']) || undefined : undefined),
+        salePrice: (() => {
+            const raw = pim.sale_price ?? (pim.csvData?.['Rabatterat pris'] ? parseFloat(pim.csvData['Rabatterat pris']) || undefined : undefined);
+            // For weight-based products, sale_price is per kg — convert to estimated piece price
+            if (raw && isWeightBased && pim.estimated_weight_g) {
+                return Math.round(raw * pim.estimated_weight_g / 1000 * 100) / 100;
+            }
+            return raw;
+        })(),
         unit: parseUnit(kgSt),
         priceUnit: isWeightBased
             ? (pim.estimated_weight_g || pim.estimated_piece_price ? 'st' : 'kg')

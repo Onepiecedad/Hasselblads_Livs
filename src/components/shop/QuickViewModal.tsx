@@ -168,7 +168,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const weightPerUnit = product?.approximateWeight
     ? parseWeight(product.approximateWeight)
     : (product?.weightInGrams ?? null);
-  const showEstimate = isPieceItem && weightPerUnit && quantity > 1 && !selectedOffer;
+  const showEstimate = isPieceItem && weightPerUnit && quantity > 1;
   const estimatedTotalWeight = weightPerUnit ? weightPerUnit * quantity : 0;
   const estimatedTotalPrice = product ? displayPrice * quantity : 0;
 
@@ -342,7 +342,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
                         {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                         {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
-                        {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
+                        {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                       </p>
                     )}
 
