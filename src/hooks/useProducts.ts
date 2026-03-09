@@ -427,12 +427,19 @@ function transformProduct(pim: PIMProduct): Product {
 
     // Viktbaserad prissättning: beräkna uppskattat styckepris
     const isWeightBased = pim.pricing_type === 'weight_based';
+    // For weight-based: use the MAIN price field (pim.price) as the regular kg-rate
+    // because price_per_kg in the VIKTBASERAD section might be set to the sale price by mistake.
+    const regularKgPrice = isWeightBased
+        ? Math.max(pim.price ?? 0, pim.price_per_kg ?? 0)
+        : undefined;
     let price: number;
-    if (isWeightBased && (pim.estimated_piece_price || (pim.price_per_kg && pim.estimated_weight_g))) {
-        price = pim.estimated_piece_price ?? (pim.price_per_kg! * pim.estimated_weight_g! / 1000);
-    } else if (isWeightBased && pim.price_per_kg && !pim.estimated_weight_g) {
+    if (isWeightBased && pim.estimated_weight_g && regularKgPrice) {
+        price = pim.estimated_piece_price
+            ? Math.max(pim.estimated_piece_price, Math.round(regularKgPrice * pim.estimated_weight_g / 1000 * 100) / 100)
+            : Math.round(regularKgPrice * pim.estimated_weight_g / 1000 * 100) / 100;
+    } else if (isWeightBased && regularKgPrice && !pim.estimated_weight_g) {
         // Weight-based but missing estimated weight — use kg-price as-is and mark unit as 'kg'
-        price = pim.price_per_kg;
+        price = regularKgPrice;
     } else {
         price = pim.price ?? parseFloat(pim.csvData?.['Ordinarie pris'] || '0');
     }
@@ -461,7 +468,7 @@ function transformProduct(pim: PIMProduct): Product {
             ? (pim.estimated_weight_g || pim.estimated_piece_price ? parsePriceUnit(kgSt) : 'kg')
             : parsePriceUnit(kgSt),
         pricingType: pim.pricing_type,
-        pricePerKg: isWeightBased ? pim.price_per_kg : undefined,
+        pricePerKg: isWeightBased ? (regularKgPrice ?? pim.price_per_kg) : undefined,
         salePricePerKg: isWeightBased && pim.sale_price ? pim.sale_price : undefined,
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
