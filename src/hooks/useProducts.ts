@@ -462,6 +462,7 @@ function transformProduct(pim: PIMProduct): Product {
             : parsePriceUnit(kgSt),
         pricingType: pim.pricing_type,
         pricePerKg: isWeightBased ? pim.price_per_kg : undefined,
+        salePricePerKg: isWeightBased && pim.sale_price ? pim.sale_price : undefined,
         estimatedWeightG: isWeightBased ? pim.estimated_weight_g : undefined,
         approximateWeight: pim.csvData?.['Vikt'] || undefined,
         weightInGrams: pim.csvData?.['Vikt i gram'] ? parseFloat(pim.csvData['Vikt i gram']) || undefined : undefined,

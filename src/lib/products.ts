@@ -54,6 +54,7 @@ export type Product = {
   priceUnit?: 'kg' | 'st' | 'påse' | 'pkt' | 'kruka' | 'knippe' | 'ask' | 'korg' | 'låda' | 'nät' | 'förp' | 'fläta' | 'flaska';  // Enhet från PIM
   pricingType?: 'unit_based' | 'weight_based'; // Pristyp från PIM
   pricePerKg?: number;           // Kg-pris (visas som sekundär info för viktbaserade)
+  salePricePerKg?: number;       // Rea-kg-pris (för weight-based produkter med rea)
   estimatedWeightG?: number;     // Uppskattad vikt i gram (för viktbaserade produkter)
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
   weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"

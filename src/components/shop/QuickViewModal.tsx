@@ -340,8 +340,13 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     {/* Weight-based price info */}
                     {product.pricingType === 'weight_based' && (product.pricePerKg || product.estimatedWeightG) && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
-                        {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
-                        {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                        {(() => {
+                          const effectiveKg = (product.salePrice && product.salePrice < product.price && product.salePricePerKg)
+                            ? product.salePricePerKg
+                            : product.pricePerKg;
+                          return effectiveKg ? `${formatPrice(effectiveKg)} kr/kg` : '';
+                        })()}
+                        {(product.pricePerKg || product.salePricePerKg) && product.estimatedWeightG ? ' · ' : ''}
                         {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                       </p>
                     )}

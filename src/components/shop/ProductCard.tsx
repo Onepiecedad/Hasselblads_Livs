@@ -237,8 +237,10 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                       </div>
                       {(product.pricePerKg || product.estimatedWeightG) && (
                         <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
-                          {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
-                          {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
+                          {product.salePricePerKg
+                            ? `${formatPrice(product.salePricePerKg)} kr/kg`
+                            : (product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : '')}
+                          {(product.salePricePerKg || product.pricePerKg) && product.estimatedWeightG ? ' · ' : ''}
                           {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
                         </p>
                       )}
