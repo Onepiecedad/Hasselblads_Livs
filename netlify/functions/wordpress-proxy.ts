@@ -282,6 +282,17 @@ export default async (request: Request, context: Context): Promise<Response> => 
   }
 })();
 </script>`;
+            // Hide Swish payment method — not configured correctly yet
+            const hideSwishStyle = `
+<style id="hide-swish">
+  /* Hide Swish payment method until properly configured */
+  [id*="stripe_swish"],
+  label[for*="stripe_swish"],
+  .wc-block-components-radio-control-accordion-option:has([id*="stripe_swish"]) {
+    display: none !important;
+  }
+</style>`;
+
             // Inject right after wc-settings-js-before script (where wcSettings is defined)
             const settingsScriptEnd = textBody.indexOf('</script>', textBody.indexOf('wc-settings-js-before'));
             if (settingsScriptEnd !== -1) {
@@ -290,6 +301,11 @@ export default async (request: Request, context: Context): Promise<Response> => 
             } else if (textBody.includes("</head>")) {
               // Fallback: inject before </head>
               textBody = textBody.replace("</head>", stripeBridgeScript + "\n</head>");
+            }
+
+            // Inject hide-swish CSS into <head>
+            if (textBody.includes("</head>")) {
+              textBody = textBody.replace("</head>", hideSwishStyle + "\n</head>");
             }
 
             // 2. Delivery-note pre-fill script (at end of body)
