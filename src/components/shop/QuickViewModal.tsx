@@ -27,6 +27,7 @@ export type QuickViewProduct = {
   priceUnit?: 'kg' | 'st' | 'påse' | 'pkt' | 'kruka' | 'knippe' | 'ask' | 'korg' | 'låda' | 'nät' | 'förp' | 'fläta' | 'flaska';
   pricingType?: 'unit_based' | 'weight_based';
   pricePerKg?: number;
+  salePricePerKg?: number;
   estimatedWeightG?: number;
   approximateWeight?: string;
   origin: { country: string; flag: string };
@@ -91,7 +92,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     return Math.round((product.price / 1000) * selectedWeight * 100) / 100;
   }, [product, isKgProduct, selectedWeight]);
 
-  const displayPrice = isKgProduct ? weightPrice : (hasPortions ? portionPrice : (product?.price ?? 0));
+  const effectivePrice = (product?.salePrice && product.salePrice < (product?.price ?? 0)) ? product.salePrice : (product?.price ?? 0);
+  const displayPrice = isKgProduct ? weightPrice : (hasPortions ? portionPrice : effectivePrice);
 
   // Browser back button support: push history state when opening
   useEffect(() => {
@@ -299,14 +301,14 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                         product.salePrice && product.salePrice < product.price ? (
                           <>
                             <span className="text-3xl font-bold text-rose-600">ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)}</span>
-                            <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                            <span className="text-xl text-muted-foreground">kr/st</span>
                             <span className="ml-2 text-xs font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded-full">REA</span>
-                            <span className="text-base text-muted-foreground line-through ml-2">Ord. ca {formatPrice(displayPrice)} kr</span>
+                            <span className="text-base text-muted-foreground line-through ml-2">Ord. ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st</span>
                           </>
                         ) : (
                           <>
-                            <span className="text-3xl font-bold text-primary">ca {formatPrice(displayPrice)}</span>
-                            <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                            <span className="text-3xl font-bold text-primary">ca {formatPrice(hasPortions ? portionPrice : product.price)}</span>
+                            <span className="text-xl text-muted-foreground">kr/st</span>
                             {hasPortions && selectedPortion !== 'hel' && (
                               <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                             )}
