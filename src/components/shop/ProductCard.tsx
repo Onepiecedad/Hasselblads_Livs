@@ -309,23 +309,12 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 )}
               </div>
 
-              {/* Origin flag + Quantity selector row */}
+              {/* Origin country + Quantity selector row */}
               <div className="flex items-center justify-between gap-2">
                 {product.origin?.country && product.origin.country !== 'Okänt' ? (
-                  <p className="flex items-center gap-1.5 text-[10px] text-muted-foreground/70 sm:text-xs">
-                    {product.origin?.flag ? (
-                      <img
-                        src={`https://flagcdn.com/w20/${product.origin.flag}.png`}
-                        srcSet={`https://flagcdn.com/w40/${product.origin.flag}.png 2x`}
-                        alt=""
-                        className="w-3.5 h-auto rounded-[1px]"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span>🌍</span>
-                    )}
+                  <span className="text-[10px] text-muted-foreground/70 sm:text-xs">
                     {product.origin.country}
-                  </p>
+                  </span>
                 ) : <div />}
 
                 {/* Quantity selector + Add button (always visible) */}
