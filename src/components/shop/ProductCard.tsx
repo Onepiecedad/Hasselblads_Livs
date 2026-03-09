@@ -228,17 +228,15 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 {product.pricingType === 'weight_based' ? (
                   product.salePrice && product.salePrice < product.price ? (
                     <div>
-                      <p className="text-lg font-bold text-rose-600 sm:text-xl">
+                      <p className="text-base font-bold text-rose-600 sm:text-xl leading-tight">
                         ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
-                        <span className="ml-1.5 text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full align-middle">
-                          REA
-                        </span>
                       </p>
-                      <p className="text-xs text-muted-foreground line-through">
-                        Ord. ca {formatPrice(hasPortions ? portionPrice : product.price)} kr
-                      </p>
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                        <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasPortions ? portionPrice : product.price)} kr</span>
+                      </div>
                       {(product.pricePerKg || product.estimatedWeightG) && (
-                        <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                        <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
                           {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                           {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
                           {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
@@ -247,7 +245,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     </div>
                   ) : (
                     <>
-                      <p className="text-lg font-bold text-primary sm:text-xl">
+                      <p className="text-base font-bold text-primary sm:text-xl leading-tight">
                         ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
                         {hasPortions && selectedPortion !== 'hel' && (
                           <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
@@ -256,7 +254,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         )}
                       </p>
                       {(product.pricePerKg || product.estimatedWeightG) && (
-                        <p className="text-[10px] text-muted-foreground/70 sm:text-xs">
+                        <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
                           {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                           {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
                           {product.estimatedWeightG ? `ca ${product.estimatedWeightG} g` : ''}
@@ -268,35 +266,35 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   <>
                     {product.salePrice && product.salePrice < product.price ? (
                       <div>
-                        <p className="text-lg font-bold text-rose-600 sm:text-xl">
+                        <p className="text-base font-bold text-rose-600 sm:text-xl leading-tight">
                           {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
-                          <span className="ml-1.5 text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full align-middle">
-                            REA
-                          </span>
+                        </p>
+                        <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+                          <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasPortions ? portionPrice : product.price)} kr</span>
                           {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
-                            <span className="text-sm font-normal text-amber-600 ml-1">
+                            <span className="text-[10px] sm:text-xs font-normal text-amber-600">
                               ≈ {product.approximateWeight || `${product.weightInGrams} g`}
                             </span>
                           )}
-                        </p>
-                        <p className="text-xs text-muted-foreground line-through">
-                          Ord. {formatPrice(hasPortions ? portionPrice : product.price)} kr
-                        </p>
+                        </div>
                       </div>
                     ) : (
-                      <p className="text-lg font-bold text-primary sm:text-xl">
-                        {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
-                        {hasPortions && selectedPortion !== 'hel' && (
-                          <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
-                            ({PORTION_LABELS[selectedPortion].toLowerCase()})
-                          </span>
-                        )}
+                      <>
+                        <p className="text-base font-bold text-primary sm:text-xl leading-tight">
+                          {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
+                          {hasPortions && selectedPortion !== 'hel' && (
+                            <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
+                              ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                            </span>
+                          )}
+                        </p>
                         {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
-                          <span className="text-sm font-normal text-amber-600 ml-1">
+                          <p className="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 leading-tight">
                             ≈ {product.approximateWeight || `${product.weightInGrams} g`}
-                          </span>
+                          </p>
                         )}
-                      </p>
+                      </>
                     )}
                   </>
                 )}
