@@ -38,6 +38,7 @@ interface PIMProduct {
 
     // Multiköp-erbjudanden (från PIM)
     multi_buy_offers?: { quantity: number; price: number }[];
+    multi_buy_group?: string;
 
     // Baksideinformation (från PIM-appen)
     backImageUrl?: string;
@@ -358,11 +359,23 @@ function parseUnit(kgSt?: string): string {
     return '/st';
 }
 
-// Parsa pristyp (kg/st) för ICA-inspirerad visning
-function parsePriceUnit(kgSt?: string): 'kg' | 'st' {
+// Parsa pristyp (kg/st/påse/pkt etc.) för ICA-inspirerad visning
+function parsePriceUnit(kgSt?: string): Product['priceUnit'] {
     if (!kgSt) return 'st';
     const normalized = kgSt.toLowerCase().trim();
-    return normalized === 'kg' || normalized.includes('kilo') ? 'kg' : 'st';
+    if (normalized === 'kg' || normalized.includes('kilo')) return 'kg';
+    if (normalized === 'påse') return 'påse';
+    if (normalized === 'pkt') return 'pkt';
+    if (normalized === 'kruka') return 'kruka';
+    if (normalized === 'knippe') return 'knippe';
+    if (normalized === 'ask') return 'ask';
+    if (normalized === 'korg') return 'korg';
+    if (normalized === 'låda') return 'låda';
+    if (normalized === 'nät') return 'nät';
+    if (normalized === 'förp') return 'förp';
+    if (normalized === 'fläta') return 'fläta';
+    if (normalized === 'flaska') return 'flaska';
+    return 'st';
 }
 
 // Parsa multiköp-erbjudanden ("2 st 29:-", "2 st 12:- & 3 st 15:-", "2 för 49 kr")
@@ -435,7 +448,7 @@ function transformProduct(pim: PIMProduct): Product {
         variety: pim.sort,
         tags: parseTags(pim.tags, pim.csvData?.['Symbol (Eko, FT etc)']),
         price,
-        salePrice: pim.sale_price || undefined,
+        salePrice: pim.sale_price ?? (pim.csvData?.['Rabatterat pris'] ? parseFloat(pim.csvData['Rabatterat pris']) || undefined : undefined),
         unit: parseUnit(kgSt),
         priceUnit: isWeightBased
             ? (pim.estimated_weight_g || pim.estimated_piece_price ? 'st' : 'kg')
@@ -448,7 +461,7 @@ function transformProduct(pim: PIMProduct): Product {
         multiOffers: pim.multi_buy_offers && pim.multi_buy_offers.length > 0
             ? pim.multi_buy_offers.map(o => ({ quantity: o.quantity, price: o.price, label: `${o.quantity} för ${o.price}:-` }))
             : parseMultiOffers(pim.csvData?.['Multi']),
-        multiBuyGroup: inferMultiBuyGroup(pim.display_name || pim.product_name, price),
+        multiBuyGroup: pim.multi_buy_group || undefined,
 
 
         origin: {

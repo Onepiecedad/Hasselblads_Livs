@@ -141,6 +141,14 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             {
                 name: "Övrigt skafferi",
                 detailCategories: ["Majonäs"]
+            },
+            {
+                name: "Knäckebröd & Skorpor",
+                detailCategories: []
+            },
+            {
+                name: "Grisini",
+                detailCategories: []
             }
         ]
     },
@@ -193,10 +201,6 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
             {
                 name: "Kakor",
                 detailCategories: ["Rullrån", "Maräng", "Amarettokaka"]
-            },
-            {
-                name: "Söta skorpor & matskorpor",
-                detailCategories: []
             }
         ]
     },
@@ -225,7 +229,7 @@ export const CATEGORY_HIERARCHY: Record<string, CategoryHierarchyItem> = {
                 detailCategories: ["Imsdal", "Ramlösa"]
             },
             {
-                name: "Kolsyrade söta drickor",
+                name: "Kolsyrad dryck",
                 detailCategories: ["It Cola", "Coca-Cola", "San Pellegrino", "Galvanina"]
             },
             {

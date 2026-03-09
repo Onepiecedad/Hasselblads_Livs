@@ -32,7 +32,7 @@ export type CartItem = {
   weightGrams?: number;  // Vikt i gram för kg-produkter (t.ex. 300 = 300g)
   woocommerce_id?: number; // WooCommerce product ID for checkout
   multiOffers?: { quantity: number; price: number; label: string }[]; // Alla erbjudanden produkten har
-  multiBuyGroup?: string; // Gruppnyckel för cross-product multiköp (t.ex. "avokado__19.9")
+  multiBuyGroup?: string; // Mix-and-match grupp (t.ex. "avokado")
   lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
 };
 
@@ -152,42 +152,71 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [state.items]);
 
   const computedItems = useMemo(() => {
-    // First pass: enrich items with live data
-    const enriched = state.items.map(item => {
+    // Step 1: Enrich items with live product data
+    const enrichedItems = state.items.map(item => {
       const liveProduct = products.find(p => p.id === item.productId);
-      const effectiveMultiOffers = liveProduct?.multiOffers || item.multiOffers;
-      const effectivePrice = liveProduct?.price || item.price;
-      const effectiveGroup = liveProduct?.multiBuyGroup || item.multiBuyGroup;
-      return { ...item, multiOffers: effectiveMultiOffers, price: effectivePrice, multiBuyGroup: effectiveGroup };
+      return {
+        ...item,
+        multiOffers: liveProduct?.multiOffers || item.multiOffers,
+        multiBuyGroup: liveProduct?.multiBuyGroup || item.multiBuyGroup,
+        price: liveProduct?.price || item.price,
+      };
     });
 
-    // Second pass: group items by multiBuyGroup and calculate line totals
-    // Build a map of group -> total quantity
-    const groupQty = new Map<string, number>();
-    for (const item of enriched) {
+    // Step 2: Group items by multiBuyGroup (only items that HAVE a group)
+    const groups = new Map<string, typeof enrichedItems>();
+    for (const item of enrichedItems) {
       if (item.multiBuyGroup) {
-        groupQty.set(item.multiBuyGroup, (groupQty.get(item.multiBuyGroup) || 0) + item.quantity);
+        const existing = groups.get(item.multiBuyGroup) || [];
+        existing.push(item);
+        groups.set(item.multiBuyGroup, existing);
       }
     }
 
-    return enriched.map(item => {
-      const offers = item.multiOffers;
-      if (!offers || offers.length === 0) {
+    // Step 3: Calculate line totals
+    // For grouped items, pool quantities and distribute discount proportionally
+    const groupLineTotals = new Map<string, Map<string, number>>();
+    for (const [groupName, groupItems] of groups) {
+      const totalGroupQty = groupItems.reduce((sum, i) => sum + i.quantity, 0);
+      // Use the first item's offers as the group offer (all items in group should have same offers)
+      const groupOffers = groupItems[0]?.multiOffers;
+
+      if (!groupOffers || groupOffers.length === 0 || totalGroupQty <= 0) {
+        // No offers — regular pricing for each item
+        const itemTotals = new Map<string, number>();
+        for (const item of groupItems) {
+          itemTotals.set(item.id, item.price * item.quantity);
+        }
+        groupLineTotals.set(groupName, itemTotals);
+        continue;
+      }
+
+      // Calculate group-level total using pooled quantity and average price
+      const totalGroupValue = groupItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+      const groupTotal = calculateLineTotal(totalGroupQty, totalGroupValue / totalGroupQty, groupOffers);
+
+      // Distribute proportionally based on each item's share of the group value
+      const itemTotals = new Map<string, number>();
+      for (const item of groupItems) {
+        const itemShare = totalGroupValue > 0 ? (item.price * item.quantity) / totalGroupValue : 0;
+        itemTotals.set(item.id, Math.round(groupTotal * itemShare * 100) / 100);
+      }
+      groupLineTotals.set(groupName, itemTotals);
+    }
+
+    // Step 4: Build final computed items
+    return enrichedItems.map(item => {
+      // Check if this item is part of a group
+      if (item.multiBuyGroup && groupLineTotals.has(item.multiBuyGroup)) {
+        const itemTotal = groupLineTotals.get(item.multiBuyGroup)!.get(item.id) ?? (item.price * item.quantity);
+        return { ...item, lineTotal: itemTotal };
+      }
+
+      // Non-grouped items: regular calculation
+      if (!item.multiOffers || item.multiOffers.length === 0) {
         return { ...item, lineTotal: item.price * item.quantity };
       }
-
-      if (item.multiBuyGroup && groupQty.has(item.multiBuyGroup)) {
-        // Cross-product multi-buy: use the GROUP total quantity for pricing
-        const totalGroupQty = groupQty.get(item.multiBuyGroup)!;
-        const groupTotal = calculateLineTotal(totalGroupQty, item.price, offers);
-        // Distribute proportionally: this item's share = (item.quantity / totalGroupQty) * groupTotal
-        const lineTotal = Math.round((item.quantity / totalGroupQty) * groupTotal * 100) / 100;
-        return { ...item, lineTotal };
-      }
-
-      // Regular per-item multi-buy
-      const lineTotal = calculateLineTotal(item.quantity, item.price, offers);
-      return { ...item, lineTotal };
+      return { ...item, lineTotal: calculateLineTotal(item.quantity, item.price, item.multiOffers) };
     });
   }, [state.items, products]);
 

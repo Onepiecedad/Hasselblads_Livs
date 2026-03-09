@@ -51,14 +51,14 @@ export type Product = {
   price: number;
   salePrice?: number;            // Rabatterat pris (extrapris/rea)
   unit: string;
-  priceUnit?: 'kg' | 'st';       // Raw unit type for display
+  priceUnit?: 'kg' | 'st' | 'påse' | 'pkt' | 'kruka' | 'knippe' | 'ask' | 'korg' | 'låda' | 'nät' | 'förp' | 'fläta' | 'flaska';  // Enhet från PIM
   pricingType?: 'unit_based' | 'weight_based'; // Pristyp från PIM
   pricePerKg?: number;           // Kg-pris (visas som sekundär info för viktbaserade)
   estimatedWeightG?: number;     // Uppskattad vikt i gram (för viktbaserade produkter)
   approximateWeight?: string;    // e.g., "ca 150g" for piece items
   weightInGrams?: number;        // Weight in grams from CSV "Vikt i gram"
   multiOffers?: MultiOffer[];    // Multiköp-erbjudanden, t.ex. "2 för 29:-"
-  multiBuyGroup?: string;        // Gruppnyckel för cross-product multiköp (familj__pris)
+  multiBuyGroup?: string;        // Mix-and-match grupp (t.ex. "avokado") — produkter i samma grupp delar rabatt
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout

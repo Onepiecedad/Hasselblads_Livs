@@ -24,7 +24,7 @@ export type QuickViewProduct = {
   price: number;
   salePrice?: number;
   unit: string;
-  priceUnit?: 'kg' | 'st';
+  priceUnit?: 'kg' | 'st' | 'påse' | 'pkt' | 'kruka' | 'knippe' | 'ask' | 'korg' | 'låda' | 'nät' | 'förp' | 'fläta' | 'flaska';
   pricingType?: 'unit_based' | 'weight_based';
   pricePerKg?: number;
   estimatedWeightG?: number;
@@ -164,7 +164,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   };
 
   // Calculate estimated weight/price for per-piece items
-  const isPieceItem = product?.priceUnit === 'st';
+  const isPieceItem = product?.priceUnit !== 'kg';
   const weightPerUnit = product?.approximateWeight
     ? parseWeight(product.approximateWeight)
     : (product?.weightInGrams ?? null);
@@ -175,7 +175,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   // Unit display label
   const unitLabel = product?.pricingType === 'weight_based'
     ? 'per st (viktpris)'
-    : isKgProduct ? 'per kg' : 'per st';
+    : isKgProduct ? 'per kg' : `per ${product?.priceUnit || 'st'}`;
 
   // Total price for kg products (weight × quantity)
   const kgTotalPrice = isKgProduct ? weightPrice * quantity : 0;

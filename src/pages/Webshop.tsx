@@ -631,7 +631,6 @@ const Webshop = () => {
                 onAddToCart={(product, quantity, portion, weightGrams, multiOffer) => {
                     handleAddToCart(product as Product, quantity, portion, weightGrams, multiOffer);
                     setQuickViewOpen(false);
-                    setOpen(true);
                 }}
                 returnFocusRef={returnFocusRef}
             />

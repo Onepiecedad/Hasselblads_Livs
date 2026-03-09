@@ -17,7 +17,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
-  const [showQuantity, setShowQuantity] = useState(false);
+
   const [isFlipped, setIsFlipped] = useState(false);
 
   // Portionsval
@@ -85,17 +85,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     setIsFlipped(!isFlipped);
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (showQuantity) {
-      const autoOffer = getAutoOffer(quantity, product.multiOffers);
-      onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
-      setQuantity(1);
-      setShowQuantity(false);
-    } else {
-      setShowQuantity(true);
-    }
-  };
+
 
   const handleQuantityChange = (e: React.MouseEvent, delta: number) => {
     e.stopPropagation();
@@ -107,7 +97,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     const autoOffer = getAutoOffer(quantity, product.multiOffers);
     onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
-    setShowQuantity(false);
   };
 
   return (
@@ -150,9 +139,26 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
               </button>
             )}
 
+
+
+            {/* Origin flag - small badge in corner */}
+            {product.origin?.flag && !hasBackInfo && (
+              <div className="absolute right-2 top-2 z-10" title={product.origin.country} aria-label={`Ursprung: ${product.origin.country}`}>
+                <img
+                  src={`https://flagcdn.com/w40/${product.origin.flag}.png`}
+                  srcSet={`https://flagcdn.com/w80/${product.origin.flag}.png 2x`}
+                  alt={product.origin.country || 'Country'}
+                  className="w-6 h-auto drop-shadow-sm rounded-[1px]"
+                  loading="lazy"
+                />
+              </div>
+            )}
+          </div>
+
+          <CardContent className="flex flex-1 flex-col p-2 sm:p-5">
             {/* Tags */}
             {displayTags.length > 0 && (
-              <div className="absolute left-3 top-3 flex flex-wrap gap-1 z-10">
+              <div className="flex flex-wrap gap-1 mb-2">
                 {displayTags.map((tag, i) => (
                   <Badge
                     key={i}
@@ -174,22 +180,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 ))}
               </div>
             )}
-
-            {/* Origin flag - small badge in corner */}
-            {product.origin?.flag && !hasBackInfo && (
-              <div className="absolute right-2 top-2 z-10" title={product.origin.country} aria-label={`Ursprung: ${product.origin.country}`}>
-                <img
-                  src={`https://flagcdn.com/w40/${product.origin.flag}.png`}
-                  srcSet={`https://flagcdn.com/w80/${product.origin.flag}.png 2x`}
-                  alt={product.origin.country || 'Country'}
-                  className="w-6 h-auto drop-shadow-sm rounded-[1px]"
-                  loading="lazy"
-                />
-              </div>
-            )}
-          </div>
-
-          <CardContent className="flex flex-1 flex-col p-2 sm:p-5">
             <div className="flex-1 space-y-1.5">
               <div className="flex justify-between items-start gap-2">
                 {product.brand && (
@@ -283,6 +273,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                           <span className="ml-1.5 text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full align-middle">
                             REA
                           </span>
+                          {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
+                            <span className="text-sm font-normal text-amber-600 ml-1">
+                              ≈ {product.approximateWeight || `${product.weightInGrams} g`}
+                            </span>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground line-through">
                           Ord. {formatPrice(hasPortions ? portionPrice : product.price)} kr
@@ -294,6 +289,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         {hasPortions && selectedPortion !== 'hel' && (
                           <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
                             ({PORTION_LABELS[selectedPortion].toLowerCase()})
+                          </span>
+                        )}
+                        {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
+                          <span className="text-sm font-normal text-amber-600 ml-1">
+                            ≈ {product.approximateWeight || `${product.weightInGrams} g`}
                           </span>
                         )}
                       </p>
@@ -327,51 +327,39 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 )}
               </div>
 
-              {/* Quantity selector or Add button */}
-              {showQuantity ? (
-                <div
-                  className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                    onClick={(e) => handleQuantityChange(e, -1)}
-                    aria-label="Minska antal"
-                  >
-                    <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  </Button>
-                  <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
-                    onClick={(e) => handleQuantityChange(e, 1)}
-                    aria-label="Öka antal"
-                  >
-                    <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
-                    onClick={handleConfirmAdd}
-                    aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
-                  >
-                    <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  </Button>
-                </div>
-              ) : (
+              {/* Quantity selector + Add button (always visible) */}
+              <div
+                className="flex items-center gap-1 bg-muted/50 rounded-full p-0.5"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="rounded-full h-8 w-8 bg-primary/10 hover:bg-primary hover:text-primary-foreground transition-colors sm:h-10 sm:w-10"
-                  aria-label={`Lägg ${product.name} i varukorgen`}
-                  onClick={handleAddToCart}
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                  onClick={(e) => handleQuantityChange(e, -1)}
+                  aria-label="Minska antal"
                 >
-                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </Button>
-              )}
+                <span className="w-5 sm:w-6 text-center text-xs sm:text-sm font-semibold">{quantity}</span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full"
+                  onClick={(e) => handleQuantityChange(e, 1)}
+                  aria-label="Öka antal"
+                >
+                  <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </Button>
+                <Button
+                  size="icon"
+                  className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-primary hover:bg-primary/90"
+                  onClick={handleConfirmAdd}
+                  aria-label={`Lägg ${quantity} ${product.name} i varukorgen`}
+                >
+                  <ShoppingCart className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
