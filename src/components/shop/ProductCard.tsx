@@ -237,9 +237,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   <span className="ml-1.5 text-xs sm:text-sm font-normal text-muted-foreground">{product.variety}</span>
                 )}
               </h3>
-              {product.description && (
-                <p className="hidden sm:block text-xs text-muted-foreground/70 line-clamp-2 leading-relaxed sm:text-sm">{product.description}</p>
-              )}
             </div>
 
             {/* Portionsväljare (pill-knappar) */}
