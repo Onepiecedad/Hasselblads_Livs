@@ -417,6 +417,15 @@ function inferMultiBuyGroup(name: string, price: number): string | undefined {
     return undefined;
 }
 
+function sanitizeProductName(name?: string | null): string {
+    if (!name) return '';
+
+    return name
+        .trim()
+        // Strip stray leading quote characters from dirty source data.
+        .replace(/^[`'‘’"“”]+\s*/, '');
+}
+
 // Transformera PIM-produkt till hemsidans format
 function transformProduct(pim: PIMProduct): Product {
     // Normalisera ursprungsland (hantera smutsig data: "Eko, Sverige" → "Sverige", "-" → "")
@@ -446,7 +455,7 @@ function transformProduct(pim: PIMProduct): Product {
 
     return {
         id: pim.id,
-        name: pim.display_name || pim.product_name,
+        name: sanitizeProductName(pim.display_name || pim.product_name),
         description: pim.description || '',
         category: mapCategory(mainCategory),
         subcategory: extractSubcategory(mainCategory, pim.sub_category),

@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER } from "@/context/CartContext";
-import { type MultiOffer, getAutoOffer, calculateLineTotal } from "@/lib/products";
+import { type MultiOffer, getAutoOffer, calculateLineTotal, getEffectiveUnitPrice } from "@/lib/products";
 
 export type QuickViewProduct = {
   id: string;
@@ -82,8 +82,21 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
 
   const portionPrice = useMemo(() => {
     if (!product) return 0;
+    const effectiveUnitPrice = getEffectiveUnitPrice(product);
+    if (!hasPortions) return effectiveUnitPrice;
+    return Math.round(effectiveUnitPrice * PORTION_MULTIPLIERS[selectedPortion]);
+  }, [product, selectedPortion, hasPortions]);
+
+  const regularPortionPrice = useMemo(() => {
+    if (!product) return 0;
     if (!hasPortions) return product.price;
     return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
+  }, [product, selectedPortion, hasPortions]);
+
+  const salePortionPrice = useMemo(() => {
+    if (!product?.salePrice || product.salePrice >= product.price) return undefined;
+    if (!hasPortions) return product.salePrice;
+    return Math.round(product.salePrice * PORTION_MULTIPLIERS[selectedPortion]);
   }, [product, selectedPortion, hasPortions]);
 
   // For kg products, calculate price based on selected weight
@@ -92,8 +105,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     return Math.round((product.price / 1000) * selectedWeight * 100) / 100;
   }, [product, isKgProduct, selectedWeight]);
 
-  const effectivePrice = (product?.salePrice && product.salePrice < (product?.price ?? 0)) ? product.salePrice : (product?.price ?? 0);
-  const displayPrice = isKgProduct ? weightPrice : (hasPortions ? portionPrice : effectivePrice);
+  const displayPrice = isKgProduct ? weightPrice : (salePortionPrice ?? regularPortionPrice);
 
   // Browser back button support: push history state when opening
   useEffect(() => {
@@ -290,45 +302,59 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     )}
 
                     {/* Price */}
-                    <div className="flex items-baseline gap-2">
+                    <div className="space-y-2">
                       {isKgProduct ? (
-                        <>
+                        <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
                           <span className="text-3xl font-bold text-primary">≈ {formatPrice(weightPrice)}</span>
                           <span className="text-xl text-muted-foreground">kr</span>
                           <span className="text-sm text-muted-foreground">/ {selectedWeight} g</span>
-                        </>
+                        </div>
                       ) : product.pricingType === 'weight_based' ? (
                         product.salePrice && product.salePrice < product.price ? (
                           <>
-                            <span className="text-3xl font-bold text-rose-600">ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)}</span>
-                            <span className="text-xl text-muted-foreground">kr/st</span>
-                            <span className="ml-2 text-xs font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded-full">REA</span>
-                            <span className="text-base text-muted-foreground line-through ml-2">Ord. ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st</span>
+                            <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
+                              <span className="text-3xl font-bold text-rose-600">ca {formatPrice(salePortionPrice ?? product.salePrice)}</span>
+                              <span className="text-xl text-muted-foreground">kr/st</span>
+                              <span className="rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-600">REA</span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                              <span className="line-through">Ord. ca {formatPrice(regularPortionPrice)} kr/st</span>
+                              {hasPortions && selectedPortion !== 'hel' && (
+                                <span>({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
+                              )}
+                            </div>
                           </>
                         ) : (
-                          <>
-                            <span className="text-3xl font-bold text-primary">ca {formatPrice(hasPortions ? portionPrice : product.price)}</span>
+                          <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
+                            <span className="text-3xl font-bold text-primary">ca {formatPrice(regularPortionPrice)}</span>
                             <span className="text-xl text-muted-foreground">kr/st</span>
                             {hasPortions && selectedPortion !== 'hel' && (
                               <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                             )}
-                          </>
+                          </div>
                         )
-                      ) : product.salePrice && product.salePrice < product.price ? (
+                      ) : salePortionPrice ? (
                         <>
-                          <span className="text-3xl font-bold text-rose-600">{formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)}</span>
-                          <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
-                          <span className="ml-2 text-xs font-bold bg-rose-100 text-rose-600 px-2 py-1 rounded-full">REA</span>
-                          <span className="text-base text-muted-foreground line-through ml-2">Ord. {formatPrice(displayPrice)} kr</span>
+                          <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
+                            <span className="text-3xl font-bold text-rose-600">{formatPrice(salePortionPrice)}</span>
+                            <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
+                            <span className="rounded-full bg-rose-100 px-2 py-1 text-xs font-bold text-rose-600">REA</span>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+                            <span className="line-through">Ord. {formatPrice(regularPortionPrice)} kr/{product.priceUnit || 'st'}</span>
+                            {hasPortions && selectedPortion !== 'hel' && (
+                              <span>({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
+                            )}
+                          </div>
                         </>
                       ) : (
-                        <>
+                        <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
                           <span className="text-3xl font-bold text-primary">{formatPrice(displayPrice)}</span>
                           <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
                           {hasPortions && selectedPortion !== 'hel' && (
                             <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                           )}
-                        </>
+                        </div>
                       )}
                     </div>
 

@@ -15,6 +15,28 @@ interface ProductCardProps {
   setQuickViewButtonRef?: (node: HTMLElement | null) => void;
 }
 
+function formatApproximateWeight(weight: string | number): string {
+  if (typeof weight === "number") {
+    return `${weight} g`;
+  }
+
+  return weight;
+}
+
+function scaleApproximateWeight(weight: string, multiplier: number): string {
+  const match = weight.match(/(\d+(?:[.,]\d+)?)\s*(g|kg)/i);
+  if (!match) return weight;
+
+  const rawValue = Number.parseFloat(match[1].replace(",", "."));
+  if (Number.isNaN(rawValue)) return weight;
+
+  const unit = match[2].toLowerCase();
+  const grams = unit === "kg" ? rawValue * 1000 : rawValue;
+  const scaledGrams = Math.round(grams * multiplier);
+
+  return formatApproximateWeight(scaledGrams >= 1000 ? `${(scaledGrams / 1000).toFixed(1).replace(".0", "")} kg` : `${scaledGrams} g`);
+}
+
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
 
@@ -29,11 +51,27 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
   const isKgProduct = product.priceUnit === 'kg' && product.pricingType !== 'weight_based';
   const defaultWeight = 200;
+  const portionMultiplier = PORTION_MULTIPLIERS[selectedPortion] ?? 1;
 
   const portionPrice = useMemo(() => {
     if (!hasPortions) return product.price;
-    return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
-  }, [product.price, selectedPortion, hasPortions]);
+    return Math.round(product.price * portionMultiplier);
+  }, [product.price, portionMultiplier, hasPortions]);
+
+  const displayedEstimatedWeight = useMemo(() => {
+    if (!product.estimatedWeightG) return undefined;
+    return Math.round(product.estimatedWeightG * portionMultiplier) * quantity;
+  }, [product.estimatedWeightG, portionMultiplier, quantity]);
+
+  const displayedApproximateWeight = useMemo(() => {
+    if (product.weightInGrams) {
+      return formatApproximateWeight(Math.round(product.weightInGrams * portionMultiplier) * quantity);
+    }
+    if (product.approximateWeight) {
+      return scaleApproximateWeight(product.approximateWeight, portionMultiplier * quantity);
+    }
+    return undefined;
+  }, [product.weightInGrams, product.approximateWeight, portionMultiplier, quantity]);
 
   // Kolla om produkten har baksideinformation
   const hasBackInfo = product.backImageUrl || product.ingredients || product.allergens?.length || product.nutritionData;
@@ -242,7 +280,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                             <span className="line-through ml-1">{formatPrice(product.pricePerKg)} kr/kg</span>
                           )}
                           {(product.salePricePerKg || product.pricePerKg) && product.estimatedWeightG ? ' · ' : ''}
-                          {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
+                          {displayedEstimatedWeight ? `≈ ${displayedEstimatedWeight} g` : ''}
                         </p>
                       )}
                     </div>
@@ -260,7 +298,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
                           {product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''}
                           {product.pricePerKg && product.estimatedWeightG ? ' · ' : ''}
-                          {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
+                          {displayedEstimatedWeight ? `≈ ${displayedEstimatedWeight} g` : ''}
                         </p>
                       )}
                     </>
@@ -275,9 +313,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                           <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
                           <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasPortions ? portionPrice : product.price)} kr</span>
-                          {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
+                          {(product.approximateWeight || product.weightInGrams) && product.priceUnit !== 'kg' && (
                             <span className="text-[10px] sm:text-xs font-normal text-amber-600">
-                              ≈ {product.weightInGrams ? `${product.weightInGrams * quantity} g` : product.approximateWeight}
+                              ≈ {displayedApproximateWeight}
                             </span>
                           )}
                         </div>
@@ -292,9 +330,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                             </span>
                           )}
                         </p>
-                        {!hasPortions && product.priceUnit !== 'kg' && (product.approximateWeight || product.weightInGrams) && (
+                        {(product.approximateWeight || product.weightInGrams) && product.priceUnit !== 'kg' && (
                           <p className="text-[10px] sm:text-xs font-normal text-amber-600 mt-0.5 leading-tight">
-                            ≈ {product.weightInGrams ? `${product.weightInGrams * quantity} g` : product.approximateWeight}
+                            ≈ {displayedApproximateWeight}
                           </p>
                         )}
                       </>
