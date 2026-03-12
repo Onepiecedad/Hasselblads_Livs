@@ -56,6 +56,13 @@
   status = 200
   force = true
 
+# Order confirmation must use /kassan/ (WP redirects /kassa/order-received → /kassan/ causing a loop)
+[[redirects]]
+  from = "/betalning/order-received/*"
+  to = "/.netlify/functions/wordpress-proxy/kassan/order-received/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/betalning/*"
   to = "/.netlify/functions/wordpress-proxy/kassa/:splat"

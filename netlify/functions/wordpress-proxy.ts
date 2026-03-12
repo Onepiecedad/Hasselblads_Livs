@@ -55,7 +55,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
   // Netlify functions receive the ORIGINAL request URL (before _redirects rewriting),
   // so /betalning arrives as-is but WordPress's checkout page slug is /kassan/.
   const PATH_ALIASES: Record<string, string> = {
-    "/betalning": "/kassan/",
+    "/betalning": "/kassan",
   };
   const aliasMatch = Object.keys(PATH_ALIASES).find(alias =>
     targetPath === alias || targetPath.startsWith(alias + "/")
@@ -210,7 +210,20 @@ export default async (request: Request, context: Context): Promise<Response> => 
           } else if (Array.isArray(value)) {
             responseHeaders.set(key, value.join(", "));
           } else if (typeof value === "string") {
-            responseHeaders.set(key, value);
+            // Rewrite Location headers to prevent redirect loops:
+            // WordPress redirects to /kassan/ or /kassa/ but Netlify's
+            // external-facing path is /betalning/. Without this rewrite,
+            // WP → /kassan/ → Netlify 301 → /betalning/ → proxy → /kassan/ → loop
+            if (lowerKey === "location") {
+              let location = value;
+              // Strip absolute WordPress URLs to relative paths
+              location = location.replace(/^https?:\/\/hasselbladslivs\.se/, "");
+              // Rewrite /kassan/ and /kassa/ paths to /betalning/
+              location = location.replace(/^\/(kassan|kassa)(\/|$)/, "/betalning$2");
+              responseHeaders.set(key, location);
+            } else {
+              responseHeaders.set(key, value);
+            }
           }
         }
 

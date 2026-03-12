@@ -6,6 +6,8 @@
 # WooCommerce final checkout and cart - proxy to WordPress
 /wp-content/*  /.netlify/functions/wordpress-proxy/wp-content/:splat  200!
 /wp-includes/* /.netlify/functions/wordpress-proxy/wp-includes/:splat 200!
+# Order confirmation must use /kassan/ (WP redirects /kassa/order-received → /kassan/ causing a loop)
+/betalning/order-received/*  /.netlify/functions/wordpress-proxy/kassan/order-received/:splat  200!
 /betalning       /.netlify/functions/wordpress-proxy/kassa            200!
 /betalning/      /.netlify/functions/wordpress-proxy/kassa/           200!
 /betalning/*     /.netlify/functions/wordpress-proxy/kassa/:splat     200!
