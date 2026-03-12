@@ -369,6 +369,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
   var note = ${safeNote};
   var maxAttempts = 40;
   var attempts = 0;
+  var multiBuyLines = note
+    .split('\\n')
+    .map(function(line) { return line.trim(); })
+    .filter(function(line) {
+      return line.indexOf('• ') === 0 && /(?:^|\\|\\s)\\d+\\s*för\\s*\\d+/i.test(line);
+    });
 
   function setReactValue(el, value) {
     var setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
@@ -377,8 +383,69 @@ export default async (request: Request, context: Context): Promise<Response> => 
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  function ensureMultiBuyNotice() {
+    if (!multiBuyLines.length || document.getElementById('hbl-multibuy-context')) {
+      return;
+    }
+
+    var host =
+      document.querySelector('.wc-block-checkout__sidebar') ||
+      document.querySelector('.wc-block-checkout') ||
+      document.querySelector('form.checkout') ||
+      document.body;
+
+    if (!host) {
+      return;
+    }
+
+    var notice = document.createElement('section');
+    notice.id = 'hbl-multibuy-context';
+    notice.style.border = '1px solid rgba(249, 115, 22, 0.25)';
+    notice.style.background = 'rgba(255, 237, 213, 0.5)';
+    notice.style.borderRadius = '16px';
+    notice.style.padding = '16px';
+    notice.style.marginBottom = '16px';
+
+    var heading = document.createElement('h3');
+    heading.textContent = 'Multiköp från pre-checkout';
+    heading.style.fontSize = '16px';
+    heading.style.fontWeight = '600';
+    heading.style.margin = '0 0 8px 0';
+    notice.appendChild(heading);
+
+    var intro = document.createElement('p');
+    intro.textContent = 'Följande kampanjrader visades i React-kassan innan handoff:';
+    intro.style.fontSize = '14px';
+    intro.style.margin = '0 0 10px 0';
+    intro.style.color = 'rgba(87, 83, 78, 1)';
+    notice.appendChild(intro);
+
+    var list = document.createElement('ul');
+    list.style.margin = '0';
+    list.style.paddingLeft = '18px';
+    list.style.fontSize = '14px';
+    list.style.color = 'rgba(68, 64, 60, 1)';
+    multiBuyLines.forEach(function(line) {
+      var item = document.createElement('li');
+      item.textContent = line.replace(/^•\\s*/, '');
+      item.style.marginBottom = '6px';
+      list.appendChild(item);
+    });
+    notice.appendChild(list);
+
+    var footnote = document.createElement('p');
+    footnote.textContent = 'Denna ruta bevarar multiköpskontext från pre-checkout. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.';
+    footnote.style.fontSize = '12px';
+    footnote.style.margin = '10px 0 0 0';
+    footnote.style.color = 'rgba(120, 113, 108, 1)';
+    notice.appendChild(footnote);
+
+    host.insertBefore(notice, host.firstChild);
+  }
+
   function fill() {
     attempts++;
+    ensureMultiBuyNotice();
     // 1. Try the classic WooCommerce ID first (shortcode-based checkout)
     var classic = document.getElementById('order_comments');
     if (classic) {
@@ -412,6 +479,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
   }
 
   function fillTextarea() {
+    ensureMultiBuyNotice();
     var ta = document.querySelector('textarea.wc-block-components-textarea');
     if (!ta) {
       // Also try the classic ID as fallback
