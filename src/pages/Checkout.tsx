@@ -1,4 +1,4 @@
-import { FormEvent, useState, useCallback, useMemo } from "react";
+import { FormEvent, useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -6,17 +6,23 @@ import { addItemsAndRedirectToCheckout, authenticateAndCheckout } from "@/lib/wo
 import {
     DELIVERY_AREAS,
     PICKUP_INFO,
+    PRECHECKOUT_CONTENT,
     matchDeliveryAddress,
     getAvailableDeliveryDates,
     formatDeliveryDate,
     type StreetMatch,
 } from "@/lib/deliveryAreas";
 import usePageMetadata from "@/hooks/usePageMetadata";
+import {
+    FREE_HOME_DELIVERY_THRESHOLD,
+    HOME_DELIVERY_FEE,
+    qualifiesForFreeHomeDelivery,
+} from "@/lib/shipping";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { formatPrice } from "@/lib/utils";
-import { getAutoOffer } from "@/lib/products";
 import {
     Truck,
     Store,
@@ -89,26 +95,52 @@ function StepIndicator({ currentStep, method }: { currentStep: number; method?: 
     );
 }
 
-// ─── Main component ───
-const Checkout = () => {
+// React pre-checkout only. Final payment and order placement happen in WooCommerce.
+const PreCheckoutPage = () => {
     usePageMetadata({
         title: "Kassa | Hasselblads Livs",
-        description: "Välj leveranssätt och slutför din beställning.",
+        description: "Välj leveranssätt innan du skickas vidare till betalning.",
         canonicalPath: "/kassa",
     });
 
     const navigate = useNavigate();
-    const { items, subtotal, shippingFee, total, clearCart } = useCart();
+    const { items, subtotal, shippingFee, total, clearCart, updateQuantity, removeItem } = useCart();
     const { user } = useAuth();
     const hasItems = items.length > 0;
+    const invalidCheckoutItems = useMemo(
+        () => items.filter((item) => typeof item.woocommerce_id !== "number" || item.woocommerce_id <= 0),
+        [items]
+    );
+    const checkoutBlockedMessage = invalidCheckoutItems.length > 0
+        ? `Följande varor kan inte skickas vidare till betalning just nu: ${invalidCheckoutItems.map((item) => item.name).join(", ")}. Ta bort dem ur varukorgen eller försök igen senare.`
+        : null;
+    const getCheckoutFailureMessage = useCallback((error: unknown) => {
+        const details = error instanceof Error && error.message
+            ? error.message
+            : "";
+        const shouldShowDetails = details.includes("woocommerce_id");
+        const baseMessage = "Det gick inte att starta betalningen just nu.";
+
+        return shouldShowDetails
+            ? `${baseMessage} ${details} Din varukorg är fortfarande sparad. Försök igen om en stund.`
+            : `${baseMessage} Din varukorg är fortfarande sparad. Försök igen om en stund.`;
+    }, []);
 
     const [step, setStep] = useState(0);
     const [selection, setSelection] = useState<DeliverySelection>({ method: "delivery" });
     const [addressInput, setAddressInput] = useState("");
+    const [orderComment, setOrderComment] = useState("");
     const [addressError, setAddressError] = useState<string | null>(null);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
 
     const deliveryDates = useMemo(() => getAvailableDeliveryDates(5), []);
+
+    useEffect(() => {
+        if (!checkoutBlockedMessage) {
+            setCheckoutError(null);
+        }
+    }, [checkoutBlockedMessage]);
 
     // ─── Step navigation ───
     const goNext = useCallback(() => {
@@ -156,8 +188,14 @@ const Checkout = () => {
         [addressInput, goNext]
     );
 
-    // ─── Final checkout ───
+    // ─── Handoff to WooCommerce final checkout ───
     const handleCheckout = useCallback(async () => {
+        if (checkoutBlockedMessage) {
+            setCheckoutError(checkoutBlockedMessage);
+            return;
+        }
+
+        setCheckoutError(null);
         setIsRedirecting(true);
 
         // Build order note
@@ -171,6 +209,31 @@ const Checkout = () => {
             lines.push(`📍 ${PICKUP_INFO.address}`);
             lines.push(`🕐 ${selection.date ? formatDeliveryDate(selection.date) : ""}`);
         }
+        const handoffLineContext = items.map((item) => {
+            const labelParts = [item.name];
+
+            if (item.portionLabel && item.portionLabel !== "Hel") {
+                labelParts.push(`(${item.portionLabel.toLowerCase()})`);
+            }
+
+            const contextParts = [`${item.quantity} st`, `${formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr`];
+
+            if (item.appliedOfferLabel) {
+                contextParts.push(item.appliedOfferLabel);
+            }
+
+            return `• ${labelParts.join(" ")} - ${contextParts.join(" | ")}`;
+        });
+
+        if (handoffLineContext.length > 0) {
+            lines.push("");
+            lines.push("🧾 Sammanfattning från pre-checkout:");
+            lines.push(...handoffLineContext);
+        }
+        if (orderComment.trim()) {
+            lines.push("");
+            lines.push(`💬 Kommentar: ${orderComment.trim()}`);
+        }
         const deliveryNote = lines.join("\n");
 
         if (user) {
@@ -179,12 +242,24 @@ const Checkout = () => {
                 await authenticateAndCheckout(items, token, clearCart, deliveryNote);
             } catch (error) {
                 console.error("Failed to get Firebase token", error);
-                await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+                try {
+                    await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+                } catch (guestCheckoutError) {
+                    console.error("Failed to start guest checkout", guestCheckoutError);
+                    setCheckoutError(checkoutBlockedMessage ?? getCheckoutFailureMessage(guestCheckoutError));
+                    setIsRedirecting(false);
+                }
             }
         } else {
-            await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+            try {
+                await addItemsAndRedirectToCheckout(items, clearCart, deliveryNote);
+            } catch (guestCheckoutError) {
+                console.error("Failed to start checkout", guestCheckoutError);
+                setCheckoutError(checkoutBlockedMessage ?? getCheckoutFailureMessage(guestCheckoutError));
+                setIsRedirecting(false);
+            }
         }
-    }, [selection, items, clearCart, user]);
+    }, [selection, items, clearCart, user, checkoutBlockedMessage, orderComment, getCheckoutFailureMessage]);
 
     // ─── Empty cart ───
     if (!hasItems && !isRedirecting) {
@@ -217,6 +292,9 @@ const Checkout = () => {
                     <h2 className="text-2xl font-bold mb-2">Skickar till betalning...</h2>
                     <p className="text-muted-foreground">
                         Du skickas nu till vår säkra betalningslösning.
+                    </p>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                        Om handoffen inte går igenom kommer du tillbaka hit och din varukorg ligger kvar.
                     </p>
                 </div>
             </div>
@@ -252,7 +330,7 @@ const Checkout = () => {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    setSelection((prev) => ({ ...prev, method: "delivery" }));
+                                    setSelection({ method: "delivery" });
                                 }}
                                 className={`w-full rounded-2xl border-2 p-5 text-left transition-all hover:shadow-md ${selection.method === "delivery"
                                     ? "border-primary bg-primary/5 shadow-sm"
@@ -264,15 +342,15 @@ const Checkout = () => {
                                         <Truck className={`h-6 w-6 ${selection.method === "delivery" ? "text-primary" : "text-muted-foreground"}`} />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-lg">Hemleverans</p>
+                                        <p className="font-semibold text-lg">{PRECHECKOUT_CONTENT.delivery.label}</p>
                                         <p className="text-sm text-muted-foreground mt-1">
-                                            Vi levererar till Solängen ({DELIVERY_AREAS[0].deliveryTime}) och Malevik ({DELIVERY_AREAS[1].deliveryTime}), måndag–fredag.
+                                            {PRECHECKOUT_CONTENT.delivery.introText}
                                         </p>
                                         <p className="text-sm text-muted-foreground mt-1">
-                                            {subtotal >= 600 ? (
+                                            {qualifiesForFreeHomeDelivery(subtotal) ? (
                                                 <span className="text-green-600 font-medium">✨ Fri frakt!</span>
                                             ) : (
-                                                <>Frakt: 49 kr (fri vid 600 kr)</>
+                                                <>Frakt: {HOME_DELIVERY_FEE} kr (fri vid {FREE_HOME_DELIVERY_THRESHOLD} kr)</>
                                             )}
                                         </p>
                                     </div>
@@ -285,7 +363,9 @@ const Checkout = () => {
                             <button
                                 type="button"
                                 onClick={() => {
-                                    setSelection((prev) => ({ ...prev, method: "pickup" }));
+                                    setSelection({ method: "pickup" });
+                                    setAddressInput("");
+                                    setAddressError(null);
                                 }}
                                 className={`w-full rounded-2xl border-2 p-5 text-left transition-all hover:shadow-md ${selection.method === "pickup"
                                     ? "border-primary bg-primary/5 shadow-sm"
@@ -297,9 +377,9 @@ const Checkout = () => {
                                         <Store className={`h-6 w-6 ${selection.method === "pickup" ? "text-primary" : "text-muted-foreground"}`} />
                                     </div>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-lg">Hämta i butik</p>
+                                        <p className="font-semibold text-lg">{PRECHECKOUT_CONTENT.pickup.label}</p>
                                         <p className="text-sm text-muted-foreground mt-1">
-                                            {PICKUP_INFO.address}
+                                            {PRECHECKOUT_CONTENT.pickup.address}
                                         </p>
                                         <p className="text-sm text-muted-foreground mt-1">
                                             <span className="text-green-600 font-medium">Alltid gratis</span>
@@ -328,7 +408,7 @@ const Checkout = () => {
                         <div className="space-y-4">
                             <h2 className="text-xl font-bold text-center mb-2">Ange din leveransadress</h2>
                             <p className="text-center text-muted-foreground text-sm mb-6">
-                                Vi levererar till Solängen och Malevik. Ange din gatuadress så kontrollerar vi.
+                                {PRECHECKOUT_CONTENT.delivery.addressPromptText}
                             </p>
 
                             <form onSubmit={handleAddressSubmit} className="space-y-4">
@@ -389,7 +469,7 @@ const Checkout = () => {
                             )}
                             {selection.method === "pickup" && (
                                 <p className="text-center text-sm text-muted-foreground mb-6">
-                                    Hämta på <strong>{PICKUP_INFO.address}</strong>
+                                    Hämta på <strong>{PRECHECKOUT_CONTENT.pickup.address}</strong>
                                 </p>
                             )}
 
@@ -400,7 +480,7 @@ const Checkout = () => {
                                     const timeSlot =
                                         selection.method === "delivery" && selection.streetMatch
                                             ? selection.streetMatch.area.deliveryTime
-                                            : "från kl 10";
+                                            : PRECHECKOUT_CONTENT.pickup.readyTimeText;
 
                                     return (
                                         <button
@@ -436,7 +516,7 @@ const Checkout = () => {
                             </div>
 
                             <p className="text-xs text-muted-foreground text-center mt-2">
-                                Beställning senast kl 18:00 dagen innan leverans.
+                                {PRECHECKOUT_CONTENT.delivery.cutoffText}
                             </p>
 
                             <div className="flex justify-between pt-4">
@@ -466,9 +546,9 @@ const Checkout = () => {
                             <div className="rounded-2xl border border-border/70 bg-card p-6 space-y-4">
                                 <h3 className="font-semibold flex items-center gap-2">
                                     {selection.method === "delivery" ? (
-                                        <><Truck className="h-5 w-5 text-primary" /> Hemleverans</>
+                                        <><Truck className="h-5 w-5 text-primary" /> {PRECHECKOUT_CONTENT.delivery.label}</>
                                     ) : (
-                                        <><Store className="h-5 w-5 text-primary" /> Hämta i butik</>
+                                        <><Store className="h-5 w-5 text-primary" /> {PRECHECKOUT_CONTENT.pickup.label}</>
                                     )}
                                 </h3>
                                 <div className="text-sm text-muted-foreground space-y-1">
@@ -488,12 +568,12 @@ const Checkout = () => {
                                         <>
                                             <p className="flex items-center gap-2">
                                                 <MapPin className="h-4 w-4" />
-                                                {PICKUP_INFO.address}
+                                                {PRECHECKOUT_CONTENT.pickup.address}
                                             </p>
                                             <p className="flex items-center gap-2">
                                                 <CalendarDays className="h-4 w-4" />
                                                 {selection.date && formatDeliveryDate(selection.date)}{" "}
-                                                från kl 10
+                                                {PRECHECKOUT_CONTENT.pickup.readyTimeText}
                                             </p>
                                         </>
                                     )}
@@ -501,40 +581,80 @@ const Checkout = () => {
                             </div>
 
                             {/* Cart summary */}
-                            <div className="rounded-2xl border border-border/70 bg-card p-6 space-y-3">
+                            <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-6 space-y-3">
                                 <h3 className="font-semibold flex items-center gap-2">
                                     <ShoppingBag className="h-5 w-5 text-primary" />
                                     {items.length} {items.length === 1 ? "vara" : "varor"}
                                 </h3>
                                 <ul className="divide-y divide-border/40">
-                                    {items.map((item) => {
-                                        const activeOffer = getAutoOffer(item.quantity, item.multiOffers);
-                                        const hasDiscount = activeOffer && item.lineTotal != null && item.lineTotal < item.price * item.quantity;
-                                        return (
-                                            <li key={item.id} className="flex items-center justify-between py-2 text-sm">
-                                                <span className="text-muted-foreground">
-                                                    {item.quantity}× {item.name}
-                                                    {hasDiscount && (
-                                                        <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
-                                                            {activeOffer.label}
+                                    {items.map((item) => (
+                                        <li key={item.id} className="py-3 text-sm">
+                                            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="break-words leading-snug text-muted-foreground">
+                                                        {item.name}
+                                                    {item.portionLabel && item.portionLabel !== "Hel" && (
+                                                        <span className="ml-1 inline">({item.portionLabel.toLowerCase()})</span>
+                                                    )}
+                                                    {item.appliedOfferLabel && (
+                                                        <span className="ml-1.5 mt-1 inline-flex max-w-full break-words rounded-md border border-orange-500/20 bg-orange-500/15 px-1.5 py-0.5 align-middle text-[10px] font-semibold text-orange-600">
+                                                            {item.appliedOfferLabel}
                                                         </span>
                                                     )}
-                                                </span>
-                                                <span className="font-medium tabular-nums">
-                                                    {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
-                                                </span>
-                                            </li>
-                                        );
-                                    })}
+                                                    </p>
+                                                    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                variant="outline"
+                                                                size="icon"
+                                                                className="h-9 w-9 rounded-full"
+                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                                aria-label={`Minska ${item.name}`}
+                                                            >
+                                                                −
+                                                            </Button>
+                                                            <span className="min-w-[2.5rem] text-center text-base font-semibold">
+                                                                {item.quantity}
+                                                            </span>
+                                                            <Button
+                                                                variant="outline"
+                                                                size="icon"
+                                                                className="h-9 w-9 rounded-full"
+                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                                aria-label={`Öka ${item.name}`}
+                                                            >
+                                                                +
+                                                            </Button>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeItem(item.id)}
+                                                            className="text-sm text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-primary"
+                                                        >
+                                                            Ta bort
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center justify-between gap-3 sm:block sm:min-w-[6.5rem] sm:text-right">
+                                                    <span className="text-xs uppercase tracking-wide text-muted-foreground sm:hidden">
+                                                        Radpris
+                                                    </span>
+                                                    <span className="font-medium tabular-nums whitespace-nowrap">
+                                                        {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
                                 </ul>
                                 <Separator />
-                                <div className="flex justify-between text-sm text-muted-foreground">
+                                <div className="flex items-start justify-between gap-4 text-sm text-muted-foreground">
                                     <span>Delsumma</span>
-                                    <span>{formatPrice(subtotal)} kr</span>
+                                    <span className="text-right tabular-nums whitespace-nowrap">{formatPrice(subtotal)} kr</span>
                                 </div>
-                                <div className="flex justify-between text-sm text-muted-foreground">
+                                <div className="flex items-start justify-between gap-4 text-sm text-muted-foreground">
                                     <span>Frakt</span>
-                                    <span className={shippingFee === 0 ? "text-green-600 font-medium" : ""}>
+                                    <span className={`text-right ${shippingFee === 0 ? "font-medium text-green-600" : ""}`}>
                                         {selection.method === "pickup"
                                             ? "Gratis"
                                             : shippingFee === 0
@@ -543,20 +663,42 @@ const Checkout = () => {
                                     </span>
                                 </div>
                                 <Separator />
-                                <div className="flex justify-between text-lg font-semibold">
+                                <div className="flex items-start justify-between gap-4 text-lg font-semibold">
                                     <span>Att betala</span>
-                                    <span>
+                                    <span className="text-right tabular-nums whitespace-nowrap">
                                         {formatPrice(selection.method === "pickup" ? subtotal : total)} kr
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="flex justify-between pt-2">
-                                <Button variant="ghost" onClick={goBack} className="gap-2">
+                            <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-6 space-y-3">
+                                <div>
+                                    <h3 className="font-semibold">Kommentar till beställningen</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        Lägg till information som ska följa med till kassan, till exempel portkod eller särskilda önskemål.
+                                    </p>
+                                </div>
+                                <Textarea
+                                    value={orderComment}
+                                    onChange={(e) => setOrderComment(e.target.value)}
+                                    placeholder="Skriv din kommentar här"
+                                    className="min-h-[120px] resize-y"
+                                />
+                            </div>
+
+                            {(checkoutBlockedMessage || checkoutError) && (
+                                <div className="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
+                                    <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                                    <p className="text-destructive">{checkoutError ?? checkoutBlockedMessage}</p>
+                                </div>
+                            )}
+
+                            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-between">
+                                <Button variant="ghost" onClick={goBack} className="gap-2 w-full sm:w-auto">
                                     <ChevronLeft className="h-4 w-4" />
                                     Tillbaka
                                 </Button>
-                                <Button onClick={handleCheckout} size="lg" className="gap-2">
+                                <Button onClick={handleCheckout} size="lg" className="gap-2 w-full sm:w-auto" disabled={invalidCheckoutItems.length > 0}>
                                     Gå till betalning
                                     <ExternalLink className="h-4 w-4" />
                                 </Button>
@@ -569,4 +711,4 @@ const Checkout = () => {
     );
 };
 
-export default Checkout;
+export default PreCheckoutPage;

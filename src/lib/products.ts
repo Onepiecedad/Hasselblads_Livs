@@ -93,6 +93,10 @@ export const categories: { label: string; value: string }[] = [
   { label: "Övrigt", value: "ovrigt" },
 ];
 
+export const getEffectiveUnitPrice = (product: Pick<Product, "price" | "salePrice">): number => {
+  return product.salePrice && product.salePrice < product.price ? product.salePrice : product.price;
+};
+
 export const tagFilters: { label: string; value: string; tag: ProductTag }[] = [
   { label: "Godast just nu", value: "godast", tag: "godast" },
   { label: "Nyheter & Premiärer", value: "nyheter", tag: "nyheter" },
@@ -137,4 +141,3 @@ export const calculateLineTotal = (quantity: number, price: number, offers?: Mul
   currentTotal += remainingQty * price;
   return currentTotal;
 };
-

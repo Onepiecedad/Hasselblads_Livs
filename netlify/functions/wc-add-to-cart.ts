@@ -6,7 +6,7 @@ import https from "node:https";
  * 
  * This function acts as a gateway between the React frontend and WooCommerce.
  * It receives product IDs and quantities, adds them to a WooCommerce cart
- * server-side, and then redirects the user directly to /kassa with the
+ * server-side, and then redirects the user directly to /betalning with the
  * correct WooCommerce session cookies set.
  * 
  * This solves the cross-origin session problem where the Netlify proxy
@@ -22,6 +22,30 @@ const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 interface WcItem {
     id: number;
     quantity: number;
+}
+
+function createBridgeLog(bridgeAttemptId: string, step: string, extra: Record<string, unknown> = {}) {
+    return {
+        scope: "checkout_bridge_guest",
+        bridgeAttemptId,
+        step,
+        ...extra,
+    };
+}
+
+function buildDeliveryNoteCookie(deliveryNote: string): string {
+    return `hbl_delivery_note=${encodeURIComponent(deliveryNote)}; Path=/; Max-Age=900; Secure; SameSite=Lax`;
+}
+
+function extractBrowserSessionCookies(cookies: string[]): string[] {
+    return cookies
+        .map(cookie => cookie.split(";")[0].trim())
+        .filter((cookie) => {
+            const [name] = cookie.split("=");
+            return name.startsWith("wp_woocommerce_session") ||
+                name === "woocommerce_items_in_cart" ||
+                name === "woocommerce_cart_hash";
+        });
 }
 
 /**
@@ -89,8 +113,12 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     // Parse items from query string: items=ID:QTY,ID:QTY,...
     const itemsParam = url.searchParams.get("items") || "";
     const deliveryNote = url.searchParams.get("delivery_note") || "";
+    const bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `guest-${Date.now().toString(36)}`;
 
     if (!itemsParam) {
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_invalid", {
+            errorCode: "missing_items_param",
+        }));
         return new Response(JSON.stringify({ error: "Missing items parameter" }), {
             status: 400,
             headers: { "Content-Type": "application/json" },
@@ -104,13 +132,18 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     }).filter(item => !isNaN(item.id));
 
     if (items.length === 0) {
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_invalid", {
+            errorCode: "no_valid_items",
+        }));
         return new Response(JSON.stringify({ error: "No valid items" }), {
             status: 400,
             headers: { "Content-Type": "application/json" },
         });
     }
 
-    console.log(`[wc-add-to-cart] Adding ${items.length} items to WooCommerce cart...`);
+    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_started", {
+        itemCount: items.length,
+    }));
 
     // Add items one by one, carrying session cookies forward
     let cookies: string[] = [];
@@ -121,38 +154,77 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         cookies = result.cookies;
         if (result.success) {
             successCount++;
-            console.log(`  ✅ Added product ${item.id} x${item.quantity}`);
+            console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "cart_item_added", {
+                productId: item.id,
+                quantity: item.quantity,
+            }));
         } else {
-            console.warn(`  ❌ Failed to add product ${item.id}`);
+            console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "cart_item_failed", {
+                productId: item.id,
+                quantity: item.quantity,
+                errorCode: "cart_item_add_failed",
+            }));
         }
     }
 
-    console.log(`[wc-add-to-cart] ${successCount}/${items.length} items added`);
+    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "cart_sync_complete", {
+        addedItems: successCount,
+        expectedItems: items.length,
+    }));
 
-    if (successCount === 0) {
-        return new Response(JSON.stringify({ error: "Failed to add any items" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
+    if (successCount !== items.length) {
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+            errorCode: "partial_cart_sync",
+            addedItems: successCount,
+            expectedItems: items.length,
+        }));
+        return new Response(JSON.stringify({
+            error: "Failed to add the full cart to WooCommerce checkout session",
+            error_code: "partial_cart_sync",
+            added_items: successCount,
+            expected_items: items.length,
+            bridge_attempt_id: bridgeAttemptId,
+        }), {
+            status: 502,
+            headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
         });
     }
 
-    // Build redirect URL to /kassa
+    // Build redirect URL to the dedicated WooCommerce final checkout route
     const redirectParams = new URLSearchParams();
     if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
-    if (successCount < items.length) redirectParams.set("partial", "1");
     const qs = redirectParams.toString();
-    const redirectUrl = `https://${WORDPRESS_HOST}/kassa${qs ? '?' + qs : ''}`;
+    const redirectUrl = `/betalning${qs ? '?' + qs : ''}`;
 
     // Build Set-Cookie headers to pass WooCommerce session to the user's browser
-    const setCookieHeaders: string[] = [];
-    for (const cookie of cookies) {
-        const [name] = cookie.split("=");
-        // Only forward WooCommerce session cookies
-        if (name.startsWith("wp_woocommerce_session") ||
-            name === "woocommerce_items_in_cart" ||
-            name === "woocommerce_cart_hash") {
-            setCookieHeaders.push(`${cookie}; Path=/; Secure; SameSite=Lax`);
-        }
+    const sessionCookies = extractBrowserSessionCookies(cookies);
+    if (sessionCookies.length === 0) {
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+            errorCode: "missing_session_cookies",
+        }));
+        return new Response(JSON.stringify({
+            error: "WooCommerce session cookies were not established during checkout handoff",
+            error_code: "missing_session_cookies",
+            bridge_attempt_id: bridgeAttemptId,
+        }), {
+            status: 502,
+            headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+        });
+    }
+
+    const setCookieHeaders = sessionCookies.map((cookie) => `${cookie}; Path=/; Secure; SameSite=Lax`);
+    if (!setCookieHeaders.some((cookie) => cookie.startsWith("wp_woocommerce_session"))) {
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+            errorCode: "missing_primary_wc_session_cookie",
+        }));
+        return new Response(JSON.stringify({
+            error: "Missing primary WooCommerce session cookie during checkout handoff",
+            error_code: "missing_primary_wc_session_cookie",
+            bridge_attempt_id: bridgeAttemptId,
+        }), {
+            status: 502,
+            headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+        });
     }
 
     // Return a redirect response with cookies set
@@ -164,6 +236,13 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     for (const setCookie of setCookieHeaders) {
         headers.append("Set-Cookie", setCookie);
     }
+    if (deliveryNote) {
+        headers.append("Set-Cookie", buildDeliveryNoteCookie(deliveryNote));
+    }
+
+    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_redirect_ready", {
+        redirectUrl,
+    }));
 
     return new Response(null, {
         status: 302,

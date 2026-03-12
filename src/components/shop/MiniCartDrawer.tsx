@@ -24,11 +24,12 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useCart } from "@/context/CartContext";
+import {
+  FREE_HOME_DELIVERY_THRESHOLD,
+  qualifiesForFreeHomeDelivery,
+} from "@/lib/shipping";
 import { formatPrice } from "@/lib/utils";
-import { getAutoOffer } from "@/lib/products";
 import { Truck, ShoppingBag, X, ArrowRight, Trash2, ChevronDown } from "lucide-react";
-
-const FREE_SHIPPING_THRESHOLD = 600;
 
 const MiniCartDrawer = () => {
   const navigate = useNavigate();
@@ -67,9 +68,9 @@ const MiniCartDrawer = () => {
   }, [checkScroll]);
 
   // Free shipping progress
-  const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
-  const progressPercent = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
-  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const amountToFreeShipping = Math.max(0, FREE_HOME_DELIVERY_THRESHOLD - subtotal);
+  const progressPercent = Math.min(100, (subtotal / FREE_HOME_DELIVERY_THRESHOLD) * 100);
+  const hasFreeShipping = qualifiesForFreeHomeDelivery(subtotal);
 
   return (
     <Drawer open={isOpen} onOpenChange={setOpen}>
@@ -142,7 +143,7 @@ const MiniCartDrawer = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground flex items-center gap-1.5">
                       <Truck className="h-4 w-4" />
-                      Fri frakt vid {FREE_SHIPPING_THRESHOLD} kr
+                      Fri frakt vid {FREE_HOME_DELIVERY_THRESHOLD} kr
                     </span>
                     <span className="font-medium text-primary">
                       {formatPrice(amountToFreeShipping)} kr kvar
@@ -186,15 +187,11 @@ const MiniCartDrawer = () => {
                         <p className="text-sm md:text-base text-muted-foreground mt-0.5">
                           {item.weightGrams ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr` : item.unit}
                         </p>
-                        {(() => {
-                          const activeOffer = getAutoOffer(item.quantity, item.multiOffers);
-                          const hasDiscount = activeOffer && item.lineTotal != null && item.lineTotal < item.price * item.quantity;
-                          return hasDiscount ? (
-                            <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
-                              {activeOffer.label}
-                            </span>
-                          ) : null;
-                        })()}
+                        {item.appliedOfferLabel ? (
+                          <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
+                            {item.appliedOfferLabel}
+                          </span>
+                        ) : null}
                         {/* Mobile: quantity and price inline */}
                         <div className="flex items-center justify-between mt-2 sm:hidden">
                           <div className="flex items-center gap-2">

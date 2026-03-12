@@ -10,7 +10,7 @@ const LegacyRedirects = () => {
     const redirects: Record<string, string> = {
       "/kundtjanst": "/kundservice",
       "/kontakt": "/kundservice#kontakt",
-      "/checkout": "/kassa",
+      "/checkout": "/betalning",
     };
 
     if (redirects[path]) {

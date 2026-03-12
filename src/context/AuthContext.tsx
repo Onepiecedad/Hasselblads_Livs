@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, onAuthStateChanged, signOut } from 'firebase/auth';
+import { isAdminEmail } from '@/lib/adminAccess';
 import { auth } from '@/lib/firebase';
-
-const ADMIN_EMAILS = ['joakim@skylandai.se', 'axel.hasselblad@gmail.com'];
 
 interface AuthContextType {
     user: User | null;
@@ -29,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
-            setIsAdmin(currentUser?.email ? ADMIN_EMAILS.includes(currentUser.email) : false);
+            setIsAdmin(isAdminEmail(currentUser?.email));
             setLoading(false);
         });
 

@@ -11,7 +11,8 @@ const Webshop = lazy(() => import("./pages/Webshop"));
 const Delivery = lazy(() => import("./pages/Delivery"));
 const About = lazy(() => import("./pages/About"));
 const CustomerService = lazy(() => import("./pages/CustomerService"));
-const Checkout = lazy(() => import("./pages/Checkout"));
+const PreCheckout = lazy(() => import("./pages/Checkout"));
+const InternalCheckoutVerification = lazy(() => import("./pages/InternalCheckoutVerification"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 import MiniCartDrawer from "./components/shop/MiniCartDrawer";
@@ -70,7 +71,9 @@ const App = () => (
                     <Route path="om-oss" element={<About />} />
 
                     <Route path="kundservice" element={<CustomerService />} />
-                    <Route path="kassa" element={<Checkout />} />
+                    {/* React owns pre-checkout. WooCommerce final checkout is proxied under /betalning. */}
+                    <Route path="kassa" element={<PreCheckout />} />
+                    <Route path="intern/checkout-verifiering" element={<InternalCheckoutVerification />} />
                     <Route path="kopvillkor" element={<About />} />
                     <Route path="hallbarhet" element={<About />} />
                     <Route path="*" element={<NotFound />} />
@@ -88,4 +91,3 @@ const App = () => (
 );
 
 export default App;
-

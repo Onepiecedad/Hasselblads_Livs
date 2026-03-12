@@ -49,18 +49,28 @@
   status = 200
   force = true
 
-# WooCommerce checkout - proxy to WordPress (kept for checkout flow)
+# WooCommerce final checkout - proxy to WordPress on a dedicated route
 [[redirects]]
-  from = "/kassa"
+  from = "/betalning"
   to = "/.netlify/functions/wordpress-proxy/kassa"
   status = 200
   force = true
 
 [[redirects]]
-  from = "/kassa/*"
+  from = "/betalning/*"
   to = "/.netlify/functions/wordpress-proxy/kassa/:splat"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/kassan"
+  to = "/betalning"
+  status = 301
+
+[[redirects]]
+  from = "/kassan/*"
+  to = "/betalning/:splat"
+  status = 301
 
 # WooCommerce AJAX endpoints
 [[redirects]]
@@ -90,7 +100,7 @@
 
 [[redirects]]
   from = "/checkout"
-  to = "/kassa"
+  to = "/betalning"
   status = 301
 
 [[redirects]]

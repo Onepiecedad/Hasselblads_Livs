@@ -10,8 +10,100 @@
 
 interface CartItem {
     id: string;
+    name?: string;
     woocommerce_id?: number;
     quantity: number;
+}
+
+interface CheckoutGatewayErrorPayload {
+    error?: string;
+    error_code?: string;
+    bridge_attempt_id?: string;
+}
+
+function getInvalidCheckoutItems(items: CartItem[]): CartItem[] {
+    return items.filter(item => typeof item.woocommerce_id !== "number" || item.woocommerce_id <= 0);
+}
+
+function createBridgeAttemptId(prefix: "guest" | "auth"): string {
+    const randomPart = Math.random().toString(36).slice(2, 8);
+    return `${prefix}-${Date.now().toString(36)}-${randomPart}`;
+}
+
+async function startCheckoutGateway(
+    gatewayUrl: string,
+    bridgeAttemptId: string,
+    checkoutMode: "guest" | "auth"
+): Promise<void> {
+    console.log("[WooCommerceBridge]", {
+        event: "checkout_handoff_started",
+        bridgeAttemptId,
+        checkoutMode,
+    });
+
+    const response = await fetch(gatewayUrl, {
+        method: "GET",
+        credentials: "same-origin",
+        redirect: "manual",
+        cache: "no-store",
+    });
+
+    // Opaque redirect: the browser received a 3xx but won't expose status/headers
+    // to JavaScript. The gateway successfully added cart items and issued a redirect
+    // to /betalning — treat this as success and navigate manually.
+    if (response.type === "opaqueredirect") {
+        const gUrl = new URL(gatewayUrl, window.location.origin);
+        const deliveryNote = gUrl.searchParams.get("delivery_note");
+        const redirectTarget = deliveryNote
+            ? `/betalning?delivery_note=${encodeURIComponent(deliveryNote)}`
+            : "/betalning";
+
+        console.log("[WooCommerceBridge]", {
+            event: "checkout_handoff_opaque_redirect",
+            bridgeAttemptId,
+            checkoutMode,
+            redirectTarget,
+        });
+        window.location.href = redirectTarget;
+        return;
+    }
+
+    if (response.status >= 300 && response.status < 400) {
+        const redirectUrl = response.headers.get("Location");
+
+        if (!redirectUrl) {
+            throw new Error("Checkout handoff saknar giltig omdirigering.");
+        }
+
+        console.log("[WooCommerceBridge]", {
+            event: "checkout_handoff_redirect_ready",
+            bridgeAttemptId,
+            checkoutMode,
+            redirectUrl,
+        });
+        window.location.href = redirectUrl;
+        return;
+    }
+
+    let payload: CheckoutGatewayErrorPayload = {};
+
+    try {
+        payload = await response.json() as CheckoutGatewayErrorPayload;
+    } catch {
+        payload = {};
+    }
+
+    console.error("[WooCommerceBridge]", {
+        event: "checkout_handoff_failed",
+        bridgeAttemptId,
+        checkoutMode,
+        status: response.status,
+        errorCode: payload.error_code || "unknown_gateway_error",
+        serverAttemptId: payload.bridge_attempt_id || null,
+        message: payload.error || "Checkout handoff misslyckades innan betalningen kunde startas.",
+    });
+
+    throw new Error(payload.error || "Checkout handoff misslyckades innan betalningen kunde startas.");
 }
 
 /**
@@ -22,22 +114,28 @@ interface CartItem {
  * 1. Lägger till produkter server-side mot WordPress
  * 2. Fångar WooCommerce session-cookies
  * 3. Sätter cookies på användarens browser
- * 4. Redirectar till /kassa
+ * 4. Redirectar till WooCommerce final checkout under /betalning
  */
 export async function addItemsAndRedirectToCheckout(
     items: CartItem[],
     clearLocalCart?: () => void,
     deliveryNote?: string
 ): Promise<void> {
+    const invalidItems = getInvalidCheckoutItems(items);
+
+    if (invalidItems.length > 0) {
+        throw new Error("[WooCommerce] Checkout blocked: one or more cart lines are missing woocommerce_id");
+    }
+
     const validItems = items.filter(item => item.woocommerce_id);
 
     if (validItems.length === 0) {
         console.warn('[WooCommerce] Inga produkter har woocommerce_id – visar checkout-sida');
-        // Let Checkout.tsx handle the missing_ids state with helpful UI
         return;
     }
 
     console.log(`[WooCommerce] Lägger till ${validItems.length} produkter via gateway...`);
+    const bridgeAttemptId = createBridgeAttemptId("guest");
 
     // Build items parameter: ID:QTY,ID:QTY,...
     const itemsParam = validItems
@@ -49,14 +147,9 @@ export async function addItemsAndRedirectToCheckout(
     if (deliveryNote) {
         gatewayUrl += `&delivery_note=${encodeURIComponent(deliveryNote)}`;
     }
+    gatewayUrl += `&bridge_attempt_id=${encodeURIComponent(bridgeAttemptId)}`;
 
-    if (clearLocalCart) clearLocalCart();
-
-    // Redirect to the gateway function which will:
-    // 1. Add items to WooCommerce cart server-side
-    // 2. Set WC session cookies on the user's browser
-    // 3. Redirect to /kassa
-    window.location.href = gatewayUrl;
+    await startCheckoutGateway(gatewayUrl, bridgeAttemptId, "guest");
 }
 
 /**
@@ -69,6 +162,12 @@ export async function authenticateAndCheckout(
     clearLocalCart?: () => void,
     deliveryNote?: string
 ): Promise<void> {
+    const invalidItems = getInvalidCheckoutItems(items);
+
+    if (invalidItems.length > 0) {
+        throw new Error("[WooCommerce] Checkout blocked: one or more cart lines are missing woocommerce_id");
+    }
+
     const validItems = items.filter(item => item.woocommerce_id);
 
     if (validItems.length === 0) {
@@ -77,6 +176,7 @@ export async function authenticateAndCheckout(
     }
 
     console.log(`[WooCommerce] Autentiserar och lägger till ${validItems.length} produkter via checkout session...`);
+    const bridgeAttemptId = createBridgeAttemptId("auth");
 
     // We will construct a GET request with query params for the Netlify function
     const itemsParam = validItems.map(item => `${item.woocommerce_id}:${item.quantity}`).join(',');
@@ -85,18 +185,14 @@ export async function authenticateAndCheckout(
     params.set('items', itemsParam);
     params.set('token', token);
     if (deliveryNote) params.set('delivery_note', deliveryNote);
+    params.set('bridge_attempt_id', bridgeAttemptId);
 
     const gatewayUrl = `/.netlify/functions/checkout-session?${params.toString()}`;
 
-    // Local cart is cleared when we successfully leave the site
-    if (clearLocalCart) {
-        clearLocalCart();
-    }
+    console.log("[WooCommerceBridge]", {
+        event: "authenticated_checkout_gateway_ready",
+        bridgeAttemptId,
+    });
 
-    console.log(`[WooCommerce] Redirecting to authenticated checkout gateway: ${gatewayUrl}`);
-
-    // Redirect directly to the checkout-session endpoint
-    // This causes a top-level navigation, where the serverless function acts as
-    // a gateway, sets the cookies directly in the browser, and then 302 redirects to /kassa.
-    window.location.href = gatewayUrl;
+    await startCheckoutGateway(gatewayUrl, bridgeAttemptId, "auth");
 }

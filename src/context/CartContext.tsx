@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
-import { calculateLineTotal } from "@/lib/products";
+import { calculateLineTotal, getAutoOffer, getEffectiveUnitPrice } from "@/lib/products";
+import { getHomeDeliveryFee } from "@/lib/shipping";
 import { useProducts } from "@/hooks/useProducts";
 
 export type PortionSize = 'hel' | 'halv' | 'kvart';
@@ -34,6 +35,8 @@ export type CartItem = {
   multiOffers?: { quantity: number; price: number; label: string }[]; // Alla erbjudanden produkten har
   multiBuyGroup?: string; // Mix-and-match grupp (t.ex. "avokado")
   lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
+  compareAtLineTotal?: number; // Radpris utan aktiv multi-buy-rabatt
+  appliedOfferLabel?: string; // Visningstext för aktiv multi-buy-rabatt
 };
 
 type CartState = {
@@ -155,11 +158,15 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     // Step 1: Enrich items with live product data
     const enrichedItems = state.items.map(item => {
       const liveProduct = products.find(p => p.id === item.productId);
+      const isPortionedVariant = Boolean(item.portion && item.portion !== 'hel');
       return {
         ...item,
-        multiOffers: liveProduct?.multiOffers || item.multiOffers,
-        multiBuyGroup: liveProduct?.multiBuyGroup || item.multiBuyGroup,
-        price: liveProduct?.price || item.price,
+        multiOffers: isPortionedVariant ? undefined : (liveProduct?.multiOffers || item.multiOffers),
+        multiBuyGroup: isPortionedVariant ? undefined : (liveProduct?.multiBuyGroup || item.multiBuyGroup),
+        // Keep stored portion/weight prices, but refresh regular item prices using the same sale-price rule as add-to-cart.
+        price: (item.portion || item.weightGrams)
+          ? item.price
+          : (liveProduct ? getEffectiveUnitPrice(liveProduct) : item.price),
       };
     });
 
@@ -176,10 +183,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     // Step 3: Calculate line totals
     // For grouped items, pool quantities and distribute discount proportionally
     const groupLineTotals = new Map<string, Map<string, number>>();
+    const groupAppliedOfferLabels = new Map<string, string | undefined>();
     for (const [groupName, groupItems] of groups) {
       const totalGroupQty = groupItems.reduce((sum, i) => sum + i.quantity, 0);
       // Use the first item's offers as the group offer (all items in group should have same offers)
       const groupOffers = groupItems[0]?.multiOffers;
+      const appliedGroupOffer = getAutoOffer(totalGroupQty, groupOffers);
 
       if (!groupOffers || groupOffers.length === 0 || totalGroupQty <= 0) {
         // No offers — regular pricing for each item
@@ -188,6 +197,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           itemTotals.set(item.id, item.price * item.quantity);
         }
         groupLineTotals.set(groupName, itemTotals);
+        groupAppliedOfferLabels.set(groupName, undefined);
         continue;
       }
 
@@ -202,26 +212,46 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         itemTotals.set(item.id, Math.round(groupTotal * itemShare * 100) / 100);
       }
       groupLineTotals.set(groupName, itemTotals);
+      groupAppliedOfferLabels.set(
+        groupName,
+        groupTotal < totalGroupValue ? appliedGroupOffer?.label : undefined,
+      );
     }
 
     // Step 4: Build final computed items
     return enrichedItems.map(item => {
+      const compareAtLineTotal = item.price * item.quantity;
+
       // Check if this item is part of a group
       if (item.multiBuyGroup && groupLineTotals.has(item.multiBuyGroup)) {
         const itemTotal = groupLineTotals.get(item.multiBuyGroup)!.get(item.id) ?? (item.price * item.quantity);
-        return { ...item, lineTotal: itemTotal };
+        return {
+          ...item,
+          lineTotal: itemTotal,
+          compareAtLineTotal,
+          appliedOfferLabel: itemTotal < compareAtLineTotal
+            ? groupAppliedOfferLabels.get(item.multiBuyGroup)
+            : undefined,
+        };
       }
 
       // Non-grouped items: regular calculation
       if (!item.multiOffers || item.multiOffers.length === 0) {
-        return { ...item, lineTotal: item.price * item.quantity };
+        return { ...item, lineTotal: compareAtLineTotal, compareAtLineTotal, appliedOfferLabel: undefined };
       }
-      return { ...item, lineTotal: calculateLineTotal(item.quantity, item.price, item.multiOffers) };
+      const lineTotal = calculateLineTotal(item.quantity, item.price, item.multiOffers);
+      const appliedOffer = lineTotal < compareAtLineTotal ? getAutoOffer(item.quantity, item.multiOffers) : undefined;
+      return {
+        ...item,
+        lineTotal,
+        compareAtLineTotal,
+        appliedOfferLabel: appliedOffer?.label,
+      };
     });
   }, [state.items, products]);
 
   const subtotal = useMemo(() => computedItems.reduce((total, item) => total + (item.lineTotal || 0), 0), [computedItems]);
-  const shippingFee = subtotal >= 600 || subtotal === 0 ? 0 : 49;
+  const shippingFee = getHomeDeliveryFee(subtotal);
   const total = subtotal + shippingFee;
 
   const value = useMemo<CartContextValue>(

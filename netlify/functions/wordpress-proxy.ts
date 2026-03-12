@@ -11,6 +11,24 @@ import https from "node:https";
 const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
 const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 
+function getCookieValue(cookieHeader: string | null, name: string): string | null {
+  if (!cookieHeader) return null;
+
+  for (const part of cookieHeader.split(";")) {
+    const [rawName, ...rawValueParts] = part.trim().split("=");
+    if (rawName === name) {
+      const rawValue = rawValueParts.join("=");
+      try {
+        return decodeURIComponent(rawValue);
+      } catch {
+        return rawValue;
+      }
+    }
+  }
+
+  return null;
+}
+
 export default async (request: Request, context: Context): Promise<Response> => {
   // Handle CORS preflight (OPTIONS) requests for Store API custom headers
   if (request.method === "OPTIONS") {
@@ -31,7 +49,20 @@ export default async (request: Request, context: Context): Promise<Response> => 
   // Extract the actual WordPress path from the redirect
   // The path comes in as /.netlify/functions/wordpress-proxy/wp-json/...
   const wpPathMatch = url.pathname.match(/\/.netlify\/functions\/wordpress-proxy(\/.*)/);
-  const targetPath = wpPathMatch ? wpPathMatch[1] : url.pathname;
+  let targetPath = wpPathMatch ? wpPathMatch[1] : url.pathname;
+
+  // Path alias map: Netlify-facing paths → WordPress-facing paths.
+  // Netlify functions receive the ORIGINAL request URL (before _redirects rewriting),
+  // so /betalning arrives as-is but WordPress's checkout page slug is /kassan/.
+  const PATH_ALIASES: Record<string, string> = {
+    "/betalning": "/kassan/",
+  };
+  const aliasMatch = Object.keys(PATH_ALIASES).find(alias =>
+    targetPath === alias || targetPath.startsWith(alias + "/")
+  );
+  if (aliasMatch) {
+    targetPath = targetPath.replace(aliasMatch, PATH_ALIASES[aliasMatch]);
+  }
 
   // Build headers
   const headers: Record<string, string> = {
@@ -216,8 +247,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
           let textBody = responseBuffer.toString("utf-8");
 
           // Inject scripts into WooCommerce checkout pages
-          const isCheckoutPage = /^\/(kassa|kassan)(\/|$)/.test(targetPath);
-          const deliveryNote = url.searchParams.get("delivery_note");
+          // targetPath is already resolved via PATH_ALIASES (e.g. /betalning → /kassan/)
+          const isCheckoutPage = /^\/(kassa|kassan|betalning)(\/|$)/.test(targetPath);
+          const deliveryNoteFromQuery = url.searchParams.get("delivery_note");
+          const deliveryNoteFromCookie = getCookieValue(request.headers.get("cookie"), "hbl_delivery_note");
+          const deliveryNote = deliveryNoteFromQuery || deliveryNoteFromCookie;
+          const usedDeliveryNoteCookie = !deliveryNoteFromQuery && !!deliveryNoteFromCookie;
           const isHtml = /text\/html/i.test(contentType);
 
           if (isCheckoutPage && isHtml) {
@@ -309,29 +344,85 @@ export default async (request: Request, context: Context): Promise<Response> => 
             }
 
             // 2. Delivery-note pre-fill script (at end of body)
+            //    WooCommerce Blocks checkout hides the textarea behind a checkbox
+            //    labelled "Lägg till en anteckning till din beställning".
+            //    We must: click the checkbox → wait for React to render the textarea
+            //    → fill it using the native setter (React-compatible).
             if (deliveryNote && textBody.includes("</body>")) {
-              const safeNote = deliveryNote
-                .replace(/\\/g, "\\\\")
-                .replace(/'/g, "\\'")
-                .replace(/\n/g, "\\n");
+              const safeNote = JSON.stringify(deliveryNote);
               const deliveryScript = `
-<script>
+<script id="hbl-delivery-note-prefill">
 (function(){
-  var note = decodeURIComponent('${safeNote}');
-  function fill() {
-    var f = document.getElementById('order_comments');
-    if (f) { f.value = note; f.dispatchEvent(new Event('change',{bubbles:true})); }
-    else { setTimeout(fill, 500); }
+  var note = ${safeNote};
+  var maxAttempts = 40;
+  var attempts = 0;
+
+  function setReactValue(el, value) {
+    var setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+    setter.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill);
-  else fill();
+
+  function fill() {
+    attempts++;
+    // 1. Try the classic WooCommerce ID first (shortcode-based checkout)
+    var classic = document.getElementById('order_comments');
+    if (classic) {
+      setReactValue(classic, note);
+      return;
+    }
+
+    // 2. WooCommerce Blocks: find the checkbox that reveals the textarea
+    var checkboxes = document.querySelectorAll('.wc-block-components-checkbox__input');
+    var noteCheckbox = null;
+    checkboxes.forEach(function(cb) {
+      var wrapper = cb.closest('.wc-block-components-checkbox');
+      if (wrapper) {
+        var label = wrapper.querySelector('.wc-block-components-checkbox__label');
+        if (label && label.textContent && label.textContent.indexOf('anteckning') !== -1) {
+          noteCheckbox = cb;
+        }
+      }
+    });
+
+    // 3. Click the checkbox if it exists and is not checked
+    if (noteCheckbox && !noteCheckbox.checked) {
+      noteCheckbox.click();
+      // Wait for React to render the textarea after checkbox state change
+      setTimeout(fillTextarea, 300);
+      return;
+    }
+
+    // 4. Checkbox is already checked or not found, try to fill textarea directly
+    fillTextarea();
+  }
+
+  function fillTextarea() {
+    var ta = document.querySelector('textarea.wc-block-components-textarea');
+    if (!ta) {
+      // Also try the classic ID as fallback
+      ta = document.getElementById('order_comments');
+    }
+    if (ta) {
+      setReactValue(ta, note);
+    } else if (attempts < maxAttempts) {
+      setTimeout(fill, 500);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(fill, 500); });
+  } else {
+    setTimeout(fill, 500);
+  }
 })();
 </script>`;
               textBody = textBody.replace("</body>", deliveryScript + "\n</body>");
             }
 
             // 3. Pickup mode: hide address fields & auto-select free shipping
-            if (deliveryNote && decodeURIComponent(deliveryNote).includes('Hämta i butik') && textBody.includes("</head>")) {
+            if (deliveryNote && deliveryNote.includes('Hämta i butik') && textBody.includes("</head>")) {
               const pickupStyle = `
 <style id="pickup-hide-address">
   /* Immediately hide shipping address section for pickup orders */
@@ -432,6 +523,10 @@ export default async (request: Request, context: Context): Promise<Response> => 
 })();
 </script>`;
               textBody = textBody.replace("</body>", pickupScript + "\n</body>");
+            }
+
+            if (usedDeliveryNoteCookie) {
+              responseHeaders.append("Set-Cookie", "hbl_delivery_note=; Path=/; Max-Age=0; Secure; SameSite=Lax");
             }
           }
 

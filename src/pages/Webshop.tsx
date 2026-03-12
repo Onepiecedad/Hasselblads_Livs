@@ -10,7 +10,7 @@ import ProductCard from "@/components/shop/ProductCard";
 import ProductCardSkeleton from "@/components/shop/ProductCardSkeleton";
 import SearchAutocomplete from "@/components/shop/SearchAutocomplete";
 import QuickViewModal from "@/components/shop/QuickViewModal";
-import { tagFilters, type Product, type ProductTag } from "@/lib/products";
+import { getEffectiveUnitPrice, tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { focusCards, getFallbackTag } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart, type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
@@ -360,9 +360,9 @@ const Webshop = () => {
     }, [filteredProducts, activeCategory]);
 
     const handleAddToCart = (product: Product, quantity = 1, portion?: PortionSize, weightGrams?: number, multiOffer?: { quantity: number; price: number; label: string }) => {
-        const basePrice = (product.salePrice && product.salePrice < product.price)
-            ? product.salePrice
-            : product.price;
+        const basePrice = getEffectiveUnitPrice(product);
+        const isPortionedVariant = Boolean(portion && portion !== 'hel');
+        const cartItemId = isPortionedVariant ? `${product.id}__${portion}` : product.id;
 
         // För multiköp använder vi alltid baspriset per styck, 
         // eftersom CartContext beräknar rabatten dynamiskt baserat på totalt antal.
@@ -373,7 +373,7 @@ const Webshop = () => {
                 : basePrice;
 
         addItem({
-            id: product.id,
+            id: cartItemId,
             productId: product.id,
             name: product.name,
             price: itemPrice,
@@ -383,8 +383,8 @@ const Webshop = () => {
             portion,
             portionLabel: portion ? PORTION_LABELS[portion] : undefined,
             weightGrams,
-            multiOffers: product.multiOffers,
-            multiBuyGroup: product.multiBuyGroup,
+            multiOffers: isPortionedVariant ? undefined : product.multiOffers,
+            multiBuyGroup: isPortionedVariant ? undefined : product.multiBuyGroup,
         }, quantity);
 
         const weightLabel = weightGrams ? `${weightGrams}g ` : '';
@@ -639,4 +639,3 @@ const Webshop = () => {
 };
 
 export default Webshop;
-

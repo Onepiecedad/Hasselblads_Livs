@@ -98,9 +98,25 @@ export const ORDER_DEADLINE_HOUR = 19; // 19:00 day before
 /** Store info for pickup */
 export const PICKUP_INFO = {
     label: 'Hämta i butik',
-    address: 'Frölundagatan 51, Mölndal',
+    address: 'Frejagatan 9, Mölndal',
     note: 'Redo att hämta från kl 10 på vald dag',
 };
+
+export const PRECHECKOUT_CONTENT = {
+    delivery: {
+        label: 'Hemleverans',
+        areasLabel: 'Solängen och Malevik',
+        introText: `Vi levererar till ${DELIVERY_AREAS[0].label} (${DELIVERY_AREAS[0].deliveryTime}) och ${DELIVERY_AREAS[1].label} (${DELIVERY_AREAS[1].deliveryTime}), måndag–fredag.`,
+        addressPromptText: 'Vi levererar till Solängen och Malevik. Ange din gatuadress så kontrollerar vi.',
+        cutoffText: 'Beställning senast kl 19:00 dagen innan leverans.',
+    },
+    pickup: {
+        label: PICKUP_INFO.label,
+        address: PICKUP_INFO.address,
+        readyTimeText: 'från kl 10',
+        introText: PICKUP_INFO.note,
+    },
+} as const;
 
 /**
  * Get the next N available delivery dates (Mon–Fri).

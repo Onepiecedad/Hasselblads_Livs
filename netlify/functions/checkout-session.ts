@@ -21,6 +21,30 @@ interface WcItem {
     quantity: number;
 }
 
+function createBridgeLog(bridgeAttemptId: string, step: string, extra: Record<string, unknown> = {}) {
+    return {
+        scope: "checkout_bridge_auth",
+        bridgeAttemptId,
+        step,
+        ...extra,
+    };
+}
+
+function buildDeliveryNoteCookie(deliveryNote: string): string {
+    return `hbl_delivery_note=${encodeURIComponent(deliveryNote)}; Path=/; Max-Age=900; Secure; SameSite=Lax`;
+}
+
+function extractBridgeCookies(cookies: string[]): string[] {
+    return cookies.filter((cookie) => {
+        const name = cookie.split("=")[0];
+        return name.startsWith("wordpress_logged_in_") ||
+            name.startsWith("wordpress_sec_") ||
+            name.startsWith("wp_woocommerce_session") ||
+            name === "woocommerce_items_in_cart" ||
+            name === "woocommerce_cart_hash";
+    });
+}
+
 // 1. Verify Firebase Token
 async function verifyFirebaseToken(token: string): Promise<string | null> {
     try {
@@ -185,23 +209,29 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     let items: WcItem[] = [];
     let deliveryNote = "";
     let token = "";
+    let bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `auth-${Date.now().toString(36)}`;
 
     if (request.method === 'POST') {
         try {
             const body = await request.json();
             items = body.items || [];
             deliveryNote = body.deliveryNote || "";
+            bridgeAttemptId = body.bridgeAttemptId || bridgeAttemptId;
             const authHeader = request.headers.get("Authorization");
             if (authHeader && authHeader.startsWith("Bearer ")) {
                 token = authHeader.split("Bearer ")[1];
             }
         } catch (e) {
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_invalid", {
+                errorCode: "invalid_json_body",
+            }));
             return new Response(JSON.stringify({ error: "Invalid JSON body" }), { status: 400 });
         }
     } else if (request.method === 'GET') {
         const itemsParam = url.searchParams.get("items") || "";
         deliveryNote = url.searchParams.get("delivery_note") || "";
         token = url.searchParams.get("token") || "";
+        bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || bridgeAttemptId;
 
         if (itemsParam) {
             items = itemsParam.split(",").map((itemStr) => {
@@ -213,25 +243,53 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         return new Response('Method Not Allowed', { status: 405 });
     }
 
+    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_started", {
+        method: request.method,
+        itemCount: items.length,
+    }));
+
     // 1. Verify User
     if (!token) {
-        return new Response(JSON.stringify({ error: "Missing or invalid authorization token" }), { status: 401 });
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+            errorCode: "missing_auth_token",
+        }));
+        return new Response(JSON.stringify({
+            error: "Missing or invalid authorization token",
+            error_code: "missing_auth_token",
+            bridge_attempt_id: bridgeAttemptId,
+        }), { status: 401 });
     }
 
     try {
         const email = await verifyFirebaseToken(token);
 
         if (!email) {
-            return new Response(JSON.stringify({ error: "Unauthorized / Invalid token" }), { status: 401 });
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "invalid_auth_token",
+            }));
+            return new Response(JSON.stringify({
+                error: "Unauthorized / Invalid token",
+                error_code: "invalid_auth_token",
+                bridge_attempt_id: bridgeAttemptId,
+            }), { status: 401 });
         }
 
-        console.log(`[Checkout Session] Authenticated user: ${email}`);
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "firebase_verified", {
+            customerFound: true,
+        }));
 
         // 2. Fetch Customer ID
         const customerRes = await makeWooCommerceRequest(`/wp-json/wc/v3/customers?email=${encodeURIComponent(email)}`);
 
         if (!customerRes.data || customerRes.data.length === 0) {
-            return new Response(JSON.stringify({ error: "WooCommerce customer not found" }), { status: 404 });
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "woocommerce_customer_not_found",
+            }));
+            return new Response(JSON.stringify({
+                error: "WooCommerce customer not found",
+                error_code: "woocommerce_customer_not_found",
+                bridge_attempt_id: bridgeAttemptId,
+            }), { status: 404 });
         }
 
         const customerId = customerRes.data[0].id;
@@ -246,7 +304,16 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         });
 
         if (updateRes.statusCode !== 200) {
-            return new Response(JSON.stringify({ error: "Failed to update WooCommerce customer credentials" }), { status: 500 });
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "customer_credentials_update_failed",
+                customerId,
+                statusCode: updateRes.statusCode,
+            }));
+            return new Response(JSON.stringify({
+                error: "Failed to update WooCommerce customer credentials",
+                error_code: "customer_credentials_update_failed",
+                bridge_attempt_id: bridgeAttemptId,
+            }), { status: 500 });
         }
 
         // 4. Log into WordPress to get session cookies
@@ -254,10 +321,19 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         const loggedIn = cookies.some(c => c.includes('wordpress_logged_in_'));
 
         if (!loggedIn) {
-            return new Response(JSON.stringify({ error: "Failed to authenticate with WordPress backend" }), { status: 500 });
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "wordpress_login_failed",
+            }));
+            return new Response(JSON.stringify({
+                error: "Failed to authenticate with WordPress backend",
+                error_code: "wordpress_login_failed",
+                bridge_attempt_id: bridgeAttemptId,
+            }), { status: 500 });
         }
 
-        console.log(`[Checkout Session] Successfully started WP session for ${email}`);
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "wordpress_session_ready", {
+            customerId,
+        }));
 
         // 5. Add Items to Cart
         let successCount = 0;
@@ -272,38 +348,89 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         // 6. Build final redirect URL
         const redirectParams = new URLSearchParams();
         if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
-        if (items && successCount < items.length) redirectParams.set("partial", "1");
-
         // Add cache buster to prevent serving a cached checkout page from another user
         redirectParams.set("chash", Date.now().toString());
 
         const qs = redirectParams.toString();
-        const redirectUrl = `/kassa${qs ? '?' + qs : ''}`; // Use relative URL to stay on domain
+        const redirectUrl = `/betalning${qs ? '?' + qs : ''}`; // Use relative URL to stay on domain
+
+        if (items && successCount !== items.length) {
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "partial_cart_sync",
+                addedItems: successCount,
+                expectedItems: items.length,
+            }));
+            return new Response(JSON.stringify({
+                error: "Failed to add the full cart to the authenticated WooCommerce session",
+                error_code: "partial_cart_sync",
+                added_items: successCount,
+                expected_items: items.length,
+                bridge_attempt_id: bridgeAttemptId,
+            }), {
+                status: 502,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-store, no-cache, must-revalidate",
+                },
+            });
+        }
+
+        const bridgeCookies = extractBridgeCookies(cookies);
+        if (!bridgeCookies.some((cookie) => cookie.startsWith("wordpress_logged_in_"))) {
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "missing_wordpress_session_cookie",
+            }));
+            return new Response(JSON.stringify({
+                error: "Authenticated WordPress session cookie was not established",
+                error_code: "missing_wordpress_session_cookie",
+                bridge_attempt_id: bridgeAttemptId,
+            }), {
+                status: 502,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-store, no-cache, must-revalidate",
+                },
+            });
+        }
+        if (!bridgeCookies.some((cookie) => cookie.startsWith("wp_woocommerce_session"))) {
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "missing_wc_session_cookie",
+            }));
+            return new Response(JSON.stringify({
+                error: "WooCommerce session cookie was not established",
+                error_code: "missing_wc_session_cookie",
+                bridge_attempt_id: bridgeAttemptId,
+            }), {
+                status: 502,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Cache-Control": "no-store, no-cache, must-revalidate",
+                },
+            });
+        }
 
         // Return a successful JSON response, but set the cookies on the browser
         const headers = new Headers();
         headers.set("Content-Type", "application/json");
 
         // Pass relevant cookies to browser (domain/path will take effect)
-        for (const cookie of cookies) {
-            const name = cookie.split("=")[0];
-            if (
-                name.startsWith("wordpress_logged_in_") ||
-                name.startsWith("wordpress_sec_") ||
-                name.startsWith("wp_woocommerce_session") ||
-                name === "woocommerce_items_in_cart" ||
-                name === "woocommerce_cart_hash"
-            ) {
-                // Ensure cookies work cross-path if redirecting
-                // We strip the original Domain/Path and set our own to be safe.
-                const cookieValue = cookie.split(';')[0];
-                headers.append("Set-Cookie", `${cookieValue}; Path=/; Secure; SameSite=Lax`);
-            }
+        for (const cookie of bridgeCookies) {
+            // Ensure cookies work cross-path if redirecting
+            // We strip the original Domain/Path and set our own to be safe.
+            const cookieValue = cookie.split(';')[0];
+            headers.append("Set-Cookie", `${cookieValue}; Path=/; Secure; SameSite=Lax`);
         }
+        if (deliveryNote) {
+            headers.append("Set-Cookie", buildDeliveryNoteCookie(deliveryNote));
+        }
+
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_redirect_ready", {
+            redirectUrl,
+        }));
 
         // If it was a GET request (direct navigation), do a 302 Redirect
         if (request.method === 'GET') {
-            headers.set("Location", `https://${WORDPRESS_HOST}${redirectUrl}`);
+            headers.set("Location", redirectUrl);
             headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
             return new Response(null, {
                 status: 302,
@@ -316,7 +443,14 @@ export default async (request: Request, _context: Context): Promise<Response> =>
             headers,
         });
     } catch (error: any) {
-        console.error("Checkout session error:", error);
-        return new Response(JSON.stringify({ error: "Internal server error" }), { status: 500 });
+        console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+            errorCode: "internal_server_error",
+            message: error?.message || "Unknown error",
+        }));
+        return new Response(JSON.stringify({
+            error: "Internal server error",
+            error_code: "internal_server_error",
+            bridge_attempt_id: bridgeAttemptId,
+        }), { status: 500 });
     }
 };
