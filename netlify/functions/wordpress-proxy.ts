@@ -485,6 +485,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 .split("\n")
                 .map((line) => line.trim())
                 .filter(Boolean);
+              const expectsFreeHomeDelivery = noteLines.includes("💚 Fri hemleverans i pre-checkout");
               const customerCommentLine = noteLines.find((line) => line.startsWith("💬 Kommentar:"));
               const customerComment = customerCommentLine
                 ? customerCommentLine.replace(/^💬 Kommentar:\s*/, "")
@@ -501,6 +502,9 @@ export default async (request: Request, context: Context): Promise<Response> => 
               const deliveryContextHtml = deliveryContextLines.length > 0
                 ? `<ul>${deliveryContextLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
                 : "";
+              const freeShippingHtml = expectsFreeHomeDelivery
+                ? `<p style="margin:0 0 10px 0;color:rgba(22,101,52,1);font-weight:600;">Fri hemleverans gällde i React-kassan innan handoff.</p>`
+                : "";
               const customerCommentHtml = customerComment
                 ? `
   <div style="margin-top:${deliveryContextLines.length > 0 ? "12px" : "0"};">
@@ -513,6 +517,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
 <section id="hbl-precheckout-context" class="hbl-checkout-box">
   <h3>Uppgifter från pre-checkout</h3>
   <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Kommentar och leveransuppgifter lades in i React-kassan innan du skickades hit.</p>
+  ${freeShippingHtml}
   ${deliveryContextHtml}
   ${customerCommentHtml}
   <p style="font-size:12px;margin:12px 0 0 0;color:rgba(100,116,139,1);">Behöver du ändra kommentaren gör du det i React-kassan innan betalning.</p>
@@ -545,12 +550,26 @@ export default async (request: Request, context: Context): Promise<Response> => 
   var note = ${safeNote};
   var maxAttempts = 40;
   var attempts = 0;
+  var expectsFreeHomeDelivery = note.indexOf('💚 Fri hemleverans i pre-checkout') !== -1;
 
   function setReactValue(el, value) {
     var setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
     setter.call(el, value);
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function trySelectExpectedFreeShipping() {
+    if (!expectsFreeHomeDelivery || note.indexOf('Hämta i butik') !== -1) {
+      return;
+    }
+
+    var radios = document.querySelectorAll('.wc-block-components-radio-control__input');
+    radios.forEach(function(radio) {
+      if (radio.id && radio.id.indexOf('free_shipping') !== -1 && !radio.checked) {
+        radio.click();
+      }
+    });
   }
 
   function hideNoteUI() {
@@ -580,6 +599,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
 
   function fill() {
     attempts++;
+    trySelectExpectedFreeShipping();
     // 1. Try the classic WooCommerce ID first (shortcode-based checkout)
     var classic = document.getElementById('order_comments');
     if (classic) {
@@ -635,7 +655,10 @@ export default async (request: Request, context: Context): Promise<Response> => 
   }
 
   // Also observe DOM for late-rendered note UI and hide it
-  var hideObserver = new MutationObserver(function() { hideNoteUI(); });
+  var hideObserver = new MutationObserver(function() {
+    hideNoteUI();
+    trySelectExpectedFreeShipping();
+  });
   var observeTarget = document.documentElement;
   if (document.body) observeTarget = document.body;
   hideObserver.observe(observeTarget, { childList: true, subtree: true });

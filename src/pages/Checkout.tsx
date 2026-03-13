@@ -204,6 +204,7 @@ const PreCheckoutPage = () => {
             lines.push(`🚚 Hemleverans till ${selection.streetMatch.area.label}`);
             lines.push(`📍 ${selection.address}`);
             lines.push(`🕐 ${selection.date ? formatDeliveryDate(selection.date) : ""} ${selection.streetMatch.area.deliveryTime}`);
+            lines.push(shippingFee === 0 ? "💚 Fri hemleverans i pre-checkout" : `🚛 Frakt i pre-checkout: ${formatPrice(shippingFee)} kr`);
         } else {
             lines.push(`📦 Hämta i butik`);
             lines.push(`📍 ${PICKUP_INFO.address}`);
@@ -259,7 +260,7 @@ const PreCheckoutPage = () => {
                 setIsRedirecting(false);
             }
         }
-    }, [selection, items, clearCart, user, checkoutBlockedMessage, orderComment, getCheckoutFailureMessage]);
+    }, [selection, items, clearCart, user, checkoutBlockedMessage, orderComment, getCheckoutFailureMessage, shippingFee]);
 
     // ─── Empty cart ───
     if (!hasItems && !isRedirecting) {
