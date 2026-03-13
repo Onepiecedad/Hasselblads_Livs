@@ -490,6 +490,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
               const customerComment = customerCommentLine
                 ? customerCommentLine.replace(/^💬 Kommentar:\s*/, "")
                 : "";
+              const lineItemLines = noteLines.filter((line) => line.startsWith("• "));
+              const portionedLineItems = lineItemLines.filter((line) => /\((halv|kvart)\)/i.test(line));
               const deliveryContextLines = noteLines.filter((line) =>
                 !line.startsWith("🧾 Sammanfattning från pre-checkout:") &&
                 !line.startsWith("• ") &&
@@ -512,6 +514,13 @@ export default async (request: Request, context: Context): Promise<Response> => 
     <p style="margin:0;white-space:pre-wrap;">${escapeHtml(customerComment)}</p>
   </div>`
                 : "";
+              const lineItemSummaryHtml = lineItemLines.length > 0
+                ? `
+  <div style="margin-top:12px;">
+    <p style="font-size:13px;font-weight:600;margin:0 0 6px 0;color:rgba(51,65,85,1);">Produkter från pre-checkout</p>
+    <ul>${lineItemLines.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
+  </div>`
+                : "";
 
               helperSections.push(`
 <section id="hbl-precheckout-context" class="hbl-checkout-box">
@@ -519,9 +528,20 @@ export default async (request: Request, context: Context): Promise<Response> => 
   <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Kommentar och leveransuppgifter lades in i React-kassan innan du skickades hit.</p>
   ${freeShippingHtml}
   ${deliveryContextHtml}
+  ${lineItemSummaryHtml}
   ${customerCommentHtml}
   <p style="font-size:12px;margin:12px 0 0 0;color:rgba(100,116,139,1);">Behöver du ändra kommentaren gör du det i React-kassan innan betalning.</p>
 </section>`);
+
+              if (portionedLineItems.length > 0) {
+                helperSections.push(`
+<section id="hbl-portioned-context" class="hbl-checkout-box">
+  <h3>Delade varor från pre-checkout</h3>
+  <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Följande delade rader och radpriser visades i React-kassan innan handoff:</p>
+  <ul>${portionedLineItems.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
+  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(100,116,139,1);">Denna ruta bevarar portionskontext från pre-checkout. Slutliga WooCommerce-rader styrs fortfarande av WooCommerce.</p>
+</section>`);
+              }
 
               if (multiBuyLines.length > 0) {
                 helperSections.push(`
