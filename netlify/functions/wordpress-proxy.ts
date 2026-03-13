@@ -445,9 +445,22 @@ export default async (request: Request, context: Context): Promise<Response> => 
     color: #0f172a;
     background: #fff;
   }
-  body.hbl-has-precheckout-note #order_comments_field,
+  /* Hide classic WooCommerce order notes */
+  body.hbl-has-precheckout-note #order_comments_field {
+    display: none !important;
+  }
+  /* Hide WC Blocks order notes — target all known wrapper classes */
   body.hbl-has-precheckout-note .wc-block-checkout__add-note,
-  body.hbl-has-precheckout-note .wc-block-components-checkout-step--order-notes {
+  body.hbl-has-precheckout-note .wc-block-components-checkout-step--order-notes,
+  body.hbl-has-precheckout-note [class*="add-note"],
+  body.hbl-has-precheckout-note [class*="order-note"] {
+    display: none !important;
+  }
+  /* Fallback: hide the checkbox + textarea directly */
+  body.hbl-has-precheckout-note .wc-block-components-checkbox:has(.wc-block-components-checkbox__label[for*="checkbox-control"]) {
+    display: none !important;
+  }
+  body.hbl-has-precheckout-note textarea.wc-block-components-textarea {
     display: none !important;
   }
 </style>`;
@@ -524,7 +537,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
             //    labelled "Lägg till en anteckning till din beställning".
             //    We must: click the checkbox → wait for React to render the textarea
             //    → fill it using the native setter (React-compatible).
-            if (deliveryNote && textBody.includes("</body>")) {
+             if (deliveryNote && textBody.includes("</body>")) {
               const safeNote = JSON.stringify(deliveryNote);
               const deliveryScript = `
 <script id="hbl-delivery-note-prefill">
@@ -540,12 +553,38 @@ export default async (request: Request, context: Context): Promise<Response> => 
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
+  function hideNoteUI() {
+    // Hide the checkbox wrapper that contains "anteckning"
+    var checkboxes = document.querySelectorAll('.wc-block-components-checkbox__input');
+    checkboxes.forEach(function(cb) {
+      var wrapper = cb.closest('.wc-block-components-checkbox');
+      if (wrapper) {
+        var label = wrapper.querySelector('.wc-block-components-checkbox__label');
+        if (label && label.textContent && label.textContent.indexOf('anteckning') !== -1) {
+          wrapper.style.display = 'none';
+          // Also hide parent step/container if it wraps only the note
+          var step = cb.closest('.wc-block-components-checkout-step');
+          if (step) step.style.display = 'none';
+        }
+      }
+    });
+    // Hide the textarea
+    var ta = document.querySelector('textarea.wc-block-components-textarea');
+    if (ta) {
+      ta.style.display = 'none';
+      // Also hide parent container of the textarea
+      var taParent = ta.parentElement;
+      if (taParent) taParent.style.display = 'none';
+    }
+  }
+
   function fill() {
     attempts++;
     // 1. Try the classic WooCommerce ID first (shortcode-based checkout)
     var classic = document.getElementById('order_comments');
     if (classic) {
       setReactValue(classic, note);
+      hideNoteUI();
       return;
     }
 
@@ -582,6 +621,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
     }
     if (ta) {
       setReactValue(ta, note);
+      // Hide the note UI after filling
+      setTimeout(hideNoteUI, 100);
     } else if (attempts < maxAttempts) {
       setTimeout(fill, 500);
     }
@@ -592,6 +633,14 @@ export default async (request: Request, context: Context): Promise<Response> => 
   } else {
     setTimeout(fill, 500);
   }
+
+  // Also observe DOM for late-rendered note UI and hide it
+  var hideObserver = new MutationObserver(function() { hideNoteUI(); });
+  var observeTarget = document.documentElement;
+  if (document.body) observeTarget = document.body;
+  hideObserver.observe(observeTarget, { childList: true, subtree: true });
+  // Stop observing after 30 seconds to avoid performance impact
+  setTimeout(function() { hideObserver.disconnect(); }, 30000);
 })();
 </script>`;
               textBody = textBody.replace("</body>", deliveryScript + "\n</body>");
