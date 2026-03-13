@@ -63,6 +63,7 @@ export type Product = {
   origin: { country: string; flag: string };
   image: string;
   woocommerce_id?: number; // WooCommerce product ID for checkout
+  woocommerce_ids?: { hel?: number; halv?: number; kvart?: number }; // Per-portion WC IDs
   sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar (t.ex. halv ost)
   quality_class?: 'Klass 1' | 'Klass 2';  // Kvalitetsklass (t.ex. Klass 1)
 

@@ -379,7 +379,10 @@ const Webshop = () => {
             price: itemPrice,
             unit: product.unit,
             image: product.image,
-            woocommerce_id: product.woocommerce_id,
+            // Resolve correct WooCommerce product ID based on portion
+            woocommerce_id: (portion && product.woocommerce_ids?.[portion])
+                ? product.woocommerce_ids[portion]
+                : product.woocommerce_id,
             portion,
             portionLabel: portion ? PORTION_LABELS[portion] : undefined,
             weightGrams,

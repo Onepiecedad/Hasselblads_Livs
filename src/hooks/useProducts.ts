@@ -25,6 +25,7 @@ interface PIMProduct {
     status: 'pending' | 'processing' | 'completed' | 'skipped' | 'failed';
     is_published?: boolean;  // true = visas på hemsidan
     woocommerce_id?: number; // WooCommerce product ID
+    woocommerce_ids?: { hel?: number; halv?: number; kvart?: number }; // Per-portion WC IDs
     tags?: string[];         // Produkttaggar (godast, nyheter, isasong, erbjudanden)
     sold_as?: ('hel' | 'halv' | 'kvart')[]; // Portionsstorlekar
     quality_class?: 'Klass 1' | 'Klass 2'; // Kvalitetsklass
@@ -494,6 +495,7 @@ function transformProduct(pim: PIMProduct): Product {
         },
         image: pim.cloudinaryUrl || pim.finalImageUrl || '/placeholder-product.jpg',
         woocommerce_id: pim.woocommerce_id,
+        woocommerce_ids: pim.woocommerce_ids,
         sold_as: pim.sold_as,
         quality_class: pim.main_category?.includes('Frukt & Grönt') ? (pim.quality_class || 'Klass 1') : undefined,
 
