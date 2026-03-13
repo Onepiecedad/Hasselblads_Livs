@@ -1,5 +1,6 @@
 import type { Context, Config } from "@netlify/functions";
 import https from "node:https";
+import { matchDeliveryAddress } from "../../src/lib/deliveryAreas";
 
 /**
  * WordPress/WooCommerce API Proxy Function
@@ -27,6 +28,15 @@ function getCookieValue(cookieHeader: string | null, name: string): string | nul
   }
 
   return null;
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 export default async (request: Request, context: Context): Promise<Response> => {
@@ -134,31 +144,46 @@ export default async (request: Request, context: Context): Promise<Response> => 
 
   // Server-side fix: For checkout POST requests, ensure the shipping address
   // passes the WooCommerce delivery zone validation plugin.
-  // The plugin requires the shipping address to be one of ~36 specific streets.
-  // For pickup orders ("Hämta i butik"), we replace the address with a valid one.
+  // The plugin requires the shipping address to be one of the approved streets.
+  // Pickup orders get a spoofed valid street, and delivery orders get their
+  // address_1 normalized to the same canonical street match React accepts.
   const isCheckoutPost = request.method === "POST" && targetPath.includes("/wc/store/v1/checkout");
   if (isCheckoutPost && body) {
     try {
       const checkoutData = JSON.parse(body);
       const shippingAddr = checkoutData?.shipping_address;
-      // Detect pickup order: first_name contains "Hämta" or address is placeholder
-      if (shippingAddr && (
-        shippingAddr.first_name?.includes("Hämta") ||
-        shippingAddr.address_1 === "Hasselblads Livs" ||
-        shippingAddr.address_1 === "Hämtas i butik" ||
-        shippingAddr.address_1 === "Frejagatan 9"
-      )) {
-        // Replace with a valid street from the delivery zone whitelist
-        checkoutData.shipping_address = {
-          ...shippingAddr,
-          first_name: "Hämta",
-          last_name: "I butik",
-          address_1: "Blomstervägen 1",
-          city: "Kullavik",
-          postcode: "42943",
-          country: "SE",
-        };
-        body = JSON.stringify(checkoutData);
+      if (shippingAddr) {
+        // Detect pickup order: first_name contains "Hämta" or address is placeholder.
+        const isPickupOrder = (
+          shippingAddr.first_name?.includes("Hämta") ||
+          shippingAddr.address_1 === "Hasselblads Livs" ||
+          shippingAddr.address_1 === "Hämtas i butik" ||
+          shippingAddr.address_1 === "Frejagatan 9"
+        );
+
+        if (isPickupOrder) {
+          // Replace with a valid street from the delivery zone whitelist.
+          checkoutData.shipping_address = {
+            ...shippingAddr,
+            first_name: "Hämta",
+            last_name: "I butik",
+            address_1: "Blomstervägen 1",
+            city: "Kullavik",
+            postcode: "42943",
+            country: "SE",
+          };
+          body = JSON.stringify(checkoutData);
+        } else if (typeof shippingAddr.address_1 === "string") {
+          const streetMatch = matchDeliveryAddress(shippingAddr.address_1);
+          if (streetMatch && shippingAddr.address_1 !== streetMatch.street) {
+            checkoutData.shipping_address = {
+              ...shippingAddr,
+              // Use the canonical approved street name that WooCommerce validates against.
+              address_1: streetMatch.street,
+            };
+            body = JSON.stringify(checkoutData);
+          }
+        }
       }
     } catch {
       // If JSON parse fails, leave body unchanged
@@ -356,6 +381,144 @@ export default async (request: Request, context: Context): Promise<Response> => 
               textBody = textBody.replace("</head>", hideSwishStyle + "\n</head>");
             }
 
+            const helperStyle = `
+<style id="hbl-checkout-helper-style">
+  #hbl-checkout-helper-root {
+    max-width: 760px;
+    margin: 16px auto;
+    padding: 0 16px;
+    display: grid;
+    gap: 12px;
+    position: relative;
+    z-index: 20;
+  }
+  .hbl-checkout-box {
+    border-radius: 16px;
+    padding: 16px;
+  }
+  #hbl-precheckout-context {
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(248, 250, 252, 0.94);
+  }
+  #hbl-checkout-nav-notice {
+    border: 1px solid rgba(59, 130, 246, 0.18);
+    background: rgba(239, 246, 255, 0.92);
+  }
+  #hbl-multibuy-context {
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    background: rgba(255, 237, 213, 0.5);
+  }
+  .hbl-checkout-box h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+  }
+  .hbl-checkout-box p,
+  .hbl-checkout-box li {
+    font-size: 14px;
+    color: rgba(15, 23, 42, 0.92);
+  }
+  .hbl-checkout-box ul {
+    margin: 0;
+    padding-left: 18px;
+  }
+  .hbl-checkout-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .hbl-checkout-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    border-radius: 9999px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .hbl-checkout-action-primary {
+    background: #0f172a;
+    color: #fff;
+  }
+  .hbl-checkout-action-secondary {
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    color: #0f172a;
+    background: #fff;
+  }
+  body.hbl-has-precheckout-note #order_comments_field,
+  body.hbl-has-precheckout-note .wc-block-checkout__add-note,
+  body.hbl-has-precheckout-note .wc-block-components-checkout-step--order-notes {
+    display: none !important;
+  }
+</style>`;
+
+            if (textBody.includes("</head>")) {
+              textBody = textBody.replace("</head>", helperStyle + "\n</head>");
+            }
+
+            const helperSections: string[] = [];
+            helperSections.push(`
+<section id="hbl-checkout-nav-notice" class="hbl-checkout-box">
+  <h3>Tillbaka till din beställning</h3>
+  <p>Om du vill ändra varukorgen eller fortsätta handla, använd länkarna här. Din React-varukorg ligger kvar tills en order är genomförd.</p>
+  <div class="hbl-checkout-actions">
+    <a class="hbl-checkout-action hbl-checkout-action-primary" href="/kassa">Tillbaka till kassan</a>
+    <a class="hbl-checkout-action hbl-checkout-action-secondary" href="/webbutik">Fortsätt handla</a>
+  </div>
+</section>`);
+
+            if (deliveryNote) {
+              const noteLines = deliveryNote
+                .split("\n")
+                .map((line) => line.trim())
+                .filter(Boolean);
+              const customerCommentLine = noteLines.find((line) => line.startsWith("💬 Kommentar:"));
+              const customerComment = customerCommentLine
+                ? customerCommentLine.replace(/^💬 Kommentar:\s*/, "")
+                : "";
+              const deliveryContextLines = noteLines.filter((line) =>
+                !line.startsWith("🧾 Sammanfattning från pre-checkout:") &&
+                !line.startsWith("• ") &&
+                !line.startsWith("💬 Kommentar:")
+              );
+              const multiBuyLines = noteLines.filter((line) =>
+                line.startsWith("• ") && /(?:^|\|\s)\d+\s*för\s*\d+/i.test(line)
+              );
+
+              const deliveryContextHtml = deliveryContextLines.length > 0
+                ? `<ul>${deliveryContextLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
+                : "";
+              const customerCommentHtml = customerComment
+                ? `
+  <div style="margin-top:${deliveryContextLines.length > 0 ? "12px" : "0"};">
+    <p style="font-size:13px;font-weight:600;margin:0 0 6px 0;color:rgba(51,65,85,1);">Din kommentar</p>
+    <p style="margin:0;white-space:pre-wrap;">${escapeHtml(customerComment)}</p>
+  </div>`
+                : "";
+
+              helperSections.push(`
+<section id="hbl-precheckout-context" class="hbl-checkout-box">
+  <h3>Uppgifter från pre-checkout</h3>
+  <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Kommentar och leveransuppgifter lades in i React-kassan innan du skickades hit.</p>
+  ${deliveryContextHtml}
+  ${customerCommentHtml}
+  <p style="font-size:12px;margin:12px 0 0 0;color:rgba(100,116,139,1);">Behöver du ändra kommentaren gör du det i React-kassan innan betalning.</p>
+</section>`);
+
+              if (multiBuyLines.length > 0) {
+                helperSections.push(`
+<section id="hbl-multibuy-context" class="hbl-checkout-box">
+  <h3>Multiköp från pre-checkout</h3>
+  <p style="margin:0 0 10px 0;color:rgba(87,83,78,1);">Följande kampanjrader visades i React-kassan innan handoff:</p>
+  <ul>${multiBuyLines.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
+  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(120,113,108,1);">Denna ruta bevarar multiköpskontext från pre-checkout. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.</p>
+</section>`);
+              }
+            }
+
+            const helperMarkup = `<div id="hbl-checkout-helper-root">${helperSections.join("\n")}</div>`;
+            textBody = textBody.replace(/<body([^>]*)>/i, `<body$1${deliveryNote ? ' class="hbl-has-precheckout-note"' : ''}>${helperMarkup}`);
+
             // 2. Delivery-note pre-fill script (at end of body)
             //    WooCommerce Blocks checkout hides the textarea behind a checkbox
             //    labelled "Lägg till en anteckning till din beställning".
@@ -369,12 +532,6 @@ export default async (request: Request, context: Context): Promise<Response> => 
   var note = ${safeNote};
   var maxAttempts = 40;
   var attempts = 0;
-  var multiBuyLines = note
-    .split('\\n')
-    .map(function(line) { return line.trim(); })
-    .filter(function(line) {
-      return line.indexOf('• ') === 0 && /(?:^|\\|\\s)\\d+\\s*för\\s*\\d+/i.test(line);
-    });
 
   function setReactValue(el, value) {
     var setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
@@ -383,69 +540,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
     el.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  function ensureMultiBuyNotice() {
-    if (!multiBuyLines.length || document.getElementById('hbl-multibuy-context')) {
-      return;
-    }
-
-    var host =
-      document.querySelector('.wc-block-checkout__sidebar') ||
-      document.querySelector('.wc-block-checkout') ||
-      document.querySelector('form.checkout') ||
-      document.body;
-
-    if (!host) {
-      return;
-    }
-
-    var notice = document.createElement('section');
-    notice.id = 'hbl-multibuy-context';
-    notice.style.border = '1px solid rgba(249, 115, 22, 0.25)';
-    notice.style.background = 'rgba(255, 237, 213, 0.5)';
-    notice.style.borderRadius = '16px';
-    notice.style.padding = '16px';
-    notice.style.marginBottom = '16px';
-
-    var heading = document.createElement('h3');
-    heading.textContent = 'Multiköp från pre-checkout';
-    heading.style.fontSize = '16px';
-    heading.style.fontWeight = '600';
-    heading.style.margin = '0 0 8px 0';
-    notice.appendChild(heading);
-
-    var intro = document.createElement('p');
-    intro.textContent = 'Följande kampanjrader visades i React-kassan innan handoff:';
-    intro.style.fontSize = '14px';
-    intro.style.margin = '0 0 10px 0';
-    intro.style.color = 'rgba(87, 83, 78, 1)';
-    notice.appendChild(intro);
-
-    var list = document.createElement('ul');
-    list.style.margin = '0';
-    list.style.paddingLeft = '18px';
-    list.style.fontSize = '14px';
-    list.style.color = 'rgba(68, 64, 60, 1)';
-    multiBuyLines.forEach(function(line) {
-      var item = document.createElement('li');
-      item.textContent = line.replace(/^•\\s*/, '');
-      item.style.marginBottom = '6px';
-      list.appendChild(item);
-    });
-    notice.appendChild(list);
-
-    var footnote = document.createElement('p');
-    footnote.textContent = 'Denna ruta bevarar multiköpskontext från pre-checkout. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.';
-    footnote.style.fontSize = '12px';
-    footnote.style.margin = '10px 0 0 0';
-    footnote.style.color = 'rgba(120, 113, 108, 1)';
-    notice.appendChild(footnote);
-
-    host.insertBefore(notice, host.firstChild);
-  }
-
   function fill() {
     attempts++;
-    ensureMultiBuyNotice();
     // 1. Try the classic WooCommerce ID first (shortcode-based checkout)
     var classic = document.getElementById('order_comments');
     if (classic) {
@@ -479,7 +575,6 @@ export default async (request: Request, context: Context): Promise<Response> => 
   }
 
   function fillTextarea() {
-    ensureMultiBuyNotice();
     var ta = document.querySelector('textarea.wc-block-components-textarea');
     if (!ta) {
       // Also try the classic ID as fallback
@@ -500,6 +595,51 @@ export default async (request: Request, context: Context): Promise<Response> => 
 })();
 </script>`;
               textBody = textBody.replace("</body>", deliveryScript + "\n</body>");
+            }
+
+            if (textBody.includes("</body>")) {
+              const checkoutNavScript = `
+<script id="hbl-checkout-navigation-guard">
+(function(){
+  function rewriteHref(anchor, nextHref) {
+    if (!anchor || anchor.dataset.hblNavPatched === '1') {
+      return;
+    }
+    anchor.setAttribute('href', nextHref);
+    anchor.dataset.hblNavPatched = '1';
+  }
+
+  function ensureNotice() {
+    return !!document.getElementById('hbl-checkout-nav-notice');
+  }
+
+  function patchLinks() {
+    document.querySelectorAll('a[href]').forEach(function(anchor) {
+      var href = anchor.getAttribute('href') || '';
+      if (/^\\/(varukorg|cart)(\\/|$)/.test(href)) {
+        rewriteHref(anchor, '/kassa');
+      }
+    });
+  }
+
+  function init() {
+    patchLinks();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  var observer = new MutationObserver(function() {
+    patchLinks();
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>`;
+              textBody = textBody.replace("</body>", checkoutNavScript + "\n</body>");
             }
 
             // 3. Pickup mode: hide address fields & auto-select free shipping

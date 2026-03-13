@@ -3,6 +3,7 @@ import {
     formatDeliveryDate,
     matchDeliveryAddress,
     getAvailableDeliveryDates,
+    normalizeDeliveryAddress,
 } from './deliveryAreas';
 
 // ─── formatDeliveryDate ──────────────────────────────────────────
@@ -58,6 +59,12 @@ describe('matchDeliveryAddress', () => {
     it('is case-insensitive', () => {
         const result = matchDeliveryAddress('FREJAGATAN 9');
         expect(result).not.toBeNull();
+    });
+});
+
+describe('normalizeDeliveryAddress', () => {
+    it('strips punctuation and normalizes diacritics for whitelist matching', () => {
+        expect(normalizeDeliveryAddress('Blomstervägen 12, Mölndal')).toBe('blomstervagen 12 molndal');
     });
 });
 

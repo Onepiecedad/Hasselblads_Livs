@@ -154,7 +154,7 @@ export function formatDeliveryDate(d: Date): string {
 }
 
 /** Normalize a string for fuzzy comparison (lowercase, strip diacritics). */
-function normalize(s: string): string {
+export function normalizeDeliveryAddress(s: string): string {
     return s
         .toLowerCase()
         .normalize('NFD')
@@ -174,12 +174,12 @@ export interface StreetMatch {
  * Returns the matched area + street, or null if no match.
  */
 export function matchDeliveryAddress(input: string): StreetMatch | null {
-    const q = normalize(input);
+    const q = normalizeDeliveryAddress(input);
     if (!q) return null;
 
     for (const area of DELIVERY_AREAS) {
         for (const street of area.streets) {
-            const ns = normalize(street);
+            const ns = normalizeDeliveryAddress(street);
             // Match if query starts with or contains the normalized street name
             if (q.startsWith(ns) || q.includes(ns)) {
                 return { area, street };

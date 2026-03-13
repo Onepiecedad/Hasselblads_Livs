@@ -13,9 +13,9 @@
 /betalning/*     /.netlify/functions/wordpress-proxy/kassa/:splat     200!
 /kassan          /betalning                                            301
 /kassan/*        /betalning/:splat                                     301
-/varukorg    /.netlify/functions/wordpress-proxy/varukorg         200!
-/varukorg/   /.netlify/functions/wordpress-proxy/varukorg/        200!
-/varukorg/*  /.netlify/functions/wordpress-proxy/varukorg/:splat  200!
+/varukorg    /kassa                                                301
+/varukorg/   /kassa                                                301
+/varukorg/*  /kassa                                                301
 /wc-ajax/*   /.netlify/functions/wordpress-proxy/wc-ajax/:splat   200!
 
 # WooCommerce customer account page - proxy to WordPress
@@ -30,6 +30,9 @@
 /sasong /säsong 301
 /kundtjanst /kundservice 301
 /checkout /betalning 301
+/cart /kassa 301
+/cart/ /kassa 301
+/cart/* /kassa 301
 
 # SPA fallback - MUST be last!
 /*    /index.html   200

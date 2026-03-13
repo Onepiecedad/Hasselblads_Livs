@@ -112,12 +112,12 @@
 
 [[redirects]]
   from = "/varukorg"
-  to = "/webbutik"
+  to = "/kassa"
   status = 301
 
 [[redirects]]
   from = "/cart"
-  to = "/webbutik"
+  to = "/kassa"
   status = 301
 
 [build.environment]
