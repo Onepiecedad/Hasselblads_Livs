@@ -481,10 +481,23 @@ export default async (request: Request, context: Context): Promise<Response> => 
 </section>`);
 
             if (deliveryNote) {
-              const noteLines = deliveryNote
+              // Split delivery note into lines. Newlines may survive (normal case)
+              // or may be lost during URL encoding through 301 redirect chain.
+              // Fallback: split on known emoji/bullet prefixes when \n split fails.
+              let noteLines = deliveryNote
                 .split("\n")
                 .map((line) => line.trim())
                 .filter(Boolean);
+
+              // Heuristic: if all content ended up on a single line, try to split
+              // on emoji/bullet boundaries that we know always start a new line.
+              if (noteLines.length <= 2 && deliveryNote.length > 60) {
+                const linePrefixes = /(?=🚚|📦|📍|🕐|💚|🚛|🧾|💬|• )/gu;
+                noteLines = deliveryNote
+                  .split(linePrefixes)
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+              }
               const expectsFreeHomeDelivery = noteLines.includes("💚 Fri hemleverans i pre-checkout");
               const customerCommentLine = noteLines.find((line) => line.startsWith("💬 Kommentar:"));
               const customerComment = customerCommentLine
