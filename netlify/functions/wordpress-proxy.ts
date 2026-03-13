@@ -558,7 +558,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
   <h3>Delade varor från pre-checkout</h3>
   <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Följande delade rader och radpriser visades i React-kassan innan handoff:</p>
   <ul>${portionedLineItems.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
-  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(100,116,139,1);">Denna ruta bevarar portionskontext från pre-checkout. Slutliga WooCommerce-rader styrs fortfarande av WooCommerce.</p>
+  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(100,116,139,1);">Detta är portionssanningen från React-kassan. WooCommerce-raderna nedan kan fortfarande se annorlunda ut tills portionsdata skickas som riktiga orderrader i en större integrationsförändring.</p>
 </section>`);
               }
 
