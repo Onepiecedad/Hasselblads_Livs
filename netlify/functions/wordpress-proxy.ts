@@ -495,7 +495,9 @@ export default async (request: Request, context: Context): Promise<Response> => 
               const deliveryContextLines = noteLines.filter((line) =>
                 !line.startsWith("🧾 Sammanfattning från pre-checkout:") &&
                 !line.startsWith("• ") &&
-                !line.startsWith("💬 Kommentar:")
+                !line.startsWith("💬 Kommentar:") &&
+                !line.startsWith("💚 Fri hemleverans") &&
+                !line.startsWith("🚛 Frakt i pre-checkout")
               );
               const multiBuyLines = noteLines.filter((line) =>
                 line.startsWith("• ") && /(?:^|\|\s)\d+\s*för\s*\d+/i.test(line)
@@ -518,7 +520,11 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 ? `
   <div style="margin-top:12px;">
     <p style="font-size:13px;font-weight:600;margin:0 0 6px 0;color:rgba(51,65,85,1);">Produkter från pre-checkout</p>
-    <ul>${lineItemLines.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
+    <ul style="margin:0;padding-left:18px;list-style:disc;">${lineItemLines.map((line) => {
+      const clean = escapeHtml(line.replace(/^•\s*/, ""));
+      const isPortioned = /\((halv|kvart)\)/i.test(line);
+      return `<li style="font-size:13px;margin:4px 0;color:rgba(51,65,85,1);${isPortioned ? 'font-weight:600;' : ''}">${clean}</li>`;
+    }).join("")}</ul>
   </div>`
                 : "";
 
