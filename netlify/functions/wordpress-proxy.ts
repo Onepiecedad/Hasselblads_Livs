@@ -566,9 +566,9 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 helperSections.push(`
 <section id="hbl-multibuy-context" class="hbl-checkout-box">
   <h3>Multiköp från pre-checkout</h3>
-  <p style="margin:0 0 10px 0;color:rgba(87,83,78,1);">Följande kampanjrader visades i React-kassan innan handoff:</p>
+  <p style="margin:0 0 10px 0;color:rgba(87,83,78,1);">Följande kampanjrader och rabatter visades i React-kassan innan handoff:</p>
   <ul>${multiBuyLines.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
-  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(120,113,108,1);">Denna ruta bevarar multiköpskontext från pre-checkout. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.</p>
+  <p style="font-size:12px;margin:10px 0 0 0;color:rgba(120,113,108,1);">Denna ruta visar React-kassans radpris, ordinarie jämförelsepris och besparing för multiköp. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.</p>
 </section>`);
               }
             }

@@ -217,10 +217,20 @@ const PreCheckoutPage = () => {
                 labelParts.push(`(${item.portionLabel.toLowerCase()})`);
             }
 
-            const contextParts = [`${item.quantity} st`, `${formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr`];
+            const lineTotal = item.lineTotal ?? (item.price * item.quantity);
+            const compareAtLineTotal = item.compareAtLineTotal ?? (item.price * item.quantity);
+            const savings = compareAtLineTotal > lineTotal
+                ? Math.round((compareAtLineTotal - lineTotal) * 100) / 100
+                : 0;
+            const contextParts = [`${item.quantity} st`, `${formatPrice(lineTotal)} kr`];
 
             if (item.appliedOfferLabel) {
                 contextParts.push(item.appliedOfferLabel);
+                contextParts.push(`Ord. ${formatPrice(compareAtLineTotal)} kr`);
+            }
+
+            if (savings > 0) {
+                contextParts.push(`Spara ${formatPrice(savings)} kr`);
             }
 
             return `• ${labelParts.join(" ")} - ${contextParts.join(" | ")}`;

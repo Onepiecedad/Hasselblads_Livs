@@ -8,21 +8,23 @@
  * 
  * This script:
  * 1. Reads all published products from Firestore (via Firebase client SDK)
- * 2. Calculates the "display price" (same logic as useProducts.ts)
+ * 2. Calculates the "display price" (same logic as useProducts.ts / webshop)
  * 3. Compares with WooCommerce price  
  * 4. Updates WooCommerce if they differ
  * 
  * SAFETY: Only updates products where BOTH Firestore & WooCommerce have valid prices > 0.
  * 
  * Usage:
- *   node scripts/sync-woocommerce-prices.mjs           # Dry run (show changes)
- *   node scripts/sync-woocommerce-prices.mjs --apply    # Apply changes
+ *   node scripts/sync-woocommerce-prices.mjs                          # Dry run (show changes)
+ *   node scripts/sync-woocommerce-prices.mjs --apply                  # Apply changes
+ *   node scripts/sync-woocommerce-prices.mjs --apply --portions-only  # Apply only halv/kvart products
  */
 
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 
 const DRY_RUN = !process.argv.includes('--apply');
+const PORTIONS_ONLY = process.argv.includes('--portions-only');
 
 // Firebase config (same as src/lib/firebase.ts)
 const firebaseConfig = {
@@ -63,6 +65,83 @@ function calculateDisplayPrice(product) {
     }
 }
 
+function calculateDisplaySalePrice(product) {
+    const rawSalePrice = product.sale_price || 0;
+    if (!rawSalePrice || rawSalePrice <= 0) return undefined;
+
+    const pricingType = product.pricing_type;
+    const estimatedWeightG = product.estimated_weight_g || 0;
+    const isWeightBased = pricingType === 'weight_based';
+
+    if (isWeightBased && estimatedWeightG) {
+        return Math.round(rawSalePrice * estimatedWeightG / 1000 * 100) / 100;
+    }
+
+    return rawSalePrice;
+}
+
+function getEffectiveDisplayPrice(product) {
+    const regularPrice = calculateDisplayPrice(product);
+    const salePrice = calculateDisplaySalePrice(product);
+    return salePrice && salePrice < regularPrice ? salePrice : regularPrice;
+}
+
+function getPortionMultiplier(portion) {
+    switch (portion) {
+        case 'halv':
+            return 0.5;
+        case 'kvart':
+            return 0.25;
+        default:
+            return 1;
+    }
+}
+
+function buildPriceTargets(product) {
+    const regularPrice = Math.round(calculateDisplayPrice(product) * 100) / 100;
+    const salePrice = calculateDisplaySalePrice(product);
+    const hasActiveSale = salePrice && salePrice < regularPrice;
+    const targets = [];
+
+    if (product.woocommerce_id) {
+        targets.push({
+            wcId: product.woocommerce_id,
+            name: product.display_name || product.product_name || 'Unknown',
+            regularPrice,
+            salePrice: hasActiveSale ? Math.round(salePrice * 100) / 100 : undefined,
+            effectivePrice: Math.round(getEffectiveDisplayPrice(product) * 100) / 100,
+            isWeightBased: product.pricing_type === 'weight_based',
+            pricePerKg: product.price_per_kg,
+            estimatedWeightG: product.estimated_weight_g,
+            portion: 'hel',
+        });
+    }
+
+    const portionIds = product.woocommerce_ids || {};
+    for (const portion of ['halv', 'kvart']) {
+        const wcId = portionIds[portion];
+        if (!wcId) continue;
+
+        const multiplier = getPortionMultiplier(portion);
+        const portionRegular = Math.round(regularPrice * multiplier * 100) / 100;
+        const portionSale = hasActiveSale ? Math.round(salePrice * multiplier * 100) / 100 : undefined;
+
+        targets.push({
+            wcId,
+            name: `${product.display_name || product.product_name || 'Unknown'} — ${portion === 'halv' ? 'Halv' : 'Kvart'}`,
+            regularPrice: portionRegular,
+            salePrice: portionSale,
+            effectivePrice: portionSale && portionSale < portionRegular ? portionSale : portionRegular,
+            isWeightBased: product.pricing_type === 'weight_based',
+            pricePerKg: product.price_per_kg,
+            estimatedWeightG: product.estimated_weight_g,
+            portion,
+        });
+    }
+
+    return targets;
+}
+
 // ─── WooCommerce API ───
 
 async function getWooCommerceProduct(wcId) {
@@ -77,12 +156,13 @@ async function getWooCommerceProduct(wcId) {
     }
 }
 
-async function updateWooCommercePrice(wcId, newPrice) {
+async function updateWooCommercePrice(wcId, regularPrice, salePrice) {
     const https = await import('node:https');
 
     return new Promise((resolve) => {
         const postData = JSON.stringify({
-            regular_price: newPrice.toFixed(2)
+            regular_price: regularPrice.toFixed(2),
+            sale_price: salePrice ? salePrice.toFixed(2) : ''
         });
 
         const options = {
@@ -123,7 +203,7 @@ async function updateWooCommercePrice(wcId, newPrice) {
 // ─── Main ───
 
 async function main() {
-    console.log(`\n🔄 WooCommerce Price Sync${DRY_RUN ? ' (DRY RUN – use --apply to commit changes)' : ' (APPLYING CHANGES)'}\n`);
+    console.log(`\n🔄 WooCommerce Price Sync${DRY_RUN ? ' (DRY RUN – use --apply to commit changes)' : ' (APPLYING CHANGES)'}${PORTIONS_ONLY ? ' [PORTIONS ONLY]' : ''}\n`);
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -134,19 +214,27 @@ async function main() {
     const productsRef = collection(db, 'organizations/hasselblad_common/projects/default/products');
     const snapshot = await getDocs(productsRef);
 
-    const allProducts = [];
+    const allTargets = [];
     snapshot.forEach(doc => {
         const data = doc.data();
-        if (data.woocommerce_id) {
-            allProducts.push({ docId: doc.id, ...data });
+        if (PORTIONS_ONLY && !data.woocommerce_ids) {
+            return;
+        }
+
+        if (data.woocommerce_id || data.woocommerce_ids) {
+            allTargets.push(...buildPriceTargets({ docId: doc.id, ...data }));
         }
     });
 
-    console.log(`   Found ${snapshot.size} total products`);
-    console.log(`🔗 Products with woocommerce_id: ${allProducts.length}\n`);
+    const uniqueTargets = Array.from(
+        new Map(allTargets.map(target => [target.wcId, target])).values()
+    ).filter(target => !PORTIONS_ONLY || target.portion !== 'hel');
 
-    if (allProducts.length === 0) {
-        console.log('⚠️  No products with woocommerce_id found!');
+    console.log(`   Found ${snapshot.size} total products`);
+    console.log(`🔗 WooCommerce price targets: ${uniqueTargets.length}\n`);
+
+    if (uniqueTargets.length === 0) {
+        console.log('⚠️  No WooCommerce price targets found!');
         process.exit(0);
     }
 
@@ -159,14 +247,13 @@ async function main() {
     const weightBasedChanges = [];
     const unitBasedChanges = [];
 
-    for (const product of allProducts) {
-        const displayPrice = Math.round(calculateDisplayPrice(product) * 100) / 100;
-        const wcId = product.woocommerce_id;
-        const name = product.display_name || product.product_name || 'Unknown';
-        const isWeightBased = product.pricing_type === 'weight_based';
+    for (const target of uniqueTargets) {
+        const displayPrice = target.effectivePrice;
+        const wcId = target.wcId;
+        const name = target.name;
+        const isWeightBased = target.isWeightBased;
 
-        // SAFETY: Skip products with no display price in Firestore
-        if (displayPrice <= 0) {
+        if (target.regularPrice <= 0) {
             skippedNoPrice++;
             continue;
         }
@@ -194,8 +281,10 @@ async function main() {
             oldPrice: wcPrice,
             newPrice: displayPrice,
             isWeightBased,
-            pricePerKg: product.price_per_kg,
-            estimatedWeightG: product.estimated_weight_g,
+            pricePerKg: target.pricePerKg,
+            estimatedWeightG: target.estimatedWeightG,
+            salePrice: target.salePrice,
+            portion: target.portion,
         };
 
         if (isWeightBased) {
@@ -205,7 +294,7 @@ async function main() {
         }
 
         if (!DRY_RUN) {
-            const result = await updateWooCommercePrice(wcId, displayPrice);
+            const result = await updateWooCommercePrice(wcId, target.regularPrice, target.salePrice);
             if (result.ok) {
                 updated++;
             } else {
@@ -223,7 +312,7 @@ async function main() {
     console.log(`${'='.repeat(60)}`);
     console.log(`📊 RESULTAT`);
     console.log(`${'='.repeat(60)}`);
-    console.log(`   Totalt med WC-id:       ${allProducts.length}`);
+    console.log(`   Totalt med WC-id:       ${uniqueTargets.length}`);
     console.log(`   ✅ Redan korrekt pris:   ${unchanged}`);
     console.log(`   ⏭️  Skippad (0kr i FS):   ${skippedNoPrice}`);
     console.log(`   ⏭️  Skippad (ej i WC):    ${skippedNotInWc}`);
@@ -243,7 +332,7 @@ async function main() {
         for (const c of weightBasedChanges) {
             const label = `${c.pricePerKg} kr/kg × ${c.estimatedWeightG}g`;
             console.log(`  ${DRY_RUN ? '📝' : '✅'} ${c.name}`);
-            console.log(`     ${c.oldPrice.toFixed(2)} kr → ${c.newPrice.toFixed(2)} kr (${label})`);
+            console.log(`     ${c.oldPrice.toFixed(2)} kr → ${c.newPrice.toFixed(2)} kr (${label}${c.salePrice ? `, rea ${c.salePrice.toFixed(2)} kr` : ''})`);
         }
     }
 
@@ -253,7 +342,7 @@ async function main() {
         console.log(`📦 STYCKPRIS-PRODUKTER – ${unitBasedChanges.length} st:`);
         console.log(`${'─'.repeat(60)}`);
         for (const c of unitBasedChanges) {
-            console.log(`  ${DRY_RUN ? '📝' : '✅'} ${c.name}: ${c.oldPrice.toFixed(2)} → ${c.newPrice.toFixed(2)} kr`);
+            console.log(`  ${DRY_RUN ? '📝' : '✅'} ${c.name}: ${c.oldPrice.toFixed(2)} → ${c.newPrice.toFixed(2)} kr${c.salePrice ? ` (rea ${c.salePrice.toFixed(2)} kr)` : ''}`);
         }
     }
 
