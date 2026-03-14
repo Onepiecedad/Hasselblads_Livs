@@ -41,7 +41,6 @@ function scaleApproximateWeight(weight: string, multiplier: number): string {
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
-  const quantityInputRef = useRef<HTMLInputElement | null>(null);
   const replaceOnNextDigitRef = useRef(true);
 
   const [isFlipped, setIsFlipped] = useState(false);
@@ -167,10 +166,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     replaceOnNextDigitRef.current = next === 1;
   };
 
-  const selectQuantityInput = () => {
-    window.setTimeout(() => {
-      quantityInputRef.current?.select();
-    }, 0);
+  const armQuantityReplace = () => {
     replaceOnNextDigitRef.current = quantityInput === "1";
   };
 
@@ -431,7 +427,6 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </Button>
                   <Input
-                    ref={quantityInputRef}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
@@ -439,9 +434,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     onChange={handleQuantityInputChange}
                     onKeyDown={handleQuantityInputKeyDown}
                     onBlur={handleQuantityInputBlur}
-                    onFocus={selectQuantityInput}
-                    onMouseDown={selectQuantityInput}
-                    onMouseUp={(e) => e.preventDefault()}
+                    onFocus={armQuantityReplace}
+                    onMouseDown={armQuantityReplace}
                     onClick={(e) => e.stopPropagation()}
                     className="h-7 w-10 border-0 bg-transparent px-0 text-center text-xs font-semibold shadow-none focus-visible:ring-1 focus-visible:ring-primary sm:h-8 sm:w-12 sm:text-sm"
                     aria-label="Antal"

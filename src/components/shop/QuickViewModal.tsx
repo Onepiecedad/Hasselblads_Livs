@@ -66,7 +66,6 @@ function formatWeight(grams: number): string {
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
-  const quantityInputRef = useRef<HTMLInputElement | null>(null);
   const replaceOnNextDigitRef = useRef(true);
   const selectedOffer = useMemo(() => getAutoOffer(quantity, product?.multiOffers) ?? null, [quantity, product?.multiOffers]);
   const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
@@ -189,10 +188,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
     replaceOnNextDigitRef.current = next === 1;
   };
 
-  const selectQuantityInput = () => {
-    window.setTimeout(() => {
-      quantityInputRef.current?.select();
-    }, 0);
+  const armQuantityReplace = () => {
     replaceOnNextDigitRef.current = quantityInput === "1";
   };
 
@@ -489,15 +485,13 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             <Minus className="h-4 w-4" />
                           </Button>
                           <Input
-                            ref={quantityInputRef}
                             type="text"
                             value={quantityInput}
                             onChange={(event) => handleQuantityChange(event.target.value)}
                             onKeyDown={handleQuantityKeyDown}
                             onBlur={handleQuantityBlur}
-                            onFocus={selectQuantityInput}
-                            onMouseDown={selectQuantityInput}
-                            onMouseUp={(e) => e.preventDefault()}
+                            onFocus={armQuantityReplace}
+                            onMouseDown={armQuantityReplace}
                             inputMode="numeric"
                             pattern="[0-9]*"
                             className="h-10 w-16 text-center text-lg font-semibold"
