@@ -91,9 +91,9 @@ export const DELIVERY_AREAS: DeliveryAreaData[] = [
 
 /** ─── Delivery schedule ─── */
 
-/** Delivery available Monday–Friday. Order deadline: day before 18:00. */
+/** Delivery available Monday–Friday. Order deadline: day before 24:00. */
 export const DELIVERY_WEEKDAYS = [1, 2, 3, 4, 5]; // 0=Sun, 1=Mon … 6=Sat
-export const ORDER_DEADLINE_HOUR = 19; // 19:00 day before
+export const ORDER_DEADLINE_HOUR = 24; // 24:00 day before
 
 /** Store info for pickup */
 export const PICKUP_INFO = {
@@ -108,10 +108,10 @@ export const PRECHECKOUT_CONTENT = {
         areasLabel: 'Solängen och Malevik',
         introText: `Vi levererar till ${DELIVERY_AREAS[0].label} (${DELIVERY_AREAS[0].deliveryTime}) och ${DELIVERY_AREAS[1].label} (${DELIVERY_AREAS[1].deliveryTime}), måndag–fredag.`,
         addressPromptText: 'Vi levererar till Solängen och Malevik. Ange din gatuadress så kontrollerar vi.',
-        cutoffText: 'Beställning senast kl 19:00 dagen innan leverans.',
+        cutoffText: 'Beställning senast kl 24:00 dagen innan leverans.',
     },
     pickup: {
-        label: PICKUP_INFO.label,
+        label: 'Hämtställe',
         address: PICKUP_INFO.address,
         readyTimeText: 'från kl 10',
         introText: PICKUP_INFO.note,
@@ -120,7 +120,7 @@ export const PRECHECKOUT_CONTENT = {
 
 /**
  * Get the next N available delivery dates (Mon–Fri).
- * Respects the order-deadline: if it's after 18:00 today, the earliest
+ * Respects the order-deadline: if it's after 24:00 today, the earliest
  * delivery is the day after tomorrow.
  */
 export function getAvailableDeliveryDates(count = 5): Date[] {

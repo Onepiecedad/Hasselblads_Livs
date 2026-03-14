@@ -40,6 +40,7 @@ function scaleApproximateWeight(weight: string, multiplier: number): string {
 
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
 
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -128,19 +129,36 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   const handleQuantityChange = (e: React.MouseEvent, delta: number) => {
     e.stopPropagation();
-    setQuantity(prev => Math.max(1, Math.min(99, prev + delta)));
+    setQuantity(prev => {
+      const next = Math.max(1, Math.min(99, prev + delta));
+      setQuantityInput(String(next));
+      return next;
+    });
   };
 
   const handleQuantityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.stopPropagation();
-    const next = Number.parseInt(e.target.value, 10);
+    const rawValue = e.target.value.replace(/[^\d]/g, "");
+    setQuantityInput(rawValue);
 
-    if (Number.isNaN(next)) {
-      setQuantity(1);
+    if (!rawValue) {
       return;
     }
 
+    const next = Number.parseInt(rawValue, 10);
     setQuantity(Math.max(1, Math.min(99, next)));
+  };
+
+  const handleQuantityInputBlur = () => {
+    if (!quantityInput) {
+      setQuantity(1);
+      setQuantityInput("1");
+      return;
+    }
+
+    const next = Math.max(1, Math.min(99, Number.parseInt(quantityInput, 10) || 1));
+    setQuantity(next);
+    setQuantityInput(String(next));
   };
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
@@ -148,6 +166,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     const autoOffer = getAutoOffer(quantity, product.multiOffers);
     onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
+    setQuantityInput("1");
   };
 
   return (
@@ -383,11 +402,17 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </Button>
                   <Input
-                    type="number"
-                    min={1}
-                    max={99}
-                    value={quantity}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={quantityInput}
                     onChange={handleQuantityInputChange}
+                    onBlur={handleQuantityInputBlur}
+                    onFocus={(e) => e.target.select()}
+                    onMouseUp={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.select();
+                    }}
                     onClick={(e) => e.stopPropagation()}
                     className="h-7 w-10 border-0 bg-transparent px-0 text-center text-xs font-semibold shadow-none focus-visible:ring-1 focus-visible:ring-primary sm:h-8 sm:w-12 sm:text-sm"
                     aria-label="Antal"

@@ -408,6 +408,10 @@ export default async (request: Request, context: Context): Promise<Response> => 
     border: 1px solid rgba(249, 115, 22, 0.25);
     background: rgba(255, 237, 213, 0.5);
   }
+  #hbl-shipping-clarity {
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    background: rgba(236, 253, 245, 0.92);
+  }
   .hbl-checkout-box h3 {
     font-size: 16px;
     font-weight: 600;
@@ -461,6 +465,14 @@ export default async (request: Request, context: Context): Promise<Response> => 
     display: none !important;
   }
   body.hbl-has-precheckout-note textarea.wc-block-components-textarea {
+    display: none !important;
+  }
+  /* Hide verbose product descriptions/metadata in WooCommerce order summary */
+  .wc-block-components-product-metadata,
+  .wc-block-cart-item__description,
+  .wc-block-components-product-details,
+  .wc-block-components-order-summary-item__description,
+  .wc-block-components-order-summary-item__individual-prices {
     display: none !important;
   }
 </style>`;
@@ -550,6 +562,12 @@ export default async (request: Request, context: Context): Promise<Response> => 
   ${lineItemSummaryHtml}
   ${customerCommentHtml}
   <p style="font-size:12px;margin:12px 0 0 0;color:rgba(100,116,139,1);">Behöver du ändra kommentaren gör du det i React-kassan innan betalning.</p>
+</section>`);
+
+              helperSections.push(`
+<section id="hbl-shipping-clarity" class="hbl-checkout-box">
+  <h3>Fraktval i slutsteget</h3>
+  <p style="margin:0;color:rgba(6,95,70,1);">WooCommerce visar fraktalternativen igen i det här steget. Det är samma slutliga fraktval som ordern använder om du behöver kontrollera eller ändra det innan betalning.</p>
 </section>`);
 
               if (portionedLineItems.length > 0) {

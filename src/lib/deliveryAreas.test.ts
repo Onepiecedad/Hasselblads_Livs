@@ -89,7 +89,7 @@ describe('getAvailableDeliveryDates', () => {
 
     it('starts from tomorrow when before deadline', () => {
         vi.useFakeTimers();
-        // Set to Monday 2026-02-16 at 10:00 (before 19:00 deadline)
+        // Set to Monday 2026-02-16 at 10:00 (before 24:00 deadline)
         vi.setSystemTime(new Date(2026, 1, 16, 10, 0, 0));
         const dates = getAvailableDeliveryDates(1);
         // Earliest should be Tuesday 17th
@@ -97,13 +97,13 @@ describe('getAvailableDeliveryDates', () => {
         expect(dates[0].getDay()).toBe(2); // Tuesday
     });
 
-    it('skips a day when after deadline', () => {
+    it('still starts from tomorrow late in the evening before the 24:00 deadline', () => {
         vi.useFakeTimers();
-        // Set to Monday 2026-02-16 at 20:00 (after 19:00 deadline)
-        vi.setSystemTime(new Date(2026, 1, 16, 20, 0, 0));
+        // Set to Monday 2026-02-16 at 23:00 (still before 24:00 deadline)
+        vi.setSystemTime(new Date(2026, 1, 16, 23, 0, 0));
         const dates = getAvailableDeliveryDates(1);
-        // Should skip Tuesday, earliest is Wednesday 18th
-        expect(dates[0].getDate()).toBe(18);
-        expect(dates[0].getDay()).toBe(3); // Wednesday
+        // Earliest should still be Tuesday 17th
+        expect(dates[0].getDate()).toBe(17);
+        expect(dates[0].getDay()).toBe(2); // Tuesday
     });
 });
