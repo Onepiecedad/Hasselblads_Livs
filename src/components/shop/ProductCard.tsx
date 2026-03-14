@@ -1,4 +1,4 @@
-import { useState, memo, useMemo } from "react";
+import { useState, memo, useMemo, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,6 +41,8 @@ function scaleApproximateWeight(weight: string, multiplier: number): string {
 const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef }: ProductCardProps) => {
   const [quantity, setQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
+  const quantityInputRef = useRef<HTMLInputElement | null>(null);
+  const replaceOnNextDigitRef = useRef(true);
 
   const [isFlipped, setIsFlipped] = useState(false);
 
@@ -132,6 +134,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     setQuantity(prev => {
       const next = Math.max(1, Math.min(99, prev + delta));
       setQuantityInput(String(next));
+      replaceOnNextDigitRef.current = next === 1;
       return next;
     });
   };
@@ -147,18 +150,43 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
     const next = Number.parseInt(rawValue, 10);
     setQuantity(Math.max(1, Math.min(99, next)));
+    replaceOnNextDigitRef.current = false;
   };
 
   const handleQuantityInputBlur = () => {
     if (!quantityInput) {
       setQuantity(1);
       setQuantityInput("1");
+      replaceOnNextDigitRef.current = true;
       return;
     }
 
     const next = Math.max(1, Math.min(99, Number.parseInt(quantityInput, 10) || 1));
     setQuantity(next);
     setQuantityInput(String(next));
+    replaceOnNextDigitRef.current = next === 1;
+  };
+
+  const selectQuantityInput = () => {
+    window.setTimeout(() => {
+      quantityInputRef.current?.select();
+    }, 0);
+    replaceOnNextDigitRef.current = quantityInput === "1";
+  };
+
+  const handleQuantityInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      replaceOnNextDigitRef.current &&
+      /^\d$/.test(e.key) &&
+      !e.metaKey &&
+      !e.ctrlKey &&
+      !e.altKey
+    ) {
+      e.preventDefault();
+      setQuantityInput(e.key);
+      setQuantity(Math.max(1, Math.min(99, Number.parseInt(e.key, 10))));
+      replaceOnNextDigitRef.current = false;
+    }
   };
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
@@ -167,6 +195,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
     setQuantityInput("1");
+    replaceOnNextDigitRef.current = true;
   };
 
   return (
@@ -402,17 +431,17 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </Button>
                   <Input
+                    ref={quantityInputRef}
                     type="text"
                     inputMode="numeric"
                     pattern="[0-9]*"
                     value={quantityInput}
                     onChange={handleQuantityInputChange}
+                    onKeyDown={handleQuantityInputKeyDown}
                     onBlur={handleQuantityInputBlur}
-                    onFocus={(e) => e.target.select()}
-                    onMouseUp={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.select();
-                    }}
+                    onFocus={selectQuantityInput}
+                    onMouseDown={selectQuantityInput}
+                    onMouseUp={(e) => e.preventDefault()}
                     onClick={(e) => e.stopPropagation()}
                     className="h-7 w-10 border-0 bg-transparent px-0 text-center text-xs font-semibold shadow-none focus-visible:ring-1 focus-visible:ring-primary sm:h-8 sm:w-12 sm:text-sm"
                     aria-label="Antal"

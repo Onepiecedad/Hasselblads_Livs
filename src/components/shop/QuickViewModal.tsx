@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, type RefObject } from "react";
+import { useEffect, useState, useMemo, useRef, type RefObject } from "react";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +65,9 @@ function formatWeight(grams: number): string {
 
 const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusRef }: QuickViewModalProps) => {
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
+  const quantityInputRef = useRef<HTMLInputElement | null>(null);
+  const replaceOnNextDigitRef = useRef(true);
   const selectedOffer = useMemo(() => getAutoOffer(quantity, product?.multiOffers) ?? null, [quantity, product?.multiOffers]);
   const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
 
@@ -139,6 +142,8 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   useEffect(() => {
     if (open) {
       setQuantity(1);
+      setQuantityInput("1");
+      replaceOnNextDigitRef.current = true;
       setSelectedWeight(DEFAULT_WEIGHT);
       if (product?.sold_as?.[0]) {
         setSelectedPortion(product.sold_as[0]);
@@ -149,19 +154,60 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const handleSelectOffer = (offer: MultiOffer | null) => {
     if (offer) {
       setQuantity(offer.quantity);
+      setQuantityInput(String(offer.quantity));
+      replaceOnNextDigitRef.current = false;
     } else {
       setQuantity(1);
+      setQuantityInput("1");
+      replaceOnNextDigitRef.current = true;
     }
   };
 
   const displayTotalPrice = product ? calculateLineTotal(quantity, displayPrice, product.multiOffers) : 0;
 
   const handleQuantityChange = (value: string) => {
-    const next = Number.parseInt(value, 10);
-    if (Number.isNaN(next)) {
+    const rawValue = value.replace(/[^\d]/g, "");
+    setQuantityInput(rawValue);
+    if (!rawValue) return;
+
+    const next = Number.parseInt(rawValue, 10);
+    setQuantity(Math.max(1, Math.min(next, 99)));
+    replaceOnNextDigitRef.current = false;
+  };
+
+  const handleQuantityBlur = () => {
+    if (!quantityInput) {
       setQuantity(1);
-    } else {
-      setQuantity(Math.max(1, Math.min(next, 99)));
+      setQuantityInput("1");
+      replaceOnNextDigitRef.current = true;
+      return;
+    }
+
+    const next = Math.max(1, Math.min(Number.parseInt(quantityInput, 10) || 1, 99));
+    setQuantity(next);
+    setQuantityInput(String(next));
+    replaceOnNextDigitRef.current = next === 1;
+  };
+
+  const selectQuantityInput = () => {
+    window.setTimeout(() => {
+      quantityInputRef.current?.select();
+    }, 0);
+    replaceOnNextDigitRef.current = quantityInput === "1";
+  };
+
+  const handleQuantityKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      replaceOnNextDigitRef.current &&
+      /^\d$/.test(e.key) &&
+      !e.metaKey &&
+      !e.ctrlKey &&
+      !e.altKey
+    ) {
+      e.preventDefault();
+      setQuantityInput(e.key);
+      setQuantity(Math.max(1, Math.min(99, Number.parseInt(e.key, 10))));
+      replaceOnNextDigitRef.current = false;
     }
   };
 
@@ -432,14 +478,26 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             variant="outline"
                             size="icon"
                             className="h-10 w-10 rounded-full"
-                            onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
+                            onClick={() => setQuantity((prev) => {
+                              const next = Math.max(1, prev - 1);
+                              setQuantityInput(String(next));
+                              replaceOnNextDigitRef.current = next === 1;
+                              return next;
+                            })}
                             aria-label="Minska antal"
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
                           <Input
-                            value={quantity.toString()}
+                            ref={quantityInputRef}
+                            type="text"
+                            value={quantityInput}
                             onChange={(event) => handleQuantityChange(event.target.value)}
+                            onKeyDown={handleQuantityKeyDown}
+                            onBlur={handleQuantityBlur}
+                            onFocus={selectQuantityInput}
+                            onMouseDown={selectQuantityInput}
+                            onMouseUp={(e) => e.preventDefault()}
                             inputMode="numeric"
                             pattern="[0-9]*"
                             className="h-10 w-16 text-center text-lg font-semibold"
@@ -450,7 +508,12 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             variant="outline"
                             size="icon"
                             className="h-10 w-10 rounded-full"
-                            onClick={() => setQuantity((prev) => Math.min(99, prev + 1))}
+                            onClick={() => setQuantity((prev) => {
+                              const next = Math.min(99, prev + 1);
+                              setQuantityInput(String(next));
+                              replaceOnNextDigitRef.current = next === 1;
+                              return next;
+                            })}
                             aria-label="Öka antal"
                           >
                             <Plus className="h-4 w-4" />
