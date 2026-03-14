@@ -85,7 +85,7 @@ const MiniCartDrawer = () => {
 
   return (
     <Drawer open={isOpen} onOpenChange={setOpen}>
-      <DrawerContent className="mini-cart-centered h-[85vh] max-h-[680px] w-full overflow-hidden border-border/80 bg-background p-0 shadow-2xl sm:mx-auto sm:max-w-lg">
+      <DrawerContent className="mini-cart-centered h-[85vh] max-h-[720px] w-full overflow-hidden border-border/80 bg-background p-0 shadow-2xl sm:mx-auto sm:max-w-2xl">
         <div className="flex h-full flex-col">
           <DrawerHeader className="border-b border-border/60 text-left relative">
             <DrawerTitle className="flex items-center gap-2">
@@ -177,7 +177,7 @@ const MiniCartDrawer = () => {
             >
               <ChevronDown className="h-4 w-4" />
             </button>
-            <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
+            <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-7 py-4 sm:py-5">
               {hasItems ? (
                 <ul className="divide-y divide-border/40">
                   {items.map((item) => {
@@ -185,28 +185,28 @@ const MiniCartDrawer = () => {
                     const lineSummary = formatLineSummary(item.quantity, lineTotal, item.weightGrams);
 
                     return (
-                    <li key={item.id} className="grid grid-cols-[64px_1fr] sm:grid-cols-[80px_1fr_auto_auto] gap-3 sm:gap-4 py-4 first:pt-0 last:pb-0">
+                    <li key={item.id} className="grid grid-cols-[64px_1fr] gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:gap-5 sm:py-5">
                       {/* Product image */}
-                      <div className="h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-xl border border-border/60 bg-muted flex-shrink-0">
+                      <div className="h-16 w-16 overflow-hidden rounded-xl border border-border/60 bg-muted flex-shrink-0 sm:h-[88px] sm:w-[88px]">
                         <img src={item.image} alt={item.name} loading="lazy" className="h-full w-full object-cover" />
                       </div>
 
                       {/* Product info */}
-                      <div className="flex flex-col justify-center min-w-0">
-                        <h3 className="text-base md:text-lg font-semibold leading-snug line-clamp-2">
+                      <div className="flex min-w-0 flex-col justify-center">
+                        <h3 className="text-base font-semibold leading-snug line-clamp-2 sm:text-lg">
                           {item.name}
                           {item.portionLabel && item.portionLabel !== 'Hel' && (
                             <span className="text-sm font-normal text-muted-foreground ml-1">({item.portionLabel.toLowerCase()})</span>
                           )}
                         </h3>
-                        <p className="text-sm md:text-base text-muted-foreground mt-0.5">
+                        <p className="mt-0.5 text-sm text-muted-foreground sm:text-base">
                           {item.weightGrams ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr` : item.unit}
                         </p>
-                        <p className="text-xs md:text-sm text-muted-foreground/80 mt-0.5">
+                        <p className="mt-0.5 text-xs text-muted-foreground/80 sm:text-sm">
                           {lineSummary}
                         </p>
                         {item.appliedOfferLabel ? (
-                          <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
+                          <span className="mt-1 inline-flex w-fit max-w-full flex-wrap rounded-md border border-orange-500/20 bg-orange-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-orange-600 sm:text-[11px]">
                             {item.appliedOfferLabel}
                           </span>
                         ) : null}
@@ -248,41 +248,41 @@ const MiniCartDrawer = () => {
                         </div>
                       </div>
 
-                      {/* Desktop: Quantity controls */}
-                      <div className="hidden sm:flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 rounded-full"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          aria-label={`Minska ${item.name}`}
-                        >
-                          −
-                        </Button>
-                        <span className="min-w-[2.5rem] text-center text-base font-semibold">{item.quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-9 w-9 rounded-full"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          aria-label={`Öka ${item.name}`}
-                        >
-                          +
-                        </Button>
-                      </div>
-
-                      {/* Desktop: Price and remove */}
-                      <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px]">
-                        <p className="text-base md:text-lg font-bold tabular-nums whitespace-nowrap">
-                          {formatPrice(lineTotal)} kr
-                        </p>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.id)}
-                          className="text-xs text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-primary mt-1"
-                        >
-                          Ta bort
-                        </button>
+                      {/* Desktop: Controls and price */}
+                      <div className="hidden min-w-[168px] flex-col items-end justify-center gap-3 sm:flex">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 rounded-full"
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            aria-label={`Minska ${item.name}`}
+                          >
+                            −
+                          </Button>
+                          <span className="min-w-[2.5rem] text-center text-base font-semibold">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-9 w-9 rounded-full"
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            aria-label={`Öka ${item.name}`}
+                          >
+                            +
+                          </Button>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <p className="whitespace-nowrap text-base font-bold tabular-nums sm:text-lg">
+                            {formatPrice(lineTotal)} kr
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.id)}
+                            className="mt-1 text-xs text-muted-foreground underline decoration-dotted underline-offset-2 hover:text-primary"
+                          >
+                            Ta bort
+                          </button>
+                        </div>
                       </div>
                     </li>
                   )})}
