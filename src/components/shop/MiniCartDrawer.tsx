@@ -31,6 +31,17 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { Truck, ShoppingBag, X, ArrowRight, Trash2, ChevronDown } from "lucide-react";
 
+function formatLineSummary(quantity: number, lineTotal: number, weightGrams?: number) {
+  const parts = [`${quantity} st`];
+
+  if (weightGrams) {
+    parts.push(`${weightGrams * quantity} g`);
+  }
+
+  parts.push(`${formatPrice(lineTotal)} kr`);
+  return parts.join(" · ");
+}
+
 const MiniCartDrawer = () => {
   const navigate = useNavigate();
   const { items, isOpen, subtotal, shippingFee, total, updateQuantity, removeItem, clearCart, setOpen } = useCart();
@@ -169,7 +180,11 @@ const MiniCartDrawer = () => {
             <div ref={scrollRef} className="h-full overflow-y-auto overflow-x-hidden px-4 sm:px-6 py-4">
               {hasItems ? (
                 <ul className="divide-y divide-border/40">
-                  {items.map((item) => (
+                  {items.map((item) => {
+                    const lineTotal = item.lineTotal ?? (item.price * item.quantity);
+                    const lineSummary = formatLineSummary(item.quantity, lineTotal, item.weightGrams);
+
+                    return (
                     <li key={item.id} className="grid grid-cols-[64px_1fr] sm:grid-cols-[80px_1fr_auto_auto] gap-3 sm:gap-4 py-4 first:pt-0 last:pb-0">
                       {/* Product image */}
                       <div className="h-16 w-16 sm:h-20 sm:w-20 overflow-hidden rounded-xl border border-border/60 bg-muted flex-shrink-0">
@@ -186,6 +201,9 @@ const MiniCartDrawer = () => {
                         </h3>
                         <p className="text-sm md:text-base text-muted-foreground mt-0.5">
                           {item.weightGrams ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr` : item.unit}
+                        </p>
+                        <p className="text-xs md:text-sm text-muted-foreground/80 mt-0.5">
+                          {lineSummary}
                         </p>
                         {item.appliedOfferLabel ? (
                           <span className="inline-block mt-0.5 px-1.5 py-0.5 text-[10px] font-semibold rounded-md bg-orange-500/15 text-orange-600 border border-orange-500/20">
@@ -217,7 +235,7 @@ const MiniCartDrawer = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-base font-bold tabular-nums">
-                              {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                              {formatPrice(lineTotal)} kr
                             </p>
                             <button
                               type="button"
@@ -256,7 +274,7 @@ const MiniCartDrawer = () => {
                       {/* Desktop: Price and remove */}
                       <div className="hidden sm:flex flex-col items-end justify-center min-w-[80px]">
                         <p className="text-base md:text-lg font-bold tabular-nums whitespace-nowrap">
-                          {formatPrice(item.lineTotal ?? (item.price * item.quantity))} kr
+                          {formatPrice(lineTotal)} kr
                         </p>
                         <button
                           type="button"
@@ -267,7 +285,7 @@ const MiniCartDrawer = () => {
                         </button>
                       </div>
                     </li>
-                  ))}
+                  )})}
                 </ul>
               ) : (
                 <div className="flex h-full flex-col items-center justify-center text-center">
