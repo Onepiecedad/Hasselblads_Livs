@@ -469,7 +469,7 @@ const PreCheckoutPage = () => {
                     {step === 2 && (
                         <div className="space-y-4">
                             <h2 className="text-xl font-bold text-center mb-2">
-                                {selection.method === "delivery" ? "Välj leveransdag" : "Välj upphämtningsdag"}
+                                {selection.method === "delivery" ? "Välj leveransdag" : "Välj dag för hämtställe"}
                             </h2>
                             {selection.method === "delivery" && selection.streetMatch && (
                                 <p className="text-center text-sm text-muted-foreground mb-6">
