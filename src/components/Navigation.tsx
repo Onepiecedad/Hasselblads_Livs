@@ -119,14 +119,14 @@ const Navigation = () => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="relative rounded-full text-white hover:bg-white/10"
+                    className="relative h-12 w-12 rounded-full text-white hover:bg-white/10 md:h-14 md:w-14"
                     onClick={() => setOpen(true)}
                     aria-label="Öppna varukorgen"
                     aria-haspopup="dialog"
                   >
-                    <ShoppingBag className="h-6 w-6" />
+                    <ShoppingBag className="h-7 w-7 md:h-8 md:w-8" />
                     {cartCount > 0 && (
-                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-lg animate-in fade-in zoom-in">
+                      <span className="absolute right-0 top-0 flex min-h-5 min-w-5 -translate-y-1/4 translate-x-1/4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold leading-none text-primary shadow-lg animate-in fade-in zoom-in md:min-h-6 md:min-w-6 md:text-[11px]">
                         {cartCount}
                       </span>
                     )}
