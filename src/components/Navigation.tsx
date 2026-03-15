@@ -124,7 +124,7 @@ const Navigation = () => {
                     aria-label="Öppna varukorgen"
                     aria-haspopup="dialog"
                   >
-                    <ShoppingBag className="h-7 w-7 md:h-8 md:w-8" />
+                    <ShoppingBag className="h-8 w-8 md:h-9 md:w-9" strokeWidth={2.25} />
                     {cartCount > 0 && (
                       <span className="absolute right-0 top-0 flex min-h-5 min-w-5 -translate-y-1/4 translate-x-1/4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold leading-none text-primary shadow-lg animate-in fade-in zoom-in md:min-h-6 md:min-w-6 md:text-[11px]">
                         {cartCount}
