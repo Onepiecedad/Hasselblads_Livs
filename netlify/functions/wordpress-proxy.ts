@@ -434,16 +434,13 @@ export default async (request: Request, context: Context): Promise<Response> => 
     border-radius: 16px;
     padding: 16px;
   }
-  /* Hide developer-facing info boxes — keep data injection but hide visuals */
+  /* Hide all injected helper boxes — not customer-facing */
   #hbl-precheckout-context,
   #hbl-shipping-clarity,
   #hbl-portioned-context,
-  #hbl-multibuy-context {
-    display: none !important;
-  }
+  #hbl-multibuy-context,
   #hbl-checkout-nav-notice {
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    background: rgba(248, 250, 252, 0.92);
+    display: none !important;
   }
   .hbl-checkout-box h3 {
     font-size: 16px;
