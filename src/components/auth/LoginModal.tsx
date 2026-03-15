@@ -113,9 +113,9 @@ export function LoginModal() {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full text-white hover:bg-white/10" aria-label="Logga in">
-                    <User className="h-6 w-6" />
-                </Button>
+                <button className="flex items-center justify-center h-11 w-11 rounded-full text-white hover:bg-white/10 transition-colors md:h-12 md:w-12" aria-label="Logga in">
+                    <User className="!h-7 !w-7 md:!h-8 md:!w-8" strokeWidth={1.75} />
+                </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
