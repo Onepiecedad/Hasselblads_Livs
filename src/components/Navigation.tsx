@@ -116,21 +116,19 @@ const Navigation = () => {
                 <div className="flex items-center space-x-2 md:space-x-4">
                   <LoginModal />
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="relative h-14 w-14 rounded-full text-white hover:bg-white/10 md:h-16 md:w-16"
+                  <button
+                    className="relative flex items-center justify-center h-14 w-14 rounded-full text-white hover:bg-white/10 transition-colors md:h-16 md:w-16"
                     onClick={() => setOpen(true)}
                     aria-label="Öppna varukorgen"
                     aria-haspopup="dialog"
                   >
-                    <ShoppingBag className="h-9 w-9 md:h-11 md:w-11" strokeWidth={2} />
+                    <ShoppingBag className="!h-9 !w-9 md:!h-11 md:!w-11" strokeWidth={1.75} />
                     {cartCount > 0 && (
                       <span className="absolute right-0 top-0 flex min-h-6 min-w-6 -translate-y-1/4 translate-x-1/4 items-center justify-center rounded-full bg-white px-1.5 text-[11px] font-bold leading-none text-primary shadow-lg animate-in fade-in zoom-in md:min-h-7 md:min-w-7 md:text-xs">
                         {cartCount}
                       </span>
                     )}
-                  </Button>
+                  </button>
 
                   {/* Mobile Menu Button */}
                   <Button
