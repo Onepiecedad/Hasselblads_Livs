@@ -364,7 +364,45 @@ export default async (request: Request, context: Context): Promise<Response> => 
   .wc-block-components-radio-control-accordion-option:has([id*="stripe_swish"]) {
     display: none !important;
   }
-</style>`;
+</style>
+<script id="hbl-fix-checkout-button">
+(function(){
+  // Fix the checkout submit button: force Swedish text and remove Swish references
+  function fixButton() {
+    var buttons = document.querySelectorAll('.wc-block-components-checkout-place-order-button, .wc-block-components-button.wp-element-button.wc-block-cart__submit-button, button.checkout-button, .wc-block-components-button.wp-element-button');
+    buttons.forEach(function(btn) {
+      var text = btn.textContent || '';
+      if (text.indexOf('Pay with') !== -1 || text.indexOf('Swish') !== -1 || text.indexOf('Place Order') !== -1) {
+        // Find the text span inside the button
+        var span = btn.querySelector('.wc-block-components-button__text');
+        if (span) {
+          span.textContent = 'Slutför köp';
+        } else {
+          btn.textContent = 'Slutför köp';
+        }
+      }
+    });
+    // Also deselect Swish if it got auto-selected, select card instead
+    var swishRadio = document.querySelector('input[id*="stripe_swish"]:checked');
+    if (swishRadio) {
+      var cardRadio = document.querySelector('input[id*="stripe_cc"], input[id*="stripe-credit-card"], input[id*="credit-card"]');
+      if (cardRadio && !cardRadio.checked) {
+        cardRadio.click();
+      }
+    }
+  }
+  // Run on load and observe DOM changes
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(fixButton, 500); });
+  } else {
+    setTimeout(fixButton, 500);
+  }
+  var obs = new MutationObserver(fixButton);
+  var target = document.body || document.documentElement;
+  obs.observe(target, { childList: true, subtree: true, characterData: true });
+  setTimeout(function() { obs.disconnect(); }, 30000);
+})();
+</script>`;
 
             // Inject right after wc-settings-js-before script (where wcSettings is defined)
             const settingsScriptEnd = textBody.indexOf('</script>', textBody.indexOf('wc-settings-js-before'));
@@ -396,21 +434,16 @@ export default async (request: Request, context: Context): Promise<Response> => 
     border-radius: 16px;
     padding: 16px;
   }
-  #hbl-precheckout-context {
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    background: rgba(248, 250, 252, 0.94);
+  /* Hide developer-facing info boxes — keep data injection but hide visuals */
+  #hbl-precheckout-context,
+  #hbl-shipping-clarity,
+  #hbl-portioned-context,
+  #hbl-multibuy-context {
+    display: none !important;
   }
   #hbl-checkout-nav-notice {
-    border: 1px solid rgba(59, 130, 246, 0.18);
-    background: rgba(239, 246, 255, 0.92);
-  }
-  #hbl-multibuy-context {
-    border: 1px solid rgba(249, 115, 22, 0.25);
-    background: rgba(255, 237, 213, 0.5);
-  }
-  #hbl-shipping-clarity {
-    border: 1px solid rgba(16, 185, 129, 0.18);
-    background: rgba(236, 253, 245, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.92);
   }
   .hbl-checkout-box h3 {
     font-size: 16px;
@@ -439,6 +472,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
     border-radius: 9999px;
     text-decoration: none;
     font-weight: 600;
+    font-size: 14px;
   }
   .hbl-checkout-action-primary {
     background: #0f172a;
@@ -484,10 +518,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
             const helperSections: string[] = [];
             helperSections.push(`
 <section id="hbl-checkout-nav-notice" class="hbl-checkout-box">
-  <h3>Tillbaka till din beställning</h3>
-  <p>Om du vill ändra varukorgen eller fortsätta handla, använd länkarna här. Din React-varukorg ligger kvar tills en order är genomförd.</p>
   <div class="hbl-checkout-actions">
-    <a class="hbl-checkout-action hbl-checkout-action-primary" href="/kassa">Tillbaka till kassan</a>
+    <a class="hbl-checkout-action hbl-checkout-action-secondary" href="/kassa">&larr; Ändra beställning</a>
     <a class="hbl-checkout-action hbl-checkout-action-secondary" href="/webbutik">Fortsätt handla</a>
   </div>
 </section>`);
@@ -771,6 +803,44 @@ export default async (request: Request, context: Context): Promise<Response> => 
               textBody = textBody.replace("</body>", checkoutNavScript + "\n</body>");
             }
 
+            // Default shipping selector: always pick "Hämta i butik" unless delivery note says otherwise
+            if (textBody.includes("</body>")) {
+              const isDeliveryOrder = deliveryNote && !deliveryNote.includes('Hämta i butik');
+              const defaultShippingScript = `
+<script id="hbl-default-shipping">
+(function(){
+  var preferredLabel = ${isDeliveryOrder ? "'Hemleverans'" : "'Hämta i butik'"};
+  var done = false;
+  function selectShipping() {
+    if (done) return;
+    var radios = document.querySelectorAll('.wc-block-components-radio-control__input');
+    radios.forEach(function(radio) {
+      var option = radio.closest('.wc-block-components-radio-control__option');
+      if (!option) return;
+      var label = option.querySelector('.wc-block-components-radio-control__label');
+      if (!label) return;
+      var text = label.textContent || '';
+      if (text.trim() === preferredLabel && !radio.checked) {
+        radio.click();
+        done = true;
+      }
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() { setTimeout(selectShipping, 800); });
+  } else {
+    setTimeout(selectShipping, 800);
+  }
+  // Also observe for late-rendered radios
+  var obs = new MutationObserver(selectShipping);
+  var t = document.body || document.documentElement;
+  obs.observe(t, { childList: true, subtree: true });
+  setTimeout(function() { obs.disconnect(); }, 15000);
+})();
+</script>`;
+              textBody = textBody.replace("</body>", defaultShippingScript + "\n</body>");
+            }
+
             // 3. Pickup mode: hide address fields & auto-select free shipping
             if (deliveryNote && deliveryNote.includes('Hämta i butik') && textBody.includes("</head>")) {
               const pickupStyle = `
@@ -788,23 +858,20 @@ export default async (request: Request, context: Context): Promise<Response> => 
               const pickupScript = `
 <script id="pickup-address-hide">
 (function(){
-  // Auto-select pickup shipping, hide address fields, and select Swish payment
+  // Auto-select pickup shipping, hide address fields
   function setup() {
-    // 1. Auto-select free_shipping (pickup) radio — pick the first one
+    // 1. Auto-select "Hämta i butik" by matching label text (not generic free_shipping ID)
     var radios = document.querySelectorAll('.wc-block-components-radio-control__input');
     radios.forEach(function(r) {
-      if (r.id && r.id.indexOf('free_shipping') !== -1 && !r.checked) {
+      var option = r.closest('.wc-block-components-radio-control__option');
+      if (!option) return;
+      var label = option.querySelector('.wc-block-components-radio-control__label');
+      if (label && label.textContent && label.textContent.trim() === 'Hämta i butik' && !r.checked) {
         r.click();
       }
     });
 
-    // 2. Auto-select Swish payment method (avoids Stripe Element initialization errors)
-    var paymentRadios = document.querySelectorAll('.wc-block-components-radio-control__input');
-    paymentRadios.forEach(function(r) {
-      if (r.id && r.id.indexOf('stripe_swish') !== -1 && !r.checked) {
-        r.click();
-      }
-    });
+    // 2. Swish auto-select removed — Swish is hidden and not configured
 
     // 3. Pre-fill required address fields with store address (hidden, for server validation)
     var fills = {
