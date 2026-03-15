@@ -613,6 +613,10 @@ const PreCheckoutPage = () => {
                                                         </span>
                                                     )}
                                                     </p>
+                                                    <p className="mt-1 text-xs text-muted-foreground/80">
+                                                        {item.quantity} st
+                                                        {item.totalWeightGrams ? ` · ${item.totalWeightGrams} g` : ""}
+                                                    </p>
                                                     <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2">
                                                         <div className="flex items-center gap-2">
                                                             <Button

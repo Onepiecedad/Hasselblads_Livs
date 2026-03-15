@@ -31,11 +31,11 @@ import {
 import { formatPrice } from "@/lib/utils";
 import { Truck, ShoppingBag, X, ArrowRight, Trash2, ChevronDown } from "lucide-react";
 
-function formatLineSummary(quantity: number, lineTotal: number, weightGrams?: number) {
+function formatLineSummary(quantity: number, lineTotal: number, totalWeightGrams?: number) {
   const parts = [`${quantity} st`];
 
-  if (weightGrams) {
-    parts.push(`${weightGrams * quantity} g`);
+  if (totalWeightGrams) {
+    parts.push(`${totalWeightGrams} g`);
   }
 
   parts.push(`${formatPrice(lineTotal)} kr`);
@@ -182,7 +182,7 @@ const MiniCartDrawer = () => {
                 <ul className="divide-y divide-border/40">
                   {items.map((item) => {
                     const lineTotal = item.lineTotal ?? (item.price * item.quantity);
-                    const lineSummary = formatLineSummary(item.quantity, lineTotal, item.weightGrams);
+                    const lineSummary = formatLineSummary(item.quantity, lineTotal, item.totalWeightGrams);
 
                     return (
                     <li key={item.id} className="grid grid-cols-[64px_1fr] gap-3 py-4 first:pt-0 last:pb-0 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:gap-5 sm:py-5">

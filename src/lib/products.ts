@@ -120,18 +120,32 @@ export const getAutoOffer = (quantity: number, offers?: MultiOffer[]): MultiOffe
   return sorted.find(o => quantity >= o.quantity);
 };
 
+type MultiBuyFamilyRule = {
+  key: string;
+  matches: (normalizedName: string, compactName: string) => boolean;
+};
+
+// Add future fallback mix-and-match families here when PIM data has offers
+// but no explicit multi_buy_group yet.
+export const MULTI_BUY_FAMILY_RULES: MultiBuyFamilyRule[] = [
+  {
+    key: 'avokado',
+    matches: (normalizedName) => normalizedName.includes('avokado'),
+  },
+  {
+    key: 'sallad-cellofan',
+    matches: (_normalizedName, compactName) => compactName.includes('cellofanpåse'),
+  },
+];
+
 export const inferMultiBuyGroup = (name: string, offers?: MultiOffer[]): string | undefined => {
   if (!offers || offers.length === 0) return undefined;
 
   const normalizedName = name.toLowerCase();
   const compactName = normalizedName.replace(/\s+/g, '');
-  let family: string | undefined;
-
-  if (normalizedName.includes('avokado')) {
-    family = 'avokado';
-  } else if (compactName.includes('cellofanpåse')) {
-    family = 'sallad-cellofan';
-  }
+  const family = MULTI_BUY_FAMILY_RULES.find((rule) =>
+    rule.matches(normalizedName, compactName),
+  )?.key;
 
   if (!family) return undefined;
 

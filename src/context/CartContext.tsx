@@ -37,6 +37,7 @@ export type CartItem = {
   lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
   compareAtLineTotal?: number; // Radpris utan aktiv multi-buy-rabatt
   appliedOfferLabel?: string; // Visningstext för aktiv multi-buy-rabatt
+  totalWeightGrams?: number; // Total vikt för raden när den kan härledas
 };
 
 type CartState = {
@@ -221,6 +222,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     // Step 4: Build final computed items
     return enrichedItems.map(item => {
       const compareAtLineTotal = item.price * item.quantity;
+      const liveProduct = products.find(p => p.id === item.productId);
+      const portionMultiplier = item.portion ? PORTION_MULTIPLIERS[item.portion] ?? 1 : 1;
+      const totalWeightGrams = (() => {
+        if (item.weightGrams) return item.weightGrams * item.quantity;
+        if (liveProduct?.weightInGrams) {
+          return Math.round(liveProduct.weightInGrams * portionMultiplier * item.quantity);
+        }
+        if (liveProduct?.estimatedWeightG) {
+          return Math.round(liveProduct.estimatedWeightG * portionMultiplier * item.quantity);
+        }
+        return undefined;
+      })();
 
       // Check if this item is part of a group
       if (item.multiBuyGroup && groupLineTotals.has(item.multiBuyGroup)) {
@@ -229,6 +242,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
           ...item,
           lineTotal: itemTotal,
           compareAtLineTotal,
+          totalWeightGrams,
           appliedOfferLabel: itemTotal < compareAtLineTotal
             ? groupAppliedOfferLabels.get(item.multiBuyGroup)
             : undefined,
@@ -237,7 +251,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Non-grouped items: regular calculation
       if (!item.multiOffers || item.multiOffers.length === 0) {
-        return { ...item, lineTotal: compareAtLineTotal, compareAtLineTotal, appliedOfferLabel: undefined };
+        return { ...item, lineTotal: compareAtLineTotal, compareAtLineTotal, totalWeightGrams, appliedOfferLabel: undefined };
       }
       const lineTotal = calculateLineTotal(item.quantity, item.price, item.multiOffers);
       const appliedOffer = lineTotal < compareAtLineTotal ? getAutoOffer(item.quantity, item.multiOffers) : undefined;
@@ -245,6 +259,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         ...item,
         lineTotal,
         compareAtLineTotal,
+        totalWeightGrams,
         appliedOfferLabel: appliedOffer?.label,
       };
     });
