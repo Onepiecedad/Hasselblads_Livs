@@ -120,6 +120,29 @@ export const getAutoOffer = (quantity: number, offers?: MultiOffer[]): MultiOffe
   return sorted.find(o => quantity >= o.quantity);
 };
 
+export const inferMultiBuyGroup = (name: string, offers?: MultiOffer[]): string | undefined => {
+  if (!offers || offers.length === 0) return undefined;
+
+  const normalizedName = name.toLowerCase();
+  const compactName = normalizedName.replace(/\s+/g, '');
+  let family: string | undefined;
+
+  if (normalizedName.includes('avokado')) {
+    family = 'avokado';
+  } else if (compactName.includes('cellofanpåse')) {
+    family = 'sallad-cellofan';
+  }
+
+  if (!family) return undefined;
+
+  const offerSignature = [...offers]
+    .sort((a, b) => a.quantity - b.quantity || a.price - b.price)
+    .map((offer) => `${offer.quantity}x${offer.price}`)
+    .join('__');
+
+  return `${family}__${offerSignature}`;
+};
+
 export const calculateLineTotal = (quantity: number, price: number, offers?: MultiOffer[]): number => {
   if (!offers || offers.length === 0 || quantity <= 0) {
     return price * quantity;
