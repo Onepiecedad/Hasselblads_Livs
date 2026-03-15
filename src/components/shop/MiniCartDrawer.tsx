@@ -200,7 +200,11 @@ const MiniCartDrawer = () => {
                           )}
                         </h3>
                         <p className="mt-0.5 text-sm text-muted-foreground sm:text-base">
-                          {item.weightGrams ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr` : item.unit}
+                          {item.weightGrams
+                            ? `${item.weightGrams} g · ≈ ${formatPrice(item.price)} kr`
+                            : item.totalWeightGrams
+                              ? `≈ ${Math.round(item.totalWeightGrams / item.quantity)} g/st`
+                              : item.unit}
                         </p>
                         <p className="mt-0.5 text-xs text-muted-foreground/80 sm:text-sm">
                           {lineSummary}

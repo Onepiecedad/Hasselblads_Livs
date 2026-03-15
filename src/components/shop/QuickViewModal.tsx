@@ -421,7 +421,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                           product.pricePerKg ? `${formatPrice(product.pricePerKg)} kr/kg` : ''
                         )}
                         {(product.pricePerKg || product.salePricePerKg) && product.estimatedWeightG ? ' · ' : ''}
-                        {product.estimatedWeightG ? `≈ ${product.estimatedWeightG * quantity} g` : ''}
+                        {product.estimatedWeightG ? `≈ ${Math.round(product.estimatedWeightG * PORTION_MULTIPLIERS[selectedPortion] * quantity)} g` : ''}
                       </p>
                     )}
 
