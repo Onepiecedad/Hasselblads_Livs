@@ -189,7 +189,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
       const totalGroupQty = groupItems.reduce((sum, i) => sum + i.quantity, 0);
       // Use the first item's offers as the group offer (all items in group should have same offers)
       const groupOffers = groupItems[0]?.multiOffers;
-      const appliedGroupOffer = getAutoOffer(totalGroupQty, groupOffers);
+      const appliedGroupOffer = getAutoOffer(totalGroupQty, groupOffers, totalGroupValue / totalGroupQty);
 
       if (!groupOffers || groupOffers.length === 0 || totalGroupQty <= 0) {
         // No offers — regular pricing for each item
@@ -254,7 +254,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         return { ...item, lineTotal: compareAtLineTotal, compareAtLineTotal, totalWeightGrams, appliedOfferLabel: undefined };
       }
       const lineTotal = calculateLineTotal(item.quantity, item.price, item.multiOffers);
-      const appliedOffer = lineTotal < compareAtLineTotal ? getAutoOffer(item.quantity, item.multiOffers) : undefined;
+      const appliedOffer = lineTotal < compareAtLineTotal ? getAutoOffer(item.quantity, item.multiOffers, item.price) : undefined;
       return {
         ...item,
         lineTotal,

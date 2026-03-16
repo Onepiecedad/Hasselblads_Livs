@@ -192,7 +192,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   const handleConfirmAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const autoOffer = getAutoOffer(quantity, product.multiOffers);
+    const autoOffer = getAutoOffer(quantity, product.multiOffers, itemPrice);
     onAddToCart(product, quantity, hasAnyPortionVariant ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
     setQuantityInput("1");

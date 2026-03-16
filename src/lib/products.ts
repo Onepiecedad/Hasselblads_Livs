@@ -112,12 +112,59 @@ export const sortOptions = [
   { label: "Namn A–Ö", value: "name-asc" },
 ];
 
-export const getAutoOffer = (quantity: number, offers?: MultiOffer[]): MultiOffer | undefined => {
+type OptimizedMultiBuyResult = {
+  total: number;
+  appliedOffers: MultiOffer[];
+};
+
+function optimizeMultiBuy(quantity: number, unitPrice: number, offers?: MultiOffer[]): OptimizedMultiBuyResult {
+  if (!offers || offers.length === 0 || quantity <= 0) {
+    return { total: unitPrice * quantity, appliedOffers: [] };
+  }
+
+  const sortedOffers = [...offers].sort((a, b) => a.quantity - b.quantity || a.price - b.price);
+  const bestTotals = new Array<number>(quantity + 1).fill(Number.POSITIVE_INFINITY);
+  const bestOffers: MultiOffer[][] = new Array(quantity + 1).fill(null).map(() => []);
+  bestTotals[0] = 0;
+
+  for (let qty = 1; qty <= quantity; qty += 1) {
+    bestTotals[qty] = bestTotals[qty - 1] + unitPrice;
+    bestOffers[qty] = [...bestOffers[qty - 1]];
+
+    for (const offer of sortedOffers) {
+      if (offer.quantity <= qty) {
+        const candidateTotal = bestTotals[qty - offer.quantity] + offer.price;
+        if (candidateTotal < bestTotals[qty] - 1e-9) {
+          bestTotals[qty] = candidateTotal;
+          bestOffers[qty] = [...bestOffers[qty - offer.quantity], offer];
+        }
+      }
+    }
+  }
+
+  return {
+    total: bestTotals[quantity],
+    appliedOffers: bestOffers[quantity],
+  };
+}
+
+export const getAutoOffer = (quantity: number, offers?: MultiOffer[], unitPrice = 0): MultiOffer | undefined => {
   if (!offers || offers.length === 0) return undefined;
-  // Sort descending by quantity so we test the largest applicable offers first
-  const sorted = [...offers].sort((a, b) => b.quantity - a.quantity);
-  // Auto-apply if quantity is at least the offer quantity
-  return sorted.find(o => quantity >= o.quantity);
+  const optimized = optimizeMultiBuy(quantity, unitPrice, offers);
+  if (optimized.appliedOffers.length === 0) return undefined;
+
+  const usage = new Map<MultiOffer, number>();
+  for (const offer of optimized.appliedOffers) {
+    usage.set(offer, (usage.get(offer) || 0) + 1);
+  }
+
+  return [...usage.entries()]
+    .sort((a, b) => {
+      if (b[1] !== a[1]) return b[1] - a[1];
+      const unitDiff = (a[0].price / a[0].quantity) - (b[0].price / b[0].quantity);
+      if (unitDiff !== 0) return unitDiff;
+      return a[0].quantity - b[0].quantity;
+    })[0]?.[0];
 };
 
 type MultiBuyFamilyRule = {
@@ -158,24 +205,5 @@ export const inferMultiBuyGroup = (name: string, offers?: MultiOffer[]): string 
 };
 
 export const calculateLineTotal = (quantity: number, price: number, offers?: MultiOffer[]): number => {
-  if (!offers || offers.length === 0 || quantity <= 0) {
-    return price * quantity;
-  }
-
-  // Sort descending by quantity to apply the largest offers first (greedy algorithm)
-  const sortedOffers = [...offers].sort((a, b) => b.quantity - a.quantity);
-  let remainingQty = quantity;
-  let currentTotal = 0;
-
-  for (const offer of sortedOffers) {
-    if (remainingQty >= offer.quantity && offer.quantity > 0) {
-      const numOffers = Math.floor(remainingQty / offer.quantity);
-      currentTotal += numOffers * offer.price;
-      remainingQty -= numOffers * offer.quantity;
-    }
-  }
-
-  // Add the regular price for the remaining single items
-  currentTotal += remainingQty * price;
-  return currentTotal;
+  return optimizeMultiBuy(quantity, price, offers).total;
 };

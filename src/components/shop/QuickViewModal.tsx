@@ -67,7 +67,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const [quantity, setQuantity] = useState(1);
   const [quantityInput, setQuantityInput] = useState("1");
   const replaceOnNextDigitRef = useRef(true);
-  const selectedOffer = useMemo(() => getAutoOffer(quantity, product?.multiOffers) ?? null, [quantity, product?.multiOffers]);
+  const selectedOffer = useMemo(() => getAutoOffer(quantity, product?.multiOffers, displayPrice) ?? null, [quantity, product?.multiOffers, displayPrice]);
   const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
 
   // Portionsval

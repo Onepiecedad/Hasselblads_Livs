@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { inferMultiBuyGroup, MULTI_BUY_FAMILY_RULES, type MultiOffer } from './products';
+import { calculateLineTotal, getAutoOffer, inferMultiBuyGroup, MULTI_BUY_FAMILY_RULES, type MultiOffer } from './products';
 
 const twoFor39: MultiOffer[] = [{ quantity: 2, price: 39, label: '2 för 39:-' }];
+const saladOffers: MultiOffer[] = [
+    { quantity: 2, price: 35, label: '2 för 35:-' },
+    { quantity: 3, price: 65, label: '3 för 65:-' },
+];
 
 describe('inferMultiBuyGroup', () => {
     it('keeps fallback families centralized in one config list', () => {
@@ -23,5 +27,17 @@ describe('inferMultiBuyGroup', () => {
 
     it('returns undefined for products outside supported mix families', () => {
         expect(inferMultiBuyGroup('Alambra Malet', twoFor39)).toBeUndefined();
+    });
+});
+
+describe('multi-buy optimization', () => {
+    it('uses the cheapest combination instead of the largest offer first for 4 items', () => {
+        expect(calculateLineTotal(4, 25, saladOffers)).toBe(70);
+        expect(getAutoOffer(4, saladOffers, 25)?.label).toBe('2 för 35:-');
+    });
+
+    it('uses the cheapest combination instead of the largest offer first for 6 items', () => {
+        expect(calculateLineTotal(6, 25, saladOffers)).toBe(105);
+        expect(getAutoOffer(6, saladOffers, 25)?.label).toBe('2 för 35:-');
     });
 });
