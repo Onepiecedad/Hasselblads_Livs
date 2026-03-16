@@ -1,4 +1,4 @@
-import { useState, memo, useMemo, useRef } from "react";
+import { useState, memo, useMemo, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -56,6 +56,10 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const isKgProduct = product.priceUnit === 'kg' && product.pricingType !== 'weight_based';
   const defaultWeight = 200;
   const portionMultiplier = PORTION_MULTIPLIERS[selectedPortion] ?? 1;
+
+  useEffect(() => {
+    setSelectedPortion(defaultPortion);
+  }, [defaultPortion, product.id]);
 
   const portionPrice = useMemo(() => {
     if (!hasAnyPortionVariant) return product.price;
