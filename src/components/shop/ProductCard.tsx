@@ -66,6 +66,16 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
     return Math.round(product.price * portionMultiplier);
   }, [product.price, portionMultiplier, hasAnyPortionVariant]);
 
+  const itemPrice = useMemo(() => {
+    if (product.salePrice && product.salePrice < product.price) {
+      return hasAnyPortionVariant
+        ? Math.round(product.salePrice * portionMultiplier)
+        : product.salePrice;
+    }
+
+    return hasAnyPortionVariant ? portionPrice : product.price;
+  }, [product.price, product.salePrice, hasAnyPortionVariant, portionMultiplier, portionPrice]);
+
   const displayedEstimatedWeight = useMemo(() => {
     if (!product.estimatedWeightG) return undefined;
     return Math.round(product.estimatedWeightG * portionMultiplier) * quantity;
