@@ -72,7 +72,7 @@ async function startCheckoutGateway(
         const redirectUrl = response.headers.get("Location");
 
         if (!redirectUrl) {
-            throw new Error("Checkout handoff saknar giltig omdirigering.");
+            throw new Error("Övergången till betalning saknar giltig omdirigering.");
         }
 
         console.log("[WooCommerceBridge]", {
@@ -100,10 +100,10 @@ async function startCheckoutGateway(
         status: response.status,
         errorCode: payload.error_code || "unknown_gateway_error",
         serverAttemptId: payload.bridge_attempt_id || null,
-        message: payload.error || "Checkout handoff misslyckades innan betalningen kunde startas.",
+        message: payload.error || "Övergången till betalning misslyckades innan betalningen kunde startas.",
     });
 
-    throw new Error(payload.error || "Checkout handoff misslyckades innan betalningen kunde startas.");
+    throw new Error(payload.error || "Övergången till betalning misslyckades innan betalningen kunde startas.");
 }
 
 /**

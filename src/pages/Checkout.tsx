@@ -305,7 +305,7 @@ const PreCheckoutPage = () => {
                         Du skickas nu till vår säkra betalningslösning.
                     </p>
                     <p className="mt-3 text-sm text-muted-foreground">
-                        Om handoffen inte går igenom kommer du tillbaka hit och din varukorg ligger kvar.
+                        Om övergången till betalning inte går igenom kommer du tillbaka hit och din varukorg ligger kvar.
                     </p>
                 </div>
             </div>

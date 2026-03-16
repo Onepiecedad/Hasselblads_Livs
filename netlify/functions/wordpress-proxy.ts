@@ -561,7 +561,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 ? `<ul>${deliveryContextLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>`
                 : "";
               const freeShippingHtml = expectsFreeHomeDelivery
-                ? `<p style="margin:0 0 10px 0;color:rgba(22,101,52,1);font-weight:600;">Fri hemleverans gällde i React-kassan innan handoff.</p>`
+                ? `<p style="margin:0 0 10px 0;color:rgba(22,101,52,1);font-weight:600;">Fri hemleverans gällde i React-kassan innan du kom hit.</p>`
                 : "";
               const customerCommentHtml = customerComment
                 ? `
@@ -603,7 +603,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 helperSections.push(`
 <section id="hbl-portioned-context" class="hbl-checkout-box">
   <h3>Delade varor från pre-checkout</h3>
-  <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Följande delade rader och radpriser visades i React-kassan innan handoff:</p>
+  <p style="margin:0 0 10px 0;color:rgba(71,85,105,1);">Följande delade rader och radpriser visades i React-kassan innan du kom hit:</p>
   <ul>${portionedLineItems.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
   <p style="font-size:12px;margin:10px 0 0 0;color:rgba(100,116,139,1);">Detta är portionssanningen från React-kassan. WooCommerce-raderna nedan kan fortfarande se annorlunda ut tills portionsdata skickas som riktiga orderrader i en större integrationsförändring.</p>
 </section>`);
@@ -613,7 +613,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
                 helperSections.push(`
 <section id="hbl-multibuy-context" class="hbl-checkout-box">
   <h3>Multiköp från pre-checkout</h3>
-  <p style="margin:0 0 10px 0;color:rgba(87,83,78,1);">Följande kampanjrader och rabatter visades i React-kassan innan handoff:</p>
+  <p style="margin:0 0 10px 0;color:rgba(87,83,78,1);">Följande kampanjrader och rabatter visades i React-kassan innan du kom hit:</p>
   <ul>${multiBuyLines.map((line) => `<li>${escapeHtml(line.replace(/^•\s*/, ""))}</li>`).join("")}</ul>
   <p style="font-size:12px;margin:10px 0 0 0;color:rgba(120,113,108,1);">Denna ruta visar React-kassans radpris, ordinarie jämförelsepris och besparing för multiköp. Slutligt WooCommerce-pris styrs fortfarande av WooCommerce.</p>
 </section>`);
