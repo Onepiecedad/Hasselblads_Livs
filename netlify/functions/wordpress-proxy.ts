@@ -838,7 +838,61 @@ export default async (request: Request, context: Context): Promise<Response> => 
               textBody = textBody.replace("</body>", defaultShippingScript + "\n</body>");
             }
 
-            // 3. Pickup mode: hide address fields & auto-select free shipping
+            // 3. Hide address validation error banners (applies to ALL checkout orders)
+            // The WooCommerce delivery-zone plugin fires validation on page load before
+            // the user has entered their address, showing a scary red banner. Our server-side
+            // proxy already normalizes the address on POST, so the banner is misleading.
+            if (textBody.includes("</head>")) {
+              const addressErrorHideStyle = `
+<style id="hbl-hide-address-errors">
+  /* Immediately hide error banners that contain delivery-zone address validation text */
+  .wc-block-components-notice-banner.is-error {
+    transition: none !important;
+  }
+</style>`;
+              textBody = textBody.replace("</head>", addressErrorHideStyle + "\n</head>");
+
+              const addressErrorHideScript = `
+<script id="hbl-address-error-suppress">
+(function(){
+  var KEYWORDS = ['Leveransadressen', 'måste vara en av dessa gator', 'leveransadress'];
+
+  function hideAddressErrors() {
+    document.querySelectorAll('.wc-block-components-notice-banner.is-error').forEach(function(banner) {
+      var text = banner.innerText || '';
+      for (var i = 0; i < KEYWORDS.length; i++) {
+        if (text.indexOf(KEYWORDS[i]) !== -1) {
+          banner.style.display = 'none';
+          return;
+        }
+      }
+    });
+  }
+
+  // Run immediately and on DOM ready
+  hideAddressErrors();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', hideAddressErrors);
+  }
+
+  // Observe for dynamically-added error banners (WooCommerce Blocks renders async)
+  function startObserver() {
+    var target = document.body || document.documentElement;
+    var observer = new MutationObserver(hideAddressErrors);
+    observer.observe(target, { childList: true, subtree: true });
+  }
+
+  if (document.body) {
+    startObserver();
+  } else {
+    document.addEventListener('DOMContentLoaded', startObserver);
+  }
+})();
+</script>`;
+              textBody = textBody.replace("</body>", addressErrorHideScript + "\n</body>");
+            }
+
+            // 4. Pickup mode: hide address fields & auto-select free shipping
             if (deliveryNote && deliveryNote.includes('Hämta i butik') && textBody.includes("</head>")) {
               const pickupStyle = `
 <style id="pickup-hide-address">
