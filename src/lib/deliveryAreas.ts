@@ -8,6 +8,7 @@ export interface DeliveryAreaData {
     label: string;
     value: string;
     streets: string[];
+    exactAddresses?: string[];
     deliveryTime: string;
     pickupNote: string;
 }
@@ -48,12 +49,14 @@ export const DELIVERY_AREAS: DeliveryAreaData[] = [
         value: 'malevik',
         deliveryTime: 'efter kl 16',
         pickupNote: 'Hämta på Gamla Särövägen 153A',
+        exactAddresses: [
+            'Gamla Särövägen 153',
+        ],
         streets: [
             'Blomstervägen',
             'Doppingvägen',
             'Ekebacksvägen',
             'Fasanstigen',
-            'Gamla Särövägen',
             'Gnistvägen',
             'Granstigen',
             'Grindvägen',
@@ -178,6 +181,13 @@ export function matchDeliveryAddress(input: string): StreetMatch | null {
     if (!q) return null;
 
     for (const area of DELIVERY_AREAS) {
+        for (const exactAddress of area.exactAddresses ?? []) {
+            const normalizedExactAddress = normalizeDeliveryAddress(exactAddress);
+            if (q === normalizedExactAddress) {
+                return { area, street: exactAddress };
+            }
+        }
+
         for (const street of area.streets) {
             const ns = normalizeDeliveryAddress(street);
             // Match if query starts with or contains the normalized street name

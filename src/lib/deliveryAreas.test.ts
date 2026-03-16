@@ -48,11 +48,16 @@ describe('matchDeliveryAddress', () => {
         expect(result!.street).toBe('Blomstervägen');
     });
 
-    it('matches Gamla Särövägen with house number and suffix', () => {
-        const result = matchDeliveryAddress('Gamla Särövägen 153A');
+    it('matches Gamla Särövägen only for the exact approved address', () => {
+        const result = matchDeliveryAddress('Gamla Särövägen 153');
         expect(result).not.toBeNull();
         expect(result!.area.value).toBe('malevik');
-        expect(result!.street).toBe('Gamla Särövägen');
+        expect(result!.street).toBe('Gamla Särövägen 153');
+    });
+
+    it('does not match other house numbers on Gamla Särövägen', () => {
+        expect(matchDeliveryAddress('Gamla Särövägen 151')).toBeNull();
+        expect(matchDeliveryAddress('Gamla Särövägen 153A')).toBeNull();
     });
 
     it('returns null for unknown streets', () => {
