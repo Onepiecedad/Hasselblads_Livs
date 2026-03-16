@@ -48,7 +48,7 @@ const Webshop = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [quickViewOpen, setQuickViewOpen] = useState(false);
     const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-    const [visibleCount, setVisibleCount] = useState(40); // Number of products to show initially
+    const [visibleCount, setVisibleCount] = useState(60); // Number of products to show initially
     const returnFocusRef = useRef<HTMLElement | null>(null);
     const quickViewTriggerRefs = useRef<Record<string, HTMLElement | null>>({});
     const parallaxContainerRef = useRef<HTMLDivElement>(null);
@@ -245,7 +245,7 @@ const Webshop = () => {
 
     // Reset pagination when filters change
     useEffect(() => {
-        setVisibleCount(40);
+        setVisibleCount(60);
     }, [activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, searchTerm]);
 
     const filteredProducts = useMemo(() => {
@@ -495,8 +495,8 @@ const Webshop = () => {
                 ))}
             </div>
 
-            <div className="relative z-10 py-8 md:py-20">
-                <div className="container mx-auto px-4">
+            <div className="relative z-10 py-6 md:py-12">
+                <div className="max-w-screen-2xl mx-auto px-3 md:px-6 lg:px-8">
                     <div className="mb-6 md:mb-12">
                         <div className="max-w-xl">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary tracking-tight">Webbutik</h1>
@@ -588,7 +588,7 @@ const Webshop = () => {
                         🌿 Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
                     </div>
 
-                    <div ref={productsGridRef} className="scroll-mt-24 mt-10 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 xl:grid-cols-4 pb-24 md:pb-0">
+                    <div ref={productsGridRef} className="scroll-mt-24 mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-24 md:pb-0">
                         {isLoading ? (
                             Array.from({ length: 8 }).map((_, i) => (
                                 <ProductCardSkeleton key={i} />
@@ -611,7 +611,7 @@ const Webshop = () => {
                     {!isLoading && filteredProducts.length > visibleCount && (
                         <div className="mt-12 mb-24 flex justify-center w-full">
                             <button
-                                onClick={() => setVisibleCount(prev => prev + 40)}
+                                onClick={() => setVisibleCount(prev => prev + 60)}
                                 className="px-8 py-3.5 bg-white border border-border shadow-sm rounded-full text-base font-medium text-foreground hover:bg-neutral-50 hover:shadow-md transition-all duration-300 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                             >
                                 Visa fler produkter ({filteredProducts.length - visibleCount} kvar)

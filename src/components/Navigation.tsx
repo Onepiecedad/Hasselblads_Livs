@@ -174,7 +174,7 @@ const Navigation = () => {
       </nav>
 
       {/* Spacer to push content below the fixed header */}
-      <div className="h-20 md:h-24" aria-hidden="true" />
+      <div className="h-20 md:h-24 bg-primary" aria-hidden="true" />
     </>
   );
 };
