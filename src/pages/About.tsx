@@ -51,7 +51,7 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative h-[500px] md:h-[650px] overflow-hidden">
+      <section className="relative h-[500px] md:h-[650px] overflow-hidden -mt-20 md:-mt-24">
         <img
           src="/Bilder%20frukt/Butik1-frukt.jpg"
           alt="Hasselblads Livs butik på Frejagatan"

@@ -87,7 +87,7 @@ const Delivery = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section - matching Home and About pages */}
-      <section className="relative h-[500px] md:h-[650px] overflow-hidden">
+      <section className="relative h-[500px] md:h-[650px] overflow-hidden -mt-20 md:-mt-24">
         <img
           src="/Bilder%20frukt/Leverans1-frukt.jpg"
           alt="Hasselblads Livs leverans"
@@ -142,7 +142,7 @@ const Delivery = () => {
                 </p>
 
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-                  Beställ innan klockan 19:00, så får du dina varor redan dagen efter.
+                  Beställ innan klockan 24:00, så får du dina varor redan dagen efter.
                 </p>
 
                 <div className="space-y-2 mb-5 text-sm">

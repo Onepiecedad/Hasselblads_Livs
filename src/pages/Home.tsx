@@ -184,7 +184,7 @@ const Home = () => {
       </div>
 
       {/* Hero Section with Slideshow */}
-      <section className="relative h-[500px] md:h-[650px] overflow-hidden">
+      <section className="relative h-[500px] md:h-[650px] overflow-hidden -mt-20 md:-mt-24">
         <div className="absolute inset-0 z-0 overflow-hidden">
           {/* Crossfade slideshow - only render slides that have been visited */}
           {heroImages.map((image, index) => {

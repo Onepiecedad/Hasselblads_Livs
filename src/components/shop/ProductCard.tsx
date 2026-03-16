@@ -46,10 +46,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const [isFlipped, setIsFlipped] = useState(false);
 
   // Portionsval
-  const hasPortions = product.sold_as && product.sold_as.length > 1;
+  const hasAnyPortionVariant = !!(product.sold_as && product.sold_as.length > 0);
+  const hasPortionChoices = !!(product.sold_as && product.sold_as.length > 1);
   const sortedPortions = useMemo(() =>
-    hasPortions ? [...product.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product.sold_as,
-    [product.sold_as, hasPortions]);
+    hasAnyPortionVariant ? [...product.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product.sold_as,
+    [product.sold_as, hasAnyPortionVariant]);
   const defaultPortion = sortedPortions?.includes('hel') ? 'hel' : (sortedPortions?.[0] ?? 'hel');
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
   const isKgProduct = product.priceUnit === 'kg' && product.pricingType !== 'weight_based';
@@ -57,9 +58,9 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const portionMultiplier = PORTION_MULTIPLIERS[selectedPortion] ?? 1;
 
   const portionPrice = useMemo(() => {
-    if (!hasPortions) return product.price;
+    if (!hasAnyPortionVariant) return product.price;
     return Math.round(product.price * portionMultiplier);
-  }, [product.price, portionMultiplier, hasPortions]);
+  }, [product.price, portionMultiplier, hasAnyPortionVariant]);
 
   const displayedEstimatedWeight = useMemo(() => {
     if (!product.estimatedWeightG) return undefined;
@@ -188,7 +189,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
   const handleConfirmAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
     const autoOffer = getAutoOffer(quantity, product.multiOffers);
-    onAddToCart(product, quantity, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
+    onAddToCart(product, quantity, hasAnyPortionVariant ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined, autoOffer);
     setQuantity(1);
     setQuantityInput("1");
     replaceOnNextDigitRef.current = true;
@@ -297,7 +298,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
             </div>
 
             {/* Portionsväljare (pill-knappar) */}
-            {hasPortions && (
+            {hasPortionChoices && (
               <div className="mt-3 flex gap-1" onClick={(e) => e.stopPropagation()}>
                 {sortedPortions!.map((p) => (
                   <button
@@ -321,11 +322,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   product.salePrice && product.salePrice < product.price ? (
                     <div>
                       <p className="text-lg font-bold text-rose-600 sm:text-xl leading-tight">
-                        ca {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
+                        ca {formatPrice(hasAnyPortionVariant ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/st
                       </p>
                       <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                         <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
-                        <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: ca {formatPrice(hasAnyPortionVariant ? portionPrice : product.price)} kr/st</span>
                       </div>
                       {(product.salePricePerKg || product.estimatedWeightG) && (
                         <p className="text-[10px] text-muted-foreground/60 sm:text-xs mt-0.5 leading-tight">
@@ -341,8 +342,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                   ) : (
                     <>
                       <p className="text-lg font-bold text-primary sm:text-xl leading-tight">
-                        ca {formatPrice(hasPortions ? portionPrice : product.price)} kr/st
-                        {hasPortions && selectedPortion !== 'hel' && (
+                        ca {formatPrice(hasAnyPortionVariant ? portionPrice : product.price)} kr/st
+                        {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                           <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
                             ({PORTION_LABELS[selectedPortion].toLowerCase()})
                           </span>
@@ -362,11 +363,11 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     {product.salePrice && product.salePrice < product.price ? (
                       <div>
                         <p className="text-lg font-bold text-rose-600 sm:text-xl leading-tight">
-                          {formatPrice(hasPortions ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
+                          {formatPrice(hasAnyPortionVariant ? (product.salePrice * (PORTION_MULTIPLIERS[selectedPortion] ?? 1)) : product.salePrice)} kr/{product.priceUnit || 'st'}
                         </p>
                         <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
                           <span className="text-[10px] sm:text-xs font-bold bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-full">REA</span>
-                          <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasPortions ? portionPrice : product.price)} kr</span>
+                          <span className="text-[10px] sm:text-xs text-muted-foreground line-through">Ord: {formatPrice(hasAnyPortionVariant ? portionPrice : product.price)} kr</span>
                           {(product.approximateWeight || product.weightInGrams) && product.priceUnit !== 'kg' && (
                             <span className="text-[10px] sm:text-xs font-normal text-amber-600">
                               ≈ {displayedApproximateWeight}
@@ -377,8 +378,8 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                     ) : (
                       <>
                         <p className="text-lg font-bold text-primary sm:text-xl leading-tight">
-                          {formatPrice(hasPortions ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
-                          {hasPortions && selectedPortion !== 'hel' && (
+                          {formatPrice(hasAnyPortionVariant ? portionPrice : product.price)} kr/{product.priceUnit || 'st'}
+                          {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                             <span className="text-[10px] sm:text-xs font-normal text-muted-foreground ml-1">
                               ({PORTION_LABELS[selectedPortion].toLowerCase()})
                             </span>
@@ -558,7 +559,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
                 className="h-7 px-3 text-xs rounded-full bg-primary hover:bg-primary/90"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onAddToCart(product, 1, hasPortions ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
+                  onAddToCart(product, 1, hasAnyPortionVariant ? selectedPortion : undefined, isKgProduct ? defaultWeight : undefined);
                 }}
                 aria-label={`Lägg ${product.name} i varukorgen`}
               >

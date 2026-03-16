@@ -71,10 +71,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const hasMultiOffers = product?.multiOffers && product.multiOffers.length > 0;
 
   // Portionsval
-  const hasPortions = product?.sold_as && product.sold_as.length > 1;
+  const hasAnyPortionVariant = !!(product?.sold_as && product.sold_as.length > 0);
+  const hasPortionChoices = !!(product?.sold_as && product.sold_as.length > 1);
   const sortedPortions = useMemo(() =>
-    hasPortions ? [...product!.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product?.sold_as,
-    [product?.sold_as, hasPortions]);
+    hasAnyPortionVariant ? [...product!.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product?.sold_as,
+    [product?.sold_as, hasAnyPortionVariant]);
   const defaultPortion = sortedPortions?.includes('hel') ? 'hel' : (sortedPortions?.[0] ?? 'hel');
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
 
@@ -85,21 +86,21 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const portionPrice = useMemo(() => {
     if (!product) return 0;
     const effectiveUnitPrice = getEffectiveUnitPrice(product);
-    if (!hasPortions) return effectiveUnitPrice;
+    if (!hasAnyPortionVariant) return effectiveUnitPrice;
     return Math.round(effectiveUnitPrice * PORTION_MULTIPLIERS[selectedPortion]);
-  }, [product, selectedPortion, hasPortions]);
+  }, [product, selectedPortion, hasAnyPortionVariant]);
 
   const regularPortionPrice = useMemo(() => {
     if (!product) return 0;
-    if (!hasPortions) return product.price;
+    if (!hasAnyPortionVariant) return product.price;
     return Math.round(product.price * PORTION_MULTIPLIERS[selectedPortion]);
-  }, [product, selectedPortion, hasPortions]);
+  }, [product, selectedPortion, hasAnyPortionVariant]);
 
   const salePortionPrice = useMemo(() => {
     if (!product?.salePrice || product.salePrice >= product.price) return undefined;
-    if (!hasPortions) return product.salePrice;
+    if (!hasAnyPortionVariant) return product.salePrice;
     return Math.round(product.salePrice * PORTION_MULTIPLIERS[selectedPortion]);
-  }, [product, selectedPortion, hasPortions]);
+  }, [product, selectedPortion, hasAnyPortionVariant]);
 
   // For kg products, calculate price based on selected weight
   const weightPrice = useMemo(() => {
@@ -144,11 +145,11 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
       setQuantityInput("1");
       replaceOnNextDigitRef.current = true;
       setSelectedWeight(DEFAULT_WEIGHT);
-      if (product?.sold_as?.[0]) {
-        setSelectedPortion(product.sold_as[0]);
+      if (sortedPortions?.[0]) {
+        setSelectedPortion(defaultPortion);
       }
     }
-  }, [open, product]);
+  }, [open, product, defaultPortion, sortedPortions]);
 
   const handleSelectOffer = (offer: MultiOffer | null) => {
     if (offer) {
@@ -212,7 +213,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
       onAddToCart(
         product,
         quantity,
-        hasPortions ? selectedPortion : undefined,
+        hasAnyPortionVariant ? selectedPortion : undefined,
         isKgProduct ? selectedWeight : undefined,
         selectedOffer ?? undefined,
       );
@@ -303,7 +304,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     </div>
 
                     {/* Portionsväljare (pill-knappar) */}
-                    {hasPortions && (
+                    {hasPortionChoices && (
                       <div className="flex gap-1.5">
                         {sortedPortions!.map((p) => (
                           <button
@@ -361,7 +362,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                             </div>
                             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                               <span className="line-through">Ord. ca {formatPrice(regularPortionPrice)} kr/st</span>
-                              {hasPortions && selectedPortion !== 'hel' && (
+                              {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                                 <span>({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                               )}
                             </div>
@@ -370,7 +371,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                           <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
                             <span className="text-3xl font-bold text-primary">ca {formatPrice(regularPortionPrice)}</span>
                             <span className="text-xl text-muted-foreground">kr/st</span>
-                            {hasPortions && selectedPortion !== 'hel' && (
+                            {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                               <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                             )}
                           </div>
@@ -384,7 +385,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                           </div>
                           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
                             <span className="line-through">Ord. {formatPrice(regularPortionPrice)} kr/{product.priceUnit || 'st'}</span>
-                            {hasPortions && selectedPortion !== 'hel' && (
+                            {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                               <span>({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                             )}
                           </div>
@@ -393,7 +394,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                         <div className="flex flex-wrap items-end gap-x-2 gap-y-1">
                           <span className="text-3xl font-bold text-primary">{formatPrice(displayPrice)}</span>
                           <span className="text-xl text-muted-foreground">kr/{product.priceUnit || 'st'}</span>
-                          {hasPortions && selectedPortion !== 'hel' && (
+                          {hasAnyPortionVariant && selectedPortion !== 'hel' && (
                             <span className="text-sm text-muted-foreground">({PORTION_LABELS[selectedPortion].toLowerCase()})</span>
                           )}
                         </div>
@@ -426,7 +427,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
                     )}
 
                     {/* Approximate weight for per-piece items */}
-                    {product.pricingType !== 'weight_based' && isPieceItem && (product.approximateWeight || product.weightInGrams) && !hasPortions && (
+                    {product.pricingType !== 'weight_based' && isPieceItem && (product.approximateWeight || product.weightInGrams) && !hasAnyPortionVariant && (
                       <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-1.5 inline-block">
                         ≈ {product.approximateWeight || `${product.weightInGrams} g`} per styck
                       </p>
