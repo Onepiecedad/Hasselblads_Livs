@@ -593,7 +593,9 @@ const Webshop = () => {
                                 <ProductCard
                                     key={product.id}
                                     product={product}
-                                    onAddToCart={(item, qty) => handleAddToCart(item, qty)}
+                                    onAddToCart={(item, qty, portion, weightGrams, multiOffer) =>
+                                        handleAddToCart(item, qty, portion, weightGrams, multiOffer)
+                                    }
                                     onQuickView={(item) => handleQuickView(item)}
                                     setQuickViewButtonRef={(node) => {
                                         quickViewTriggerRefs.current[product.id] = node;
