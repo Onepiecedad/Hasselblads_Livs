@@ -775,7 +775,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
     document.querySelectorAll('a[href]').forEach(function(anchor) {
       var href = anchor.getAttribute('href') || '';
       if (/^\\/(varukorg|cart)(\\/|$)/.test(href)) {
-        rewriteHref(anchor, '/kassa');
+        rewriteHref(anchor, '/webbutik');
       }
     });
   }

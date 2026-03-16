@@ -403,9 +403,9 @@ const PreCheckoutPage = () => {
                             </button>
 
                             <div className="flex justify-between pt-4">
-                                <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
+                                <Button variant="ghost" onClick={() => navigate('/webbutik')} className="gap-2">
                                     <ChevronLeft className="h-4 w-4" />
-                                    Tillbaka
+                                    Fortsätt handla
                                 </Button>
                                 <Button onClick={goNext} size="lg">
                                     Fortsätt
