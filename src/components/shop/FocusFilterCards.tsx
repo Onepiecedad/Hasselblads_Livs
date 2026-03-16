@@ -14,11 +14,11 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
 
     return (
         <div className={cn("w-full", className)}>
-            <p className="mb-4 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">
                 Handplockat
             </p>
             <div
-                className="grid grid-cols-2 md:grid-cols-4 gap-3"
+                className="grid grid-cols-2 md:grid-cols-4 gap-2"
                 role="listbox"
                 aria-label="Filtrera på handplockade kategorier"
                 aria-orientation="horizontal"
@@ -35,7 +35,7 @@ const FocusFilterCards = ({ activeValue, onChange, className }: FocusFilterCards
                             onClick={() => handleSelect(card.filterValue)}
                             className={cn(
                                 "group relative overflow-hidden",
-                                "aspect-[2.5/1] sm:aspect-[2/1]",
+                                "aspect-[3/1] sm:aspect-[2.5/1]",
                                 "transition-all duration-300 ease-out",
                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                 isActive

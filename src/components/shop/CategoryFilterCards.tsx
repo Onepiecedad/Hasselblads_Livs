@@ -26,11 +26,11 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
 
     return (
         <div className={cn("w-full", className)}>
-            <p className="mb-4 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">
+            <p className="mb-2 text-xs uppercase tracking-[0.25em] text-muted-foreground/70 font-medium">
                 Avdelningar
             </p>
             <div
-                className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-3 scrollbar-elegant scroll-smooth-x scroll-snap-x -mx-4 px-4 sm:mx-0 sm:px-0"
+                className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-2 scrollbar-elegant scroll-smooth-x scroll-snap-x -mx-3 px-3 sm:mx-0 sm:px-0"
                 role="listbox"
                 aria-label="Filtrera på avdelning"
                 aria-orientation="horizontal"
@@ -51,7 +51,7 @@ const CategoryFilterCards = ({ activeValue, onChange, className }: CategoryFilte
                             className={cn(
                                 "group flex-shrink-0 relative overflow-hidden rounded-2xl scroll-snap-start",
                                 // Larger size
-                                "w-24 sm:w-28 h-28 sm:h-32",
+                                "w-20 sm:w-24 h-24 sm:h-28",
                                 "transition-all duration-300 ease-out",
                                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                                 isActive

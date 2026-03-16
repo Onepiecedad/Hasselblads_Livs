@@ -497,19 +497,14 @@ const Webshop = () => {
 
             <div className="relative z-10 py-6 md:py-12">
                 <div className="max-w-screen-2xl mx-auto px-3 md:px-6 lg:px-8">
-                    <div className="mb-6 md:mb-12">
-                        <div className="max-w-xl">
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary tracking-tight">Webbutik</h1>
-                            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-                                Handla dina varor i vår webbutik och få de levererade eller hämta själv.
-                            </p>
-                        </div>
+                    <div className="mb-4 md:mb-6">
+                        <h1 className="text-3xl md:text-4xl font-bold text-primary tracking-tight">Webbutik</h1>
                     </div>
 
 
 
                     {/* Visual Filter Cards - Focus first, then Categories */}
-                    <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-10">
+                    <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
                         <FocusFilterCards
                             activeValue={activeTag || null}
                             onChange={(value) => handleTagChange(value)}
@@ -560,7 +555,7 @@ const Webshop = () => {
                     />
 
                     {/* Search */}
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-3">
                         <SearchAutocomplete
                             products={products}
                             value={searchTerm}
@@ -584,11 +579,11 @@ const Webshop = () => {
                             </button>
                         )}
                     </div>
-                    <div className="mt-4 rounded-xl bg-primary/5 border border-primary/10 px-4 py-2.5 text-[13px] text-primary/70 text-center">
+                    <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 px-3 py-1.5 text-[12px] text-primary/60 text-center">
                         🌿 Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
                     </div>
 
-                    <div ref={productsGridRef} className="scroll-mt-24 mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-24 md:pb-0">
+                    <div ref={productsGridRef} className="scroll-mt-24 mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-24 md:pb-0">
                         {isLoading ? (
                             Array.from({ length: 8 }).map((_, i) => (
                                 <ProductCardSkeleton key={i} />
