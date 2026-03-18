@@ -227,7 +227,8 @@ async function createMultiBuyCoupon(amount: number, bridgeAttemptId: string): Pr
 }
 
 /**
- * Apply a coupon to the WooCommerce cart via a page load.
+ * Apply a coupon to the WooCommerce cart via WooCommerce Store API.
+ * Uses POST /wp-json/wc/store/v1/cart/apply-coupon with session cookies.
  */
 function applyCouponToCart(
     couponCode: string,
@@ -235,16 +236,18 @@ function applyCouponToCart(
 ): Promise<{ cookies: string[]; success: boolean }> {
     return new Promise((resolve) => {
         const cookieHeader = existingCookies.map(c => c.split(';')[0]).join("; ");
+        const bodyStr = JSON.stringify({ code: couponCode });
 
         const options: https.RequestOptions = {
             hostname: WORDPRESS_BACKEND_IP,
             port: 443,
-            path: `/varukorg/?apply_coupon=${encodeURIComponent(couponCode)}`,
-            method: "GET",
+            path: `/wp-json/wc/store/v1/cart/apply-coupon`,
+            method: "POST",
             headers: {
                 "Host": WORDPRESS_HOST,
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-                "Accept": "text/html",
+                "Content-Type": "application/json",
+                "Content-Length": Buffer.byteLength(bodyStr).toString(),
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
             },
             rejectUnauthorized: false,
@@ -267,7 +270,13 @@ function applyCouponToCart(
                     }
                 }
 
-                const success = res.statusCode === 200 || res.statusCode === 302;
+                const body = Buffer.concat(chunks).toString();
+                const success = res.statusCode === 200;
+
+                if (!success) {
+                    console.error(`[CheckoutBridge] Store API apply-coupon response: ${res.statusCode}`, body.slice(0, 500));
+                }
+
                 resolve({ cookies: allCookies, success });
             });
         });
@@ -277,6 +286,7 @@ function applyCouponToCart(
             resolve({ cookies: existingCookies, success: false });
         });
 
+        req.write(bodyStr);
         req.end();
     });
 }
