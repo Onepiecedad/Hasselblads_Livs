@@ -200,6 +200,7 @@ function applyCouponToCart(
                 "User-Agent": "Mozilla/5.0 (compatible; HasselbladsCartGateway/1.0)",
                 "Content-Type": "application/json",
                 "Content-Length": Buffer.byteLength(bodyStr).toString(),
+                "X-WC-Store-API-Nonce": "wc_store_api",
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
             },
             rejectUnauthorized: false,
@@ -249,6 +250,12 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     const deliveryNote = url.searchParams.get("delivery_note") || "";
     const discountParam = url.searchParams.get("discount") || "";
     const bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `guest-${Date.now().toString(36)}`;
+
+    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_received", {
+        itemsParam,
+        discountParam,
+        hasDeliveryNote: !!deliveryNote,
+    }));
 
     if (!itemsParam) {
         console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_invalid", {

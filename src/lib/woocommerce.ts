@@ -159,6 +159,7 @@ export async function addItemsAndRedirectToCheckout(
 
     // Calculate multiköp discount to pass to the gateway
     const discount = calculateMultiBuyDiscount(validItems);
+    console.log(`[WooCommerce] Multiköp discount: ${discount} kr`, validItems.map(i => ({ name: i.name, price: i.price, qty: i.quantity, lineTotal: i.lineTotal })));
 
     // Build gateway URL
     let gatewayUrl = `/.netlify/functions/wc-add-to-cart?items=${encodeURIComponent(itemsParam)}`;

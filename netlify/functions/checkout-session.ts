@@ -248,6 +248,7 @@ function applyCouponToCart(
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
                 "Content-Type": "application/json",
                 "Content-Length": Buffer.byteLength(bodyStr).toString(),
+                "X-WC-Store-API-Nonce": "wc_store_api",
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
             },
             rejectUnauthorized: false,
