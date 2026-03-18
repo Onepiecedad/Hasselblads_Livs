@@ -3,8 +3,7 @@ import https from "node:https";
 
 const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
 const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
-const WC_KEY = process.env.WOOCOMMERCE_CONSUMER_KEY;
-const WC_SECRET = process.env.WOOCOMMERCE_CONSUMER_SECRET;
+
 /**
  * WooCommerce Add-to-Cart Gateway
  * 
@@ -108,208 +107,6 @@ function addItemToCart(
     });
 }
 
-/**
- * Make an authenticated WooCommerce REST API request.
- */
-function makeWooCommerceRequest(path: string, method = 'GET', data: unknown = null): Promise<{ statusCode: number | undefined; data: unknown }> {
-    return new Promise((resolve, reject) => {
-        if (!WC_KEY || !WC_SECRET) {
-            reject(new Error('WooCommerce API credentials not configured'));
-            return;
-        }
-        const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString('base64');
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path,
-            method,
-            headers: {
-                'Authorization': `Basic ${auth}`,
-                'Host': WORDPRESS_HOST,
-                'Content-Type': 'application/json',
-                'User-Agent': 'Netlify/WcAddToCartGateway',
-            },
-            rejectUnauthorized: false,
-        };
-
-        const bodyStr = data ? JSON.stringify(data) : null;
-        if (bodyStr) {
-            options.headers!['Content-Length'] = Buffer.byteLength(bodyStr).toString();
-        }
-
-        const req = https.request(options, (res) => {
-            let responseData = '';
-            res.on('data', (chunk) => responseData += chunk);
-            res.on('end', () => {
-                let parsed;
-                try { parsed = JSON.parse(responseData); } catch { parsed = responseData; }
-                resolve({ statusCode: res.statusCode, data: parsed });
-            });
-        });
-
-        req.on('error', reject);
-        if (bodyStr) req.write(bodyStr);
-        req.end();
-    });
-}
-
-/**
- * Create a one-time-use WooCommerce coupon for the multiköp discount.
- */
-async function createMultiBuyCoupon(amount: number, bridgeAttemptId: string): Promise<string | null> {
-    const code = `hbl-mk-${bridgeAttemptId}`;
-    try {
-        const res = await makeWooCommerceRequest('/wp-json/wc/v3/coupons', 'POST', {
-            code,
-            discount_type: 'fixed_cart',
-            amount: amount.toFixed(2),
-            usage_limit: 1,
-            individual_use: false,
-            description: 'Multiköps-rabatt (auto)',
-        });
-        if (res.statusCode === 201 || res.statusCode === 200) {
-            return code;
-        }
-        console.error('[CheckoutBridge] Failed to create coupon:', res.statusCode, res.data);
-        return null;
-    } catch (error: unknown) {
-        console.error('[CheckoutBridge] Error creating coupon:', error instanceof Error ? error.message : error);
-        return null;
-    }
-}
-/**
- * Fetch a page and extract WooCommerce nonce + return updated cookies.
- */
-function fetchPageForNonce(
-    pagePath: string,
-    existingCookies: string[]
-): Promise<{ nonce: string | null; cookies: string[] }> {
-    return new Promise((resolve) => {
-        const cookieHeader = existingCookies.join("; ");
-
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: pagePath,
-            method: "GET",
-            headers: {
-                "Host": WORDPRESS_HOST,
-                "User-Agent": "Mozilla/5.0 (compatible; HasselbladsCartGateway/1.0)",
-                "Accept": "text/html",
-                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
-            },
-            rejectUnauthorized: false,
-        };
-
-        const req = https.request(options, (res) => {
-            const chunks: Buffer[] = [];
-            res.on("data", (chunk: Buffer) => chunks.push(chunk));
-            res.on("end", () => {
-                const setCookies = res.headers["set-cookie"] || [];
-                const allCookies = [...existingCookies];
-
-                for (const setCookie of setCookies) {
-                    const cookieName = setCookie.split("=")[0].trim();
-                    const cookieValue = setCookie.split(";")[0].trim();
-                    const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
-                    if (idx >= 0) allCookies.splice(idx, 1);
-                    allCookies.push(cookieValue);
-                }
-
-                const html = Buffer.concat(chunks).toString();
-                // Extract nonce from the coupon form: name="coupon_nonce" value="..."
-                const nonceMatch = html.match(/name="coupon_nonce"\s+value="([^"]+)"/);
-                // Also try the _wpnonce field
-                const wpNonceMatch = html.match(/name="_wpnonce"\s+value="([^"]+)"/);
-                const nonce = nonceMatch?.[1] || wpNonceMatch?.[1] || null;
-
-                resolve({ nonce, cookies: allCookies });
-            });
-        });
-
-        req.on("error", () => {
-            resolve({ nonce: null, cookies: existingCookies });
-        });
-
-        req.end();
-    });
-}
-
-/**
- * Apply a coupon to the WooCommerce cart.
- * Fetches the cart page to get a nonce, then POSTs the coupon form.
- */
-async function applyCouponToCart(
-    couponCode: string,
-    existingCookies: string[]
-): Promise<{ cookies: string[]; success: boolean }> {
-    // Step 1: Fetch cart page to get the coupon nonce
-    const { nonce, cookies: updatedCookies } = await fetchPageForNonce("/varukorg/", existingCookies);
-
-    if (!nonce) {
-        console.error("[CheckoutBridge] Could not extract coupon nonce from cart page");
-        return { cookies: updatedCookies, success: false };
-    }
-
-    console.log("[CheckoutBridge] Got coupon nonce, applying coupon:", couponCode);
-
-    // Step 2: POST the coupon form
-    return new Promise((resolve) => {
-        const cookieHeader = updatedCookies.join("; ");
-        const formData = `coupon_code=${encodeURIComponent(couponCode)}&apply_coupon=Rabattkod&coupon_nonce=${encodeURIComponent(nonce)}&_wp_http_referer=${encodeURIComponent("/varukorg/")}`;
-
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: "/varukorg/",
-            method: "POST",
-            headers: {
-                "Host": WORDPRESS_HOST,
-                "User-Agent": "Mozilla/5.0 (compatible; HasselbladsCartGateway/1.0)",
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Content-Length": Buffer.byteLength(formData).toString(),
-                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
-            },
-            rejectUnauthorized: false,
-        };
-
-        const req = https.request(options, (res) => {
-            const chunks: Buffer[] = [];
-            res.on("data", (chunk: Buffer) => chunks.push(chunk));
-            res.on("end", () => {
-                const setCookies = res.headers["set-cookie"] || [];
-                const allCookies = [...updatedCookies];
-
-                for (const setCookie of setCookies) {
-                    const cookieName = setCookie.split("=")[0].trim();
-                    const cookieValue = setCookie.split(";")[0].trim();
-                    const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
-                    if (idx >= 0) allCookies.splice(idx, 1);
-                    allCookies.push(cookieValue);
-                }
-
-                const body = Buffer.concat(chunks).toString();
-                // Check for success indicator in the response
-                const success = res.statusCode === 200 || res.statusCode === 302;
-                const hasError = body.includes("woocommerce-error") || body.includes("Kupongen");
-
-                if (!success || hasError) {
-                    console.error(`[CheckoutBridge] Coupon POST response: ${res.statusCode}, hasError: ${hasError}`);
-                }
-
-                resolve({ cookies: allCookies, success: success && !hasError });
-            });
-        });
-
-        req.on("error", (error) => {
-            console.error(`Failed to apply coupon ${couponCode}:`, error.message);
-            resolve({ cookies: updatedCookies, success: false });
-        });
-
-        req.write(formData);
-        req.end();
-    });
-}
 
 export default async (request: Request, _context: Context): Promise<Response> => {
     const url = new URL(request.url);
@@ -378,33 +175,10 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         }
     }
 
-    // If there's a multiköp discount, create a coupon and apply it
+    // Parse the multiköp discount — will be set as a cookie for the WordPress PHP hook
     const discount = parseFloat(discountParam);
     if (discount > 0) {
-        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "creating_multibuy_coupon", {
-            discount,
-        }));
-
-        const couponCode = await createMultiBuyCoupon(discount, bridgeAttemptId);
-        if (couponCode) {
-            const couponResult = await applyCouponToCart(couponCode, cookies);
-            cookies = couponResult.cookies;
-
-            if (couponResult.success) {
-                console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_applied", {
-                    couponCode,
-                    discount,
-                }));
-            } else {
-                console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_apply_failed", {
-                    couponCode,
-                }));
-            }
-        } else {
-            console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_creation_failed", {
-                discount,
-            }));
-        }
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_discount_cookie", { discount }));
     }
 
     console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "cart_sync_complete", {
@@ -478,6 +252,9 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     }
     if (deliveryNote) {
         headers.append("Set-Cookie", buildDeliveryNoteCookie(deliveryNote));
+    }
+    if (discount > 0) {
+        headers.append("Set-Cookie", `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
     }
 
     console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_redirect_ready", {
