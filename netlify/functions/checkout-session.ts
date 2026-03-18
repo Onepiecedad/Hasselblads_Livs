@@ -227,28 +227,24 @@ async function createMultiBuyCoupon(amount: number, bridgeAttemptId: string): Pr
 }
 
 /**
- * Apply a coupon to the WooCommerce cart via WooCommerce Store API.
- * Uses POST /wp-json/wc/store/v1/cart/apply-coupon with session cookies.
+ * Fetch a page and extract WooCommerce nonce + return updated cookies.
  */
-function applyCouponToCart(
-    couponCode: string,
+function fetchPageForNonce(
+    pagePath: string,
     existingCookies: string[]
-): Promise<{ cookies: string[]; success: boolean }> {
+): Promise<{ nonce: string | null; cookies: string[] }> {
     return new Promise((resolve) => {
         const cookieHeader = existingCookies.map(c => c.split(';')[0]).join("; ");
-        const bodyStr = JSON.stringify({ code: couponCode });
 
         const options: https.RequestOptions = {
             hostname: WORDPRESS_BACKEND_IP,
             port: 443,
-            path: `/wp-json/wc/store/v1/cart/apply-coupon`,
-            method: "POST",
+            path: pagePath,
+            method: "GET",
             headers: {
                 "Host": WORDPRESS_HOST,
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
-                "Content-Type": "application/json",
-                "Content-Length": Buffer.byteLength(bodyStr).toString(),
-                "X-WC-Store-API-Nonce": "wc_store_api",
+                "Accept": "text/html",
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
             },
             rejectUnauthorized: false,
@@ -271,23 +267,94 @@ function applyCouponToCart(
                     }
                 }
 
-                const body = Buffer.concat(chunks).toString();
-                const success = res.statusCode === 200;
+                const html = Buffer.concat(chunks).toString();
+                const nonceMatch = html.match(/name="coupon_nonce"\s+value="([^"]+)"/);
+                const wpNonceMatch = html.match(/name="_wpnonce"\s+value="([^"]+)"/);
+                const nonce = nonceMatch?.[1] || wpNonceMatch?.[1] || null;
 
-                if (!success) {
-                    console.error(`[CheckoutBridge] Store API apply-coupon response: ${res.statusCode}`, body.slice(0, 500));
+                resolve({ nonce, cookies: allCookies });
+            });
+        });
+
+        req.on("error", () => {
+            resolve({ nonce: null, cookies: existingCookies });
+        });
+
+        req.end();
+    });
+}
+
+/**
+ * Apply a coupon to the WooCommerce cart.
+ * Fetches the cart page to get a nonce, then POSTs the coupon form.
+ */
+async function applyCouponToCart(
+    couponCode: string,
+    existingCookies: string[]
+): Promise<{ cookies: string[]; success: boolean }> {
+    const { nonce, cookies: updatedCookies } = await fetchPageForNonce("/varukorg/", existingCookies);
+
+    if (!nonce) {
+        console.error("[CheckoutBridge] Could not extract coupon nonce from cart page");
+        return { cookies: updatedCookies, success: false };
+    }
+
+    console.log("[CheckoutBridge] Got coupon nonce, applying coupon:", couponCode);
+
+    return new Promise((resolve) => {
+        const cookieHeader = updatedCookies.map(c => c.split(';')[0]).join("; ");
+        const formData = `coupon_code=${encodeURIComponent(couponCode)}&apply_coupon=Rabattkod&coupon_nonce=${encodeURIComponent(nonce)}&_wp_http_referer=${encodeURIComponent("/varukorg/")}`;
+
+        const options: https.RequestOptions = {
+            hostname: WORDPRESS_BACKEND_IP,
+            port: 443,
+            path: "/varukorg/",
+            method: "POST",
+            headers: {
+                "Host": WORDPRESS_HOST,
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Length": Buffer.byteLength(formData).toString(),
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
+            },
+            rejectUnauthorized: false,
+        };
+
+        const req = https.request(options, (res) => {
+            const chunks: Buffer[] = [];
+            res.on("data", (chunk: Buffer) => chunks.push(chunk));
+            res.on("end", () => {
+                const setCookies = res.headers["set-cookie"] || [];
+                const allCookies = [...updatedCookies];
+
+                for (const setCookie of setCookies) {
+                    const cookieName = setCookie.split("=")[0].trim();
+                    const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
+                    if (idx >= 0) {
+                        allCookies[idx] = setCookie;
+                    } else {
+                        allCookies.push(setCookie);
+                    }
                 }
 
-                resolve({ cookies: allCookies, success });
+                const body = Buffer.concat(chunks).toString();
+                const success = res.statusCode === 200 || res.statusCode === 302;
+                const hasError = body.includes("woocommerce-error") || body.includes("Kupongen");
+
+                if (!success || hasError) {
+                    console.error(`[CheckoutBridge] Coupon POST response: ${res.statusCode}, hasError: ${hasError}`);
+                }
+
+                resolve({ cookies: allCookies, success: success && !hasError });
             });
         });
 
         req.on("error", (error) => {
             console.error(`Failed to apply coupon ${couponCode}:`, error.message);
-            resolve({ cookies: existingCookies, success: false });
+            resolve({ cookies: updatedCookies, success: false });
         });
 
-        req.write(bodyStr);
+        req.write(formData);
         req.end();
     });
 }
