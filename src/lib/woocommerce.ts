@@ -13,6 +13,8 @@ interface CartItem {
     name?: string;
     woocommerce_id?: number;
     quantity: number;
+    price?: number;
+    lineTotal?: number;
 }
 
 interface CheckoutGatewayErrorPayload {
@@ -116,6 +118,19 @@ async function startCheckoutGateway(
  * 3. Sätter cookies på användarens browser
  * 4. Redirectar till WooCommerce final checkout under /betalning
  */
+function calculateMultiBuyDiscount(items: CartItem[]): number {
+    let discount = 0;
+    for (const item of items) {
+        if (item.price != null && item.lineTotal != null && item.quantity > 0) {
+            const fullPrice = item.price * item.quantity;
+            if (fullPrice > item.lineTotal + 0.001) {
+                discount += fullPrice - item.lineTotal;
+            }
+        }
+    }
+    return Math.round(discount * 100) / 100;
+}
+
 export async function addItemsAndRedirectToCheckout(
     items: CartItem[],
     clearLocalCart?: () => void,
@@ -142,10 +157,16 @@ export async function addItemsAndRedirectToCheckout(
         .map(item => `${item.woocommerce_id}:${item.quantity}`)
         .join(',');
 
+    // Calculate multiköp discount to pass to the gateway
+    const discount = calculateMultiBuyDiscount(validItems);
+
     // Build gateway URL
     let gatewayUrl = `/.netlify/functions/wc-add-to-cart?items=${encodeURIComponent(itemsParam)}`;
     if (deliveryNote) {
         gatewayUrl += `&delivery_note=${encodeURIComponent(deliveryNote)}`;
+    }
+    if (discount > 0) {
+        gatewayUrl += `&discount=${encodeURIComponent(discount.toFixed(2))}`;
     }
     gatewayUrl += `&bridge_attempt_id=${encodeURIComponent(bridgeAttemptId)}`;
 
@@ -181,10 +202,14 @@ export async function authenticateAndCheckout(
     // We will construct a GET request with query params for the Netlify function
     const itemsParam = validItems.map(item => `${item.woocommerce_id}:${item.quantity}`).join(',');
 
+    // Calculate multiköp discount
+    const discount = calculateMultiBuyDiscount(validItems);
+
     const params = new URLSearchParams();
     params.set('items', itemsParam);
     params.set('token', token);
     if (deliveryNote) params.set('delivery_note', deliveryNote);
+    if (discount > 0) params.set('discount', discount.toFixed(2));
     params.set('bridge_attempt_id', bridgeAttemptId);
 
     const gatewayUrl = `/.netlify/functions/checkout-session?${params.toString()}`;

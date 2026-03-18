@@ -1,6 +1,10 @@
 import type { Context } from "@netlify/functions";
 import https from "node:https";
 
+const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
+const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
+const WC_KEY = process.env.WOOCOMMERCE_CONSUMER_KEY;
+const WC_SECRET = process.env.WOOCOMMERCE_CONSUMER_SECRET;
 /**
  * WooCommerce Add-to-Cart Gateway
  * 
@@ -15,9 +19,6 @@ import https from "node:https";
  * 
  * URL: /.netlify/functions/wc-add-to-cart?items=ID:QTY,ID:QTY&delivery_note=...
  */
-
-const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
-const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 
 interface WcItem {
     id: number;
@@ -107,12 +108,136 @@ function addItemToCart(
     });
 }
 
+/**
+ * Make an authenticated WooCommerce REST API request.
+ */
+function makeWooCommerceRequest(path: string, method = 'GET', data: unknown = null): Promise<{ statusCode: number | undefined; data: unknown }> {
+    return new Promise((resolve, reject) => {
+        if (!WC_KEY || !WC_SECRET) {
+            reject(new Error('WooCommerce API credentials not configured'));
+            return;
+        }
+        const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString('base64');
+        const options: https.RequestOptions = {
+            hostname: WORDPRESS_BACKEND_IP,
+            port: 443,
+            path,
+            method,
+            headers: {
+                'Authorization': `Basic ${auth}`,
+                'Host': WORDPRESS_HOST,
+                'Content-Type': 'application/json',
+                'User-Agent': 'Netlify/WcAddToCartGateway',
+            },
+            rejectUnauthorized: false,
+        };
+
+        const bodyStr = data ? JSON.stringify(data) : null;
+        if (bodyStr) {
+            options.headers!['Content-Length'] = Buffer.byteLength(bodyStr).toString();
+        }
+
+        const req = https.request(options, (res) => {
+            let responseData = '';
+            res.on('data', (chunk) => responseData += chunk);
+            res.on('end', () => {
+                let parsed;
+                try { parsed = JSON.parse(responseData); } catch { parsed = responseData; }
+                resolve({ statusCode: res.statusCode, data: parsed });
+            });
+        });
+
+        req.on('error', reject);
+        if (bodyStr) req.write(bodyStr);
+        req.end();
+    });
+}
+
+/**
+ * Create a one-time-use WooCommerce coupon for the multiköp discount.
+ */
+async function createMultiBuyCoupon(amount: number, bridgeAttemptId: string): Promise<string | null> {
+    const code = `hbl-mk-${bridgeAttemptId}`;
+    try {
+        const res = await makeWooCommerceRequest('/wp-json/wc/v3/coupons', 'POST', {
+            code,
+            discount_type: 'fixed_cart',
+            amount: amount.toFixed(2),
+            usage_limit: 1,
+            individual_use: false,
+            description: 'Multiköps-rabatt (auto)',
+        });
+        if (res.statusCode === 201 || res.statusCode === 200) {
+            return code;
+        }
+        console.error('[CheckoutBridge] Failed to create coupon:', res.statusCode, res.data);
+        return null;
+    } catch (error: unknown) {
+        console.error('[CheckoutBridge] Error creating coupon:', error instanceof Error ? error.message : error);
+        return null;
+    }
+}
+
+/**
+ * Apply a coupon to the WooCommerce cart via a page load.
+ */
+function applyCouponToCart(
+    couponCode: string,
+    existingCookies: string[]
+): Promise<{ cookies: string[]; success: boolean }> {
+    return new Promise((resolve) => {
+        const cookieHeader = existingCookies.join("; ");
+
+        const options: https.RequestOptions = {
+            hostname: WORDPRESS_BACKEND_IP,
+            port: 443,
+            path: `/varukorg/?apply_coupon=${encodeURIComponent(couponCode)}`,
+            method: "GET",
+            headers: {
+                "Host": WORDPRESS_HOST,
+                "User-Agent": "Mozilla/5.0 (compatible; HasselbladsCartGateway/1.0)",
+                "Accept": "text/html",
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
+            },
+            rejectUnauthorized: false,
+        };
+
+        const req = https.request(options, (res) => {
+            const chunks: Buffer[] = [];
+            res.on("data", (chunk: Buffer) => chunks.push(chunk));
+            res.on("end", () => {
+                const setCookies = res.headers["set-cookie"] || [];
+                const allCookies = [...existingCookies];
+
+                for (const setCookie of setCookies) {
+                    const cookieName = setCookie.split("=")[0].trim();
+                    const cookieValue = setCookie.split(";")[0].trim();
+                    const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
+                    if (idx >= 0) allCookies.splice(idx, 1);
+                    allCookies.push(cookieValue);
+                }
+
+                const success = res.statusCode === 200 || res.statusCode === 302;
+                resolve({ cookies: allCookies, success });
+            });
+        });
+
+        req.on("error", (error) => {
+            console.error(`Failed to apply coupon ${couponCode}:`, error.message);
+            resolve({ cookies: existingCookies, success: false });
+        });
+
+        req.end();
+    });
+}
+
 export default async (request: Request, _context: Context): Promise<Response> => {
     const url = new URL(request.url);
 
     // Parse items from query string: items=ID:QTY,ID:QTY,...
     const itemsParam = url.searchParams.get("items") || "";
     const deliveryNote = url.searchParams.get("delivery_note") || "";
+    const discountParam = url.searchParams.get("discount") || "";
     const bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `guest-${Date.now().toString(36)}`;
 
     if (!itemsParam) {
@@ -163,6 +288,35 @@ export default async (request: Request, _context: Context): Promise<Response> =>
                 productId: item.id,
                 quantity: item.quantity,
                 errorCode: "cart_item_add_failed",
+            }));
+        }
+    }
+
+    // If there's a multiköp discount, create a coupon and apply it
+    const discount = parseFloat(discountParam);
+    if (discount > 0) {
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "creating_multibuy_coupon", {
+            discount,
+        }));
+
+        const couponCode = await createMultiBuyCoupon(discount, bridgeAttemptId);
+        if (couponCode) {
+            const couponResult = await applyCouponToCart(couponCode, cookies);
+            cookies = couponResult.cookies;
+
+            if (couponResult.success) {
+                console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_applied", {
+                    couponCode,
+                    discount,
+                }));
+            } else {
+                console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_apply_failed", {
+                    couponCode,
+                }));
+            }
+        } else {
+            console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_creation_failed", {
+                discount,
             }));
         }
     }

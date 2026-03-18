@@ -178,7 +178,6 @@ function addItemToCart(
 
                 for (const setCookie of setCookies) {
                     const cookieName = setCookie.split("=")[0].trim();
-                    const cookieValue = setCookie.split(";")[0].trim();
 
                     const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
                     if (idx >= 0) {
@@ -202,6 +201,86 @@ function addItemToCart(
     });
 }
 
+/**
+ * Create a one-time-use WooCommerce coupon for the multiköp discount.
+ */
+async function createMultiBuyCoupon(amount: number, bridgeAttemptId: string): Promise<string | null> {
+    const code = `hbl-mk-${bridgeAttemptId}`;
+    try {
+        const res = await makeWooCommerceRequest('/wp-json/wc/v3/coupons', 'POST', {
+            code,
+            discount_type: 'fixed_cart',
+            amount: amount.toFixed(2),
+            usage_limit: 1,
+            individual_use: false,
+            description: 'Multiköps-rabatt (auto)',
+        });
+        if (res.statusCode === 201 || res.statusCode === 200) {
+            return code;
+        }
+        console.error('[CheckoutBridge] Failed to create coupon:', res.statusCode, res.data);
+        return null;
+    } catch (error: unknown) {
+        console.error('[CheckoutBridge] Error creating coupon:', error instanceof Error ? error.message : error);
+        return null;
+    }
+}
+
+/**
+ * Apply a coupon to the WooCommerce cart via a page load.
+ */
+function applyCouponToCart(
+    couponCode: string,
+    existingCookies: string[]
+): Promise<{ cookies: string[]; success: boolean }> {
+    return new Promise((resolve) => {
+        const cookieHeader = existingCookies.map(c => c.split(';')[0]).join("; ");
+
+        const options: https.RequestOptions = {
+            hostname: WORDPRESS_BACKEND_IP,
+            port: 443,
+            path: `/varukorg/?apply_coupon=${encodeURIComponent(couponCode)}`,
+            method: "GET",
+            headers: {
+                "Host": WORDPRESS_HOST,
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+                "Accept": "text/html",
+                ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
+            },
+            rejectUnauthorized: false,
+        };
+
+        const req = https.request(options, (res) => {
+            const chunks: Buffer[] = [];
+            res.on("data", (chunk: Buffer) => chunks.push(chunk));
+            res.on("end", () => {
+                const setCookies = res.headers["set-cookie"] || [];
+                const allCookies = [...existingCookies];
+
+                for (const setCookie of setCookies) {
+                    const cookieName = setCookie.split("=")[0].trim();
+                    const idx = allCookies.findIndex(c => c.startsWith(cookieName + "="));
+                    if (idx >= 0) {
+                        allCookies[idx] = setCookie;
+                    } else {
+                        allCookies.push(setCookie);
+                    }
+                }
+
+                const success = res.statusCode === 200 || res.statusCode === 302;
+                resolve({ cookies: allCookies, success });
+            });
+        });
+
+        req.on("error", (error) => {
+            console.error(`Failed to apply coupon ${couponCode}:`, error.message);
+            resolve({ cookies: existingCookies, success: false });
+        });
+
+        req.end();
+    });
+}
+
 export default async (request: Request, _context: Context): Promise<Response> => {
     const url = new URL(request.url);
 
@@ -209,14 +288,16 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     let items: WcItem[] = [];
     let deliveryNote = "";
     let token = "";
+    let discountParam = "";
     let bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `auth-${Date.now().toString(36)}`;
 
     if (request.method === 'POST') {
         try {
-            const body = await request.json();
-            items = body.items || [];
-            deliveryNote = body.deliveryNote || "";
-            bridgeAttemptId = body.bridgeAttemptId || bridgeAttemptId;
+            const body = await request.json() as Record<string, unknown>;
+            items = (body.items as WcItem[]) || [];
+            deliveryNote = (body.deliveryNote as string) || "";
+            discountParam = String(body.discount || "");
+            bridgeAttemptId = (body.bridgeAttemptId as string) || bridgeAttemptId;
             const authHeader = request.headers.get("Authorization");
             if (authHeader && authHeader.startsWith("Bearer ")) {
                 token = authHeader.split("Bearer ")[1];
@@ -231,6 +312,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         const itemsParam = url.searchParams.get("items") || "";
         deliveryNote = url.searchParams.get("delivery_note") || "";
         token = url.searchParams.get("token") || "";
+        discountParam = url.searchParams.get("discount") || "";
         bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || bridgeAttemptId;
 
         if (itemsParam) {
@@ -342,6 +424,35 @@ export default async (request: Request, _context: Context): Promise<Response> =>
                 const result = await addItemToCart(item, cookies);
                 cookies = result.cookies;
                 if (result.success) successCount++;
+            }
+        }
+
+        // 6. Apply multiköp coupon if a discount exists
+        const discount = parseFloat(discountParam);
+        if (discount > 0) {
+            console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "creating_multibuy_coupon", {
+                discount,
+            }));
+
+            const couponCode = await createMultiBuyCoupon(discount, bridgeAttemptId);
+            if (couponCode) {
+                const couponResult = await applyCouponToCart(couponCode, cookies);
+                cookies = couponResult.cookies;
+
+                if (couponResult.success) {
+                    console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_applied", {
+                        couponCode,
+                        discount,
+                    }));
+                } else {
+                    console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_apply_failed", {
+                        couponCode,
+                    }));
+                }
+            } else {
+                console.warn("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_coupon_creation_failed", {
+                    discount,
+                }));
             }
         }
 
