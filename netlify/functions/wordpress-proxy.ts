@@ -56,6 +56,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
 
   const url = new URL(request.url);
   const discountParam = url.searchParams.get("discount");
+  const discountHeader = request.headers.get("x-hbl-multibuy-discount");
+  const forwardedDiscount = discountParam || discountHeader;
 
   // Extract the actual WordPress path from the redirect
   // The path comes in as /.netlify/functions/wordpress-proxy/wp-json/...
@@ -103,8 +105,8 @@ export default async (request: Request, context: Context): Promise<Response> => 
   if (cookies) {
     forwardedCookies.push(cookies);
   }
-  if (discountParam) {
-    const discount = parseFloat(discountParam);
+  if (forwardedDiscount) {
+    const discount = parseFloat(forwardedDiscount);
     const hasDiscountCookie = cookies?.includes("hbl_multibuy_discount=") ?? false;
     if (discount > 0 && !hasDiscountCookie) {
       forwardedCookies.push(`hbl_multibuy_discount=${discount.toFixed(2)}`);
@@ -308,12 +310,69 @@ export default async (request: Request, context: Context): Promise<Response> => 
           const isHtml = /text\/html/i.test(contentType);
 
           if (isCheckoutPage && isHtml) {
-            if (discountParam) {
-              const discount = parseFloat(discountParam);
+            if (forwardedDiscount) {
+              const discount = parseFloat(forwardedDiscount);
               if (discount > 0) {
                 responseHeaders.append("Set-Cookie", `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
               }
             }
+
+            const multibuyBridgeScript = forwardedDiscount && parseFloat(forwardedDiscount) > 0 ? `
+<script id="hbl-multibuy-storeapi-bridge">
+(function() {
+  var discount = ${JSON.stringify(forwardedDiscount)};
+  if (!discount) return;
+
+  function shouldPatch(input) {
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    return /\\/wp-json\\/wc\\/store\\//.test(url);
+  }
+
+  function patchUrl(rawUrl) {
+    try {
+      var next = new URL(rawUrl, window.location.origin);
+      if (!next.searchParams.has('discount')) {
+        next.searchParams.set('discount', discount);
+      }
+      return next.toString();
+    } catch {
+      return rawUrl;
+    }
+  }
+
+  var originalFetch = window.fetch;
+  window.fetch = function(input, init) {
+    if (shouldPatch(input)) {
+      var nextInput = typeof input === 'string' ? patchUrl(input) : patchUrl(input.url);
+      var nextInit = init ? { ...init } : {};
+      var headers = new Headers(nextInit.headers || (typeof input !== 'string' ? input.headers : undefined) || {});
+      headers.set('X-HBL-Multibuy-Discount', discount);
+      nextInit.headers = headers;
+      return originalFetch.call(this, nextInput, nextInit);
+    }
+    return originalFetch.call(this, input, init);
+  };
+
+  var OriginalOpen = XMLHttpRequest.prototype.open;
+  var OriginalSend = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function(method, url) {
+    this.__hblRequestUrl = url;
+    if (shouldPatch(url)) {
+      arguments[1] = patchUrl(url);
+      this.__hblNeedsDiscountHeader = true;
+    }
+    return OriginalOpen.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function() {
+    if (this.__hblNeedsDiscountHeader) {
+      try {
+        this.setRequestHeader('X-HBL-Multibuy-Discount', discount);
+      } catch {}
+    }
+    return OriginalSend.apply(this, arguments);
+  };
+})();
+</script>` : "";
 
             // 1. Stripe Swish bridge fix — inject EARLY, right after wcSettings is defined
             // The woo-stripe-payment plugin creates wcStripeBlocks with empty maps.
@@ -424,6 +483,10 @@ export default async (request: Request, context: Context): Promise<Response> => 
   setTimeout(function() { obs.disconnect(); }, 30000);
 })();
 </script>`;
+
+            if (multibuyBridgeScript && textBody.includes("</head>")) {
+              textBody = textBody.replace("</head>", multibuyBridgeScript + "\n</head>");
+            }
 
             // Inject right after wc-settings-js-before script (where wcSettings is defined)
             const settingsScriptEnd = textBody.indexOf('</script>', textBody.indexOf('wc-settings-js-before'));

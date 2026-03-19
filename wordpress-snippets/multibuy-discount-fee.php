@@ -13,7 +13,7 @@
  */
 
 add_action('woocommerce_cart_calculate_fees', function ($cart) {
-    if (is_admin() && !defined('DOING_AJAX')) {
+    if (is_admin() && !defined('DOING_AJAX') && !defined('REST_REQUEST')) {
         return;
     }
 
