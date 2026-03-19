@@ -1,12 +1,14 @@
 <?php
 /**
- * Multiköps-rabatt via cookie (target-total approach)
+ * Multiköps-rabatt via cookie (target-total approach).
  *
- * The React frontend calculates the customer's expected total
- * (after multiköp deals) and passes it as a cookie. This snippet
- * computes the actual WooCommerce cart subtotal from individual
- * cart items (reliable at this hook point) and applies the
- * difference as a negative fee.
+ * React skickar target-totalpriset (inkl. moms) via cookie hbl_multibuy_target.
+ * PHP beräknar ex-moms rabatt och sätter taxable=true så WooCommerce visar rätt belopp.
+ *
+ * Varför ex-moms + taxable: WooCommerce behandlar add_fee-belopp som exklusive moms.
+ * Om vi skickar 6.80 (inkl. moms) med taxable=false, visar WC det som 6.80*1.12=7.62.
+ * Genom att beräkna ex-moms-delen och sätta taxable=true, lägger WC tillbaka momsen
+ * korrekt och slutpriset stämmer.
  */
 add_action('woocommerce_cart_calculate_fees', function ($cart) {
     if (is_admin() && !defined('DOING_AJAX') && !defined('REST_REQUEST')) {
@@ -21,16 +23,25 @@ add_action('woocommerce_cart_calculate_fees', function ($cart) {
         return;
     }
 
-    // Compute subtotal from individual cart items
-    // (cart->get_subtotal() is NOT reliable at this hook point)
-    $subtotal = 0;
+    // Calculate ex-tax and tax totals from cart items
+    $subtotal_ex  = 0;
+    $subtotal_tax = 0;
     foreach ($cart->get_cart() as $item) {
-        $subtotal += floatval($item['line_subtotal']) + floatval($item['line_subtotal_tax']);
+        $subtotal_ex  += floatval($item['line_subtotal']);
+        $subtotal_tax += floatval($item['line_subtotal_tax']);
+    }
+    $subtotal_inc = $subtotal_ex + $subtotal_tax;
+
+    // Inc-tax discount (what we want to reduce the total by)
+    $discount_inc = $subtotal_inc - $target;
+    if ($discount_inc < 0.01) {
+        return;
     }
 
-    $discount = $subtotal - $target;
+    // Convert to ex-tax discount proportionally (avoids hard-coding tax rate)
+    $ratio = ($subtotal_inc > 0) ? ($subtotal_ex / $subtotal_inc) : 1;
+    $discount_ex = round($discount_inc * $ratio, 2);
 
-    if ($discount > 0.01) {
-        $cart->add_fee('Multikops-rabatt', -$discount, false);
-    }
+    // taxable=true → WooCommerce adds tax back, display ≈ discount_inc
+    $cart->add_fee('Multikops-rabatt', -$discount_ex, true);
 });
