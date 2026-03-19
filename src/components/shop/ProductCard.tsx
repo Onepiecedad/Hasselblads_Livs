@@ -218,7 +218,7 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
         {/* ===== FRAMSIDA ===== */}
         <Card
-          className="flip-card-front group flex flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer rounded-2xl"
+          className="flip-card-front group h-full flex flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer rounded-2xl"
           onClick={handleCardClick}
           role="button"
           tabIndex={0}

@@ -583,7 +583,7 @@ const Webshop = () => {
                         🌿 Beställ dagen före önskad leverans för att säkerställa pris och tillgång.
                     </div>
 
-                    <div ref={productsGridRef} className="scroll-mt-24 mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 items-start pb-24 md:pb-0">
+                    <div ref={productsGridRef} className="scroll-mt-24 mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 items-stretch pb-24 md:pb-0">
                         {isLoading ? (
                             Array.from({ length: 8 }).map((_, i) => (
                                 <ProductCardSkeleton key={i} />
