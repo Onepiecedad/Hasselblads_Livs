@@ -4,10 +4,9 @@
  *
  * The React frontend calculates the customer's expected total
  * (after multiköp deals) and passes it as a cookie. This snippet
- * compares that target against WooCommerce's actual cart subtotal
- * and applies the difference as a negative fee (discount).
- *
- * This avoids price-mismatch issues between PIM and WooCommerce.
+ * computes the actual WooCommerce cart subtotal from individual
+ * cart items (reliable at this hook point) and applies the
+ * difference as a negative fee.
  */
 add_action('woocommerce_cart_calculate_fees', function ($cart) {
     if (is_admin() && !defined('DOING_AJAX') && !defined('REST_REQUEST')) {
@@ -22,12 +21,16 @@ add_action('woocommerce_cart_calculate_fees', function ($cart) {
         return;
     }
 
-    // Get the actual WooCommerce cart subtotal (excl. fees, incl. tax)
-    $subtotal = floatval($cart->get_subtotal()) + floatval($cart->get_subtotal_tax());
+    // Compute subtotal from individual cart items
+    // (cart->get_subtotal() is NOT reliable at this hook point)
+    $subtotal = 0;
+    foreach ($cart->get_cart() as $item) {
+        $subtotal += floatval($item['line_subtotal']) + floatval($item['line_subtotal_tax']);
+    }
 
     $discount = $subtotal - $target;
 
     if ($discount > 0.01) {
-        $cart->add_fee('Multiköps-rabatt', -$discount, false);
+        $cart->add_fee('Multikops-rabatt', -$discount, false);
     }
 });
