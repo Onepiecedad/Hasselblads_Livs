@@ -55,6 +55,7 @@ export default async (request: Request, context: Context): Promise<Response> => 
   }
 
   const url = new URL(request.url);
+  const discountParam = url.searchParams.get("discount");
 
   // Extract the actual WordPress path from the redirect
   // The path comes in as /.netlify/functions/wordpress-proxy/wp-json/...
@@ -98,7 +99,20 @@ export default async (request: Request, context: Context): Promise<Response> => 
 
   // Forward cookies (critical for WooCommerce sessions)
   const cookies = request.headers.get("cookie");
-  if (cookies) headers["Cookie"] = cookies;
+  const forwardedCookies: string[] = [];
+  if (cookies) {
+    forwardedCookies.push(cookies);
+  }
+  if (discountParam) {
+    const discount = parseFloat(discountParam);
+    const hasDiscountCookie = cookies?.includes("hbl_multibuy_discount=") ?? false;
+    if (discount > 0 && !hasDiscountCookie) {
+      forwardedCookies.push(`hbl_multibuy_discount=${discount.toFixed(2)}`);
+    }
+  }
+  if (forwardedCookies.length > 0) {
+    headers["Cookie"] = forwardedCookies.join("; ");
+  }
 
   // Forward authorization headers
   const auth = request.headers.get("authorization");
@@ -294,6 +308,13 @@ export default async (request: Request, context: Context): Promise<Response> => 
           const isHtml = /text\/html/i.test(contentType);
 
           if (isCheckoutPage && isHtml) {
+            if (discountParam) {
+              const discount = parseFloat(discountParam);
+              if (discount > 0) {
+                responseHeaders.append("Set-Cookie", `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
+              }
+            }
+
             // 1. Stripe Swish bridge fix — inject EARLY, right after wcSettings is defined
             // The woo-stripe-payment plugin creates wcStripeBlocks with empty maps.
             // This script intercepts the creation and populates maps from wcSettings data.

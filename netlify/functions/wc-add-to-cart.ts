@@ -207,6 +207,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     // Build redirect URL to the dedicated WooCommerce final checkout route
     const redirectParams = new URLSearchParams();
     if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
+    if (discount > 0) redirectParams.set("discount", discount.toFixed(2));
     const qs = redirectParams.toString();
     const redirectUrl = `/betalning${qs ? '?' + qs : ''}`;
 

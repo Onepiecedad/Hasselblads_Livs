@@ -32,6 +32,22 @@ function createBridgeAttemptId(prefix: "guest" | "auth"): string {
     return `${prefix}-${Date.now().toString(36)}-${randomPart}`;
 }
 
+function primeCheckoutCookiesFromGatewayUrl(gatewayUrl: string): void {
+    if (typeof document === "undefined") {
+        return;
+    }
+
+    const url = new URL(gatewayUrl, window.location.origin);
+    const discountParam = url.searchParams.get("discount");
+
+    if (discountParam) {
+        const discount = parseFloat(discountParam);
+        if (discount > 0) {
+            document.cookie = `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; SameSite=Lax; Secure`;
+        }
+    }
+}
+
 async function startCheckoutGateway(
     gatewayUrl: string,
     bridgeAttemptId: string,
@@ -56,9 +72,19 @@ async function startCheckoutGateway(
     if (response.type === "opaqueredirect") {
         const gUrl = new URL(gatewayUrl, window.location.origin);
         const deliveryNote = gUrl.searchParams.get("delivery_note");
-        const redirectTarget = deliveryNote
-            ? `/betalning?delivery_note=${encodeURIComponent(deliveryNote)}`
+        const discountParam = gUrl.searchParams.get("discount");
+        const redirectParams = new URLSearchParams();
+        if (deliveryNote) {
+            redirectParams.set("delivery_note", deliveryNote);
+        }
+        if (discountParam) {
+            redirectParams.set("discount", discountParam);
+        }
+        const redirectTarget = redirectParams.toString()
+            ? `/betalning?${redirectParams.toString()}`
             : "/betalning";
+
+        primeCheckoutCookiesFromGatewayUrl(gatewayUrl);
 
         console.log("[WooCommerceBridge]", {
             event: "checkout_handoff_opaque_redirect",
@@ -76,6 +102,8 @@ async function startCheckoutGateway(
         if (!redirectUrl) {
             throw new Error("Övergången till betalning saknar giltig omdirigering.");
         }
+
+        primeCheckoutCookiesFromGatewayUrl(gatewayUrl);
 
         console.log("[WooCommerceBridge]", {
             event: "checkout_handoff_redirect_ready",

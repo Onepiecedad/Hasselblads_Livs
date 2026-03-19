@@ -357,6 +357,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         // 6. Build final redirect URL
         const redirectParams = new URLSearchParams();
         if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
+        if (discount > 0) redirectParams.set("discount", discount.toFixed(2));
         // Add cache buster to prevent serving a cached checkout page from another user
         redirectParams.set("chash", Date.now().toString());
 
