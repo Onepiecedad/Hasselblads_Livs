@@ -1,44 +1,8 @@
-import { createContext, useContext, useMemo, useReducer, useEffect } from "react";
-import { calculateLineTotal, getAutoOffer, getEffectiveUnitPrice } from "@/lib/products";
+import { useMemo, useReducer, useEffect } from "react";
+import { calculateLineTotal, getAutoOffer } from "@/lib/products";
 import { getHomeDeliveryFee } from "@/lib/shipping";
-import { useProducts } from "@/hooks/useProducts";
-
-export type PortionSize = 'hel' | 'halv' | 'kvart';
-
-export const PORTION_LABELS: Record<PortionSize, string> = {
-  hel: 'Hel',
-  halv: 'Halv',
-  kvart: 'Kvart',
-};
-
-/** Canonical display order for portion buttons */
-export const PORTION_ORDER: PortionSize[] = ['hel', 'halv', 'kvart'];
-
-export const PORTION_MULTIPLIERS: Record<PortionSize, number> = {
-  hel: 1,
-  halv: 0.5,
-  kvart: 0.25,
-};
-
-export type CartItem = {
-  id: string;         // Unik id: productId eller productId__portion
-  productId: string;  // Original produkt-id (utan portion-suffix)
-  name: string;
-  price: number;
-  unit: string;
-  image: string;
-  quantity: number;
-  portion?: PortionSize;
-  portionLabel?: string; // T.ex. "Halv"
-  weightGrams?: number;  // Vikt i gram för kg-produkter (t.ex. 300 = 300g)
-  woocommerce_id?: number; // WooCommerce product ID for checkout
-  multiOffers?: { quantity: number; price: number; label: string }[]; // Alla erbjudanden produkten har
-  multiBuyGroup?: string; // Mix-and-match grupp (t.ex. "avokado")
-  lineTotal?: number; // Det beräknade radpriset baserat på eventuella multiköp och kvantitet
-  compareAtLineTotal?: number; // Radpris utan aktiv multi-buy-rabatt
-  appliedOfferLabel?: string; // Visningstext för aktiv multi-buy-rabatt
-  totalWeightGrams?: number; // Total vikt för raden när den kan härledas
-};
+import { PORTION_MULTIPLIERS, type PortionSize } from "@/context/cartConstants";
+import { CartContext, type CartContextValue, type CartItem } from "@/context/cartContextShared";
 
 type CartState = {
   items: CartItem[];
@@ -51,21 +15,6 @@ type Action =
   | { type: "UPDATE_QUANTITY"; payload: { id: string; quantity: number } }
   | { type: "CLEAR_CART" }
   | { type: "SET_OPEN"; payload: { isOpen: boolean } };
-
-type CartContextValue = {
-  items: CartItem[];
-  isOpen: boolean;
-  subtotal: number;
-  shippingFee: number;
-  total: number;
-  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  setOpen: (isOpen: boolean) => void;
-};
-
-const CartContext = createContext<CartContextValue | undefined>(undefined);
 
 const STORAGE_KEY = "hasselblads-cart";
 
@@ -148,7 +97,6 @@ const getInitialState = (): CartState => ({
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   // Use lazy initialization to load from localStorage
   const [state, dispatch] = useReducer(cartReducer, undefined, getInitialState);
-  const { products } = useProducts();
 
   // Save cart to local storage whenever items change
   useEffect(() => {
@@ -156,18 +104,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   }, [state.items]);
 
   const computedItems = useMemo(() => {
-    // Step 1: Enrich items with live product data
-    const enrichedItems = state.items.map(item => {
-      const liveProduct = products.find(p => p.id === item.productId);
-      const isPortionedVariant = Boolean(item.portion && item.portion !== 'hel');
+    const enrichedItems = state.items.map((item) => {
+      const isPortionedVariant = Boolean(item.portion && item.portion !== "hel");
       return {
         ...item,
-        multiOffers: isPortionedVariant ? undefined : (liveProduct?.multiOffers || item.multiOffers),
-        multiBuyGroup: isPortionedVariant ? undefined : (liveProduct?.multiBuyGroup || item.multiBuyGroup),
-        // Keep stored portion/weight prices, but refresh regular item prices using the same sale-price rule as add-to-cart.
-        price: (item.portion || item.weightGrams)
-          ? item.price
-          : (liveProduct ? getEffectiveUnitPrice(liveProduct) : item.price),
+        multiOffers: isPortionedVariant ? undefined : item.multiOffers,
+        multiBuyGroup: isPortionedVariant ? undefined : item.multiBuyGroup,
       };
     });
 
@@ -222,15 +164,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     // Step 4: Build final computed items
     return enrichedItems.map(item => {
       const compareAtLineTotal = item.price * item.quantity;
-      const liveProduct = products.find(p => p.id === item.productId);
       const portionMultiplier = item.portion ? PORTION_MULTIPLIERS[item.portion] ?? 1 : 1;
       const totalWeightGrams = (() => {
         if (item.weightGrams) return item.weightGrams * item.quantity;
-        if (liveProduct?.weightInGrams) {
-          return Math.round(liveProduct.weightInGrams * portionMultiplier * item.quantity);
+        if (item.weightInGrams) {
+          return Math.round(item.weightInGrams * portionMultiplier * item.quantity);
         }
-        if (liveProduct?.estimatedWeightG) {
-          return Math.round(liveProduct.estimatedWeightG * portionMultiplier * item.quantity);
+        if (item.estimatedWeightG) {
+          return Math.round(item.estimatedWeightG * portionMultiplier * item.quantity);
         }
         return undefined;
       })();
@@ -263,7 +204,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         appliedOfferLabel: appliedOffer?.label,
       };
     });
-  }, [state.items, products]);
+  }, [state.items]);
 
   const subtotal = useMemo(() => computedItems.reduce((total, item) => total + (item.lineTotal || 0), 0), [computedItems]);
   const shippingFee = getHomeDeliveryFee(subtotal);
@@ -286,12 +227,4 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
-};
-
-export const useCart = () => {
-  const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
 };

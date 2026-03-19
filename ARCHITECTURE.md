@@ -1,293 +1,255 @@
-# Hasselblads Livs – Arkitekturdokumentation
+# Hasselblads Livs – Arkitektur
 
-> **Syfte:** Ge en AI-assistent fullständig förståelse för hur webbutiken är strukturerad och hur den ska integreras med extern produkthantering (PIM).
+## Översikt
 
----
+Det här projektet är den kundvända sajten för Hasselblads Livs. Appen är byggd i React/Vite och kombinerar tre huvuddelar:
 
-## 🏪 Projektöversikt
+- Innehållssajt med startsida, om-sida, leverans och kundservice
+- Webbutik med produktfilter, snabbvy, portionsval och varukorg
+- Pre-checkout i React som lämnar över till WooCommerce för slutlig betalning
 
-**Hasselblads Livs** är en webbplats för en livsmedelsbutik i Mölndal med fokus på frukt, grönsaker och delikatesser. Sajten inkluderar:
+Produkter och hemsideinnehåll hämtas från Firebase/Firestore i realtid. Slutlig orderläggning sker i WooCommerce via Netlify Functions.
 
-- **Webbutik** med produktkatalog, filtrering och varukorg
-- **Hemleverans**-information
-- **Butikssida** med öppettider och karta
-- **Säsongssida** med aktuella produkter
-- **Kundservice** med kontaktformulär
+## Stack
 
----
+- React 18 + TypeScript
+- Vite
+- React Router
+- Tailwind CSS + shadcn/ui
+- Firebase Auth
+- Firestore
+- Netlify Functions
+- WooCommerce / WordPress
 
-## 🛠️ Tech Stack
+## Huvudflöden
 
-| Kategori | Teknologi |
-|----------|-----------|
-| Framework | React 18 + TypeScript |
-| Build | Vite |
-| Styling | TailwindCSS + shadcn/ui |
-| Routing | React Router v6 |
-| State | React Context (varukorg) |
-| Hosting | Netlify |
-| Icons | Lucide React |
+### 1. Produktdata
 
----
+Produktkatalogen kommer från Firestore via [`useProducts.ts`](./src/hooks/useProducts.ts).
 
-## 📁 Mappstruktur
+- Källa: `organizations/hasselblad_common/projects/default/products`
+- Endast publicerade produkter visas
+- PIM-data mappas till webbens interna `Product`-typ
+- Kategorier, underkategorier, ursprungsland, prislogik, portionsstöd och multiköp normaliseras i hooken
 
-```
+Den centrala produktmodellen finns i [`products.ts`](./src/lib/products.ts).
+
+### 2. Hemsidans feature-cards och video
+
+Startsidans “Godast just nu”, “Nyheter”, “I säsong” och “Erbjudanden” styrs från Firestore via [`useFeaturedContent.ts`](./src/hooks/useFeaturedContent.ts).
+
+- Varje kort kan ha produkt-ID:n
+- Varje kort kan ha egen video
+- Legacy-fält för global featured video stöds fortfarande
+
+Det här används både på startsidan och i webshopens filterflöde.
+
+### 3. Varukorg
+
+Varukorgen hanteras i React Context via [`CartContext.tsx`](./src/context/CartContext.tsx).
+
+- Varukorgen sparas i `localStorage`
+- Priser uppdateras mot live produktdata när det går
+- Multiköp räknas om dynamiskt i klienten
+- Mix-and-match-grupper stöds
+- Portionsvarianter och viktbaserade rader stöds
+
+Delade typer och konstanter ligger i:
+
+- [`cartContextShared.ts`](./src/context/cartContextShared.ts)
+- [`cartConstants.ts`](./src/context/cartConstants.ts)
+- [`useCart.ts`](./src/context/useCart.ts)
+
+### 4. Leverans och pre-checkout
+
+Kassan i React är ett pre-checkout-steg i [`Checkout.tsx`](./src/pages/Checkout.tsx).
+
+Användaren väljer:
+
+- Hemleverans eller upphämtning
+- Adress om hemleverans
+- Leveransdag
+- Eventuell kommentar
+
+Adress- och leveranslogik ligger i [`deliveryAreas.ts`](./src/lib/deliveryAreas.ts).
+
+- Godkända områden: Solängen och Malevik
+- Leveransdagar: måndag till fredag
+- Deadline: dagen innan kl 24:00
+
+Fraktregler ligger i [`shipping.ts`](./src/lib/shipping.ts).
+
+- Fri hemleverans från 600 kr
+- Annars 49 kr
+- Upphämtning är gratis
+
+### 5. WooCommerce-handoff
+
+React äger inte den slutliga betalningen. När pre-checkout är klar skickas användaren vidare till WooCommerce via [`woocommerce.ts`](./src/lib/woocommerce.ts).
+
+Två flöden finns:
+
+- Gäst-checkout via [`wc-add-to-cart.ts`](./netlify/functions/wc-add-to-cart.ts)
+- Autentiserad checkout via [`checkout-session.ts`](./netlify/functions/checkout-session.ts)
+
+Funktionerna gör i praktiken detta:
+
+- etablerar eller återanvänder WordPress/WooCommerce-session
+- lägger till produkter i WooCommerce-varukorgen server-side
+- sätter relevanta cookies i användarens browser
+- skickar vidare användaren till `/betalning`
+
+WordPress/WooCommerce ligger bakom en proxy i [`wordpress-proxy.ts`](./netlify/functions/wordpress-proxy.ts), som även hanterar vissa checkout-anpassningar och path-alias för `/betalning`.
+
+## Routing
+
+Routing definieras i [`App.tsx`](./src/App.tsx).
+
+Aktiva kundvägar:
+
+- `/` – startsida
+- `/webbutik` – produktkatalog
+- `/hemleverans` – leveranssida
+- `/butiken` – alias till om-sidan
+- `/om-oss` – om-sida
+- `/kundservice` – kundservice
+- `/kassa` – React pre-checkout
+- `/intern/checkout-verifiering` – intern verifieringssida
+- `/kopvillkor` – pekar för närvarande till `About`
+- `/hallbarhet` – pekar för närvarande till `About`
+
+WooCommerce checkout exponeras externt under `/betalning` via proxy/redirect-konfiguration, inte via React Router.
+
+## Layout och providers
+
+Appens toppnivå finns i [`App.tsx`](./src/App.tsx).
+
+Viktiga providers:
+
+- `QueryClientProvider`
+- `TooltipProvider`
+- `AuthProvider`
+- `CartProvider`
+- `BrowserRouter`
+- `ErrorBoundary`
+
+Root-layouten finns i [`RootLayout.tsx`](./src/layouts/RootLayout.tsx) och innehåller navigation, skip-link, main-region och footer.
+
+## Viktiga mappar
+
+```text
 src/
-├── App.tsx              # Routing & providers
-├── main.tsx             # Entry point
-├── index.css            # CSS-variabler (tema)
-│
-├── pages/               # Sidkomponenter
-│   ├── Home.tsx
-│   ├── Webshop.tsx      # ⭐ Huvudsida för produkter
-│   ├── Checkout.tsx     # ⭐ Kassaflöde
-│   ├── Store.tsx
-│   ├── Delivery.tsx
-│   ├── Season.tsx
-│   ├── About.tsx
-│   ├── CustomerService.tsx
-│   └── NotFound.tsx
-│
 ├── components/
-│   ├── Navigation.tsx
-│   ├── Footer.tsx
-│   ├── shop/            # ⭐ WEBSHOP-KOMPONENTER
-│   │   ├── ProductCard.tsx
-│   │   ├── MiniCartDrawer.tsx
-│   │   ├── QuickViewModal.tsx
-│   │   ├── FilterChips.tsx
-│   │   └── SortDropdown.tsx
-│   ├── sections/        # Återanvändbara sektioner
-│   └── ui/              # shadcn/ui komponenter
-│
-├── context/
-│   └── CartContext.tsx  # ⭐ Global varukorg-state
-│
-├── lib/
-│   ├── products.ts      # ⭐ Produkttyper & data
-│   ├── categoryCards.ts # Kategori-bilder
-│   └── utils.ts
-│
-├── hooks/
-│   ├── use-toast.ts
-│   ├── use-mobile.tsx
-│   └── usePageMetadata.ts
-│
-└── layouts/
-    └── RootLayout.tsx
+│   ├── auth/          # Inloggning
+│   ├── seo/           # Schema och redirects
+│   ├── sections/      # Innehållssektioner
+│   ├── shop/          # Webshop och varukorg
+│   └── ui/            # UI-byggstenar
+├── context/           # Auth, cart och delade cart-helpers
+├── hooks/             # Datahämtning och UI-hooks
+├── layouts/           # RootLayout
+├── lib/               # Domänlogik och integrationer
+└── pages/             # Route-komponenter
 ```
 
----
+Serverless-funktioner:
 
-## ⭐ KRITISKA FILER FÖR PIM-INTEGRATION
-
-### 1. Produkttyper (`src/lib/products.ts`)
-
-```typescript
-export type ProductCategory = "frukt" | "gronsaker" | "mejeri" | "skafferi";
-
-export type ProductTag = "sasong" | "erbjudande" | "nyhet" | "klassiker";
-
-export type Product = {
-  id: string;           // Unik identifierare (slug-format, t.ex. "apple-eko")
-  name: string;         // Produktnamn
-  description: string;  // Kort beskrivning
-  category: ProductCategory;
-  tags: ProductTag[];   // Kan ha flera taggar
-  price: number;        // Pris i SEK (heltal)
-  unit: string;         // Enhet (t.ex. "/kg", "/500 g", "/st")
-  origin: {
-    country: string;    // "Sverige", "Spanien", etc.
-    flag: string;       // Emoji-flagga "🇸🇪"
-  };
-  image: string;        // URL till produktbild
-};
+```text
+netlify/functions/
+├── checkout-session.ts
+├── wc-add-to-cart.ts
+├── wordpress-proxy.ts
+├── woo-proxy.js
+├── instagram-feed.js
+└── get-wallet-balance.js
 ```
 
-**Tillgängliga filter:**
-```typescript
-export const categories = [
-  { label: "Alla", value: "alla" },
-  { label: "Frukt", value: "frukt" },
-  { label: "Grönsaker", value: "gronsaker" },
-  { label: "Mejeri", value: "mejeri" },
-  { label: "Skafferi", value: "skafferi" },
-];
+## Domänlogik som är viktig att förstå
 
-export const tagFilters = [
-  { label: "Säsong & Erbjudanden", value: "sasong-och-erbjudanden", tag: "sasong" },
-  { label: "Erbjudanden", value: "erbjudanden", tag: "erbjudande" },
-  { label: "Nyheter", value: "nyheter", tag: "nyhet" },
-  { label: "Klassiker", value: "klassiker", tag: "klassiker" },
-];
+### Produktkategorier
 
-export const sortOptions = [
-  { label: "Mest populära", value: "popular" },
-  { label: "Pris – lägst först", value: "price-asc" },
-  { label: "Pris – högst först", value: "price-desc" },
-  { label: "Namn A–Ö", value: "name-asc" },
-];
-```
+Kategorisystemet är bredare än i den äldre dokumentationen. Nuvarande huvudkategorier definieras i [`products.ts`](./src/lib/products.ts), till exempel:
 
----
+- `frukt-gront`
+- `agg-mejeri`
+- `skafferi`
+- `ost-chark`
+- `konfektyr`
+- `brod`
+- `kott`
+- `snacks-dryck`
+- `notter-torkad-frukt`
+- `farskvaror`
+- `hogtidsvaror`
+- `ovrigt`
 
-### 2. Varukorg (`src/context/CartContext.tsx`)
+### Multiköp
 
-```typescript
-export type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  unit: string;
-  image: string;
-  quantity: number;  // 1-99
-};
+Multiköp beräknas i frontend på radnivå och gruppnivå.
 
-// Tillgängliga metoder via useCart():
-interface CartContextValue {
-  items: CartItem[];
-  isOpen: boolean;
-  subtotal: number;      // Summa exkl. frakt
-  shippingFee: number;   // 39 kr om < 600 kr, annars 0
-  total: number;         // subtotal + shippingFee
-  
-  addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
-  clearCart: () => void;
-  setOpen: (isOpen: boolean) => void;
-}
-```
+- `calculateLineTotal` optimerar billigaste kombination av erbjudanden
+- `getAutoOffer` används för visning
+- `inferMultiBuyGroup` används som fallback när PIM saknar explicit grupp
 
-**Fraktregler:**
-- Gratis frakt vid beställning ≥ 600 kr
-- Annars 39 kr fraktavgift
+Det här gör att radpris i varukorgen kan skilja sig från `pris * antal`.
 
----
+### Portionsvarianter
 
-### 3. Kategorikort (`src/lib/categoryCards.ts`)
+Produkter kan säljas som:
 
-```typescript
-export type CategoryCardData = {
-  name: string;           // "FRUKT GRÖNT"
-  description: string;    // Kort beskrivning
-  image: string;          // Bildimport
-  href: string;           // Länk, t.ex. "/webbutik?kategori=frukt"
-  filterValue?: string;   // Matchande kategori-value
-  titleLines: string[];   // För layout: ["FRUKT", "GRÖNT"]
-};
-```
+- `hel`
+- `halv`
+- `kvart`
 
-**Nuvarande kategorier:**
-1. Frukt & Grönt
-2. Mejeri & Ägg
-3. Skafferi
-4. Sött & Gott
-5. Ost & Chark
-6. Bröd
-7. Nötter & Torkad frukt
-8. Snacks & Dryck
+Det påverkar:
 
----
+- pris
+- WooCommerce-ID
+- visning i produktkort/snabbvy
+- viktberäkningar i varukorgen
 
-## 🎨 Designsystem (Tailwind)
+### Feature-card-filter
 
-### Färgvariabler (CSS custom properties i `index.css`)
+Webshopens filter-URL stöder både kategorier och feature-cards.
 
-```css
---primary       /* Primär grön */
---secondary     /* Sekundär färg */
---background    /* Bakgrund */
---foreground    /* Text */
---muted         /* Dämpad bakgrund */
---accent        /* Accent */
---peach, --cream, --pink, --sky, --teal  /* Pasteller */
-```
+Exempel:
 
-### Typsnitt
-- **Sans-serif:** Inter (rubriker, UI)
-- **Lato:** Alternativt typsnitt
+- `/webbutik?tag=godast`
+- `/webbutik?tag=erbjudanden`
+- `/webbutik?kategori=frukt-gront`
 
----
+Äldre `focus`-parameter migreras i klienten till `tag`.
 
-## 🔗 Routes (från `App.tsx`)
+## Miljö och externa beroenden
 
-| Path | Komponent | Beskrivning |
-|------|-----------|-------------|
-| `/` | `Home` | Startsida |
-| `/webbutik` | `Webshop` | Produktkatalog |
-| `/hemleverans` | `Delivery` | Leveransinformation |
-| `/butiken` | `Store` | Fysisk butik |
-| `/om-oss` | `About` | Om företaget |
-| `/säsong` | `Season` | Säsongsprodukter |
-| `/kundservice` | `CustomerService` | Kontakt & FAQ |
-| `/kassa` | `Checkout` | Kassaflöde |
-| `*` | `NotFound` | 404-sida |
+Projektet förutsätter miljövariabler för minst:
 
----
+- Firebase klientkonfiguration
+- `WORDPRESS_HOST`
+- `WORDPRESS_BACKEND_IP` vid behov
+- `WOOCOMMERCE_CONSUMER_KEY`
+- `WOOCOMMERCE_CONSUMER_SECRET`
 
-## 🔌 Integrationsplan för PIM-appen
+Autentiserad checkout kräver även fungerande Firebase-tokenverifiering mot Google Identity Toolkit.
 
-### Nuvarande läge
-- Produkter är **hårdkodade** i `src/lib/products.ts`
-- Ingen databas eller API
+## Nuvarande tekniska observationer
 
-### Förslag för integration
+- Dokumentationen här speglar nuvarande kod, inte den äldre statiska produktmodellen
+- Checkout är uppdelad mellan React och WooCommerce, vilket är centralt att förstå innan ändringar görs
+- En stor del av affärslogiken ligger i klienten, särskilt filter, prissättning och varukorg
+- Bygget fungerar, men huvudbundlen är fortfarande stor och kan senare behöva delas upp mer
 
-1. **API-endpoint** som returnerar produkter i `Product[]`-format
-2. **Netlify Functions** (`netlify/functions/`) för serverless API
-3. Ersätt hårdkodad `products` med hook som hämtar från API:
-   ```typescript
-   const { data: products, isLoading } = useQuery({
-     queryKey: ['products'],
-     queryFn: () => fetch('/api/products').then(r => r.json())
-   });
-   ```
+## Referensfiler
 
-### Viktiga API-kontraktsformat
-
-**GET /api/products**
-```json
-[
-  {
-    "id": "apple-eko",
-    "name": "Ekologiska äpplen Aroma",
-    "description": "Knapriga svenska äpplen...",
-    "category": "frukt",
-    "tags": ["sasong"],
-    "price": 42,
-    "unit": "/kg",
-    "origin": { "country": "Sverige", "flag": "🇸🇪" },
-    "image": "https://..."
-  }
-]
-```
-
----
-
-## 📦 Beroenden (viktiga)
-
-```json
-{
-  "@tanstack/react-query": "^5.x",   // Data fetching
-  "react-router-dom": "^6.x",        // Routing
-  "lucide-react": "^0.462.0",        // Ikoner
-  "sonner": "^1.x",                  // Toast-notiser
-  "zod": "^3.x"                      // Validering
-}
-```
-
----
-
-## ✅ Sammanfattning för AI-integration
-
-| Vad | Fil | Syfte |
-|-----|-----|-------|
-| Produkttyp | `lib/products.ts` | Definiera schema för produkter |
-| Varukorgslogik | `context/CartContext.tsx` | State management för köp |
-| Webshop UI | `pages/Webshop.tsx` | Filtrering, sökning, rendering |
-| Produktkort | `components/shop/ProductCard.tsx` | UI för enskild produkt |
-| Snabbvisning | `components/shop/QuickViewModal.tsx` | Modal för produktdetaljer |
-| Kundvagn | `components/shop/MiniCartDrawer.tsx` | Sidopanel för varukorg |
-| Kategorier | `lib/categoryCards.ts` | Kategoribeskrivningar |
+- [`App.tsx`](./src/App.tsx)
+- [`Webshop.tsx`](./src/pages/Webshop.tsx)
+- [`Checkout.tsx`](./src/pages/Checkout.tsx)
+- [`useProducts.ts`](./src/hooks/useProducts.ts)
+- [`useFeaturedContent.ts`](./src/hooks/useFeaturedContent.ts)
+- [`products.ts`](./src/lib/products.ts)
+- [`deliveryAreas.ts`](./src/lib/deliveryAreas.ts)
+- [`shipping.ts`](./src/lib/shipping.ts)
+- [`woocommerce.ts`](./src/lib/woocommerce.ts)
+- [`wc-add-to-cart.ts`](./netlify/functions/wc-add-to-cart.ts)
+- [`checkout-session.ts`](./netlify/functions/checkout-session.ts)
+- [`wordpress-proxy.ts`](./netlify/functions/wordpress-proxy.ts)

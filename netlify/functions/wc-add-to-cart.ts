@@ -1,7 +1,8 @@
 import type { Context } from "@netlify/functions";
+import type { LookupOneOptions } from "node:dns";
 import https from "node:https";
 
-const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
+const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP;
 const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 
 /**
@@ -22,6 +23,29 @@ const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 interface WcItem {
     id: number;
     quantity: number;
+}
+
+function createWordPressRequestOptions(
+    path: string,
+    method: "GET" | "POST",
+    headers: Record<string, string>
+): https.RequestOptions {
+    return {
+        hostname: WORDPRESS_HOST,
+        port: 443,
+        path,
+        method,
+        headers,
+        ...(WORDPRESS_BACKEND_IP
+            ? {
+                lookup: (
+                    hostname: string,
+                    options: LookupOneOptions,
+                    callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void
+                ) => callback(null, WORDPRESS_BACKEND_IP, options.family === 6 ? 6 : 4),
+            }
+            : {}),
+    };
 }
 
 function createBridgeLog(bridgeAttemptId: string, step: string, extra: Record<string, unknown> = {}) {
@@ -59,19 +83,16 @@ function addItemToCart(
     return new Promise((resolve) => {
         const cookieHeader = existingCookies.join("; ");
 
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: `/?add-to-cart=${item.id}&quantity=${item.quantity}`,
-            method: "GET",
-            headers: {
+        const options = createWordPressRequestOptions(
+            `/?add-to-cart=${item.id}&quantity=${item.quantity}`,
+            "GET",
+            {
                 "Host": WORDPRESS_HOST,
                 "User-Agent": "Mozilla/5.0 (compatible; HasselbladsCartGateway/1.0)",
                 "Accept": "text/html",
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
-            },
-            rejectUnauthorized: false,
-        };
+            }
+        );
 
         const req = https.request(options, (res) => {
             const chunks: Buffer[] = [];

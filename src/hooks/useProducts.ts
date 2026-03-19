@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore/lite';
 import { db } from '@/lib/firebase';
 import { inferMultiBuyGroup, type Product } from '@/lib/products';
 
@@ -505,7 +505,7 @@ function transformProduct(pim: PIMProduct): Product {
 let cachedProducts: Product[] | null = null;
 let isGlobalLoading = true;
 let globalError: Error | null = null;
-let unsubscribeRef: (() => void) | null = null;
+let fetchPromise: Promise<void> | null = null;
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -525,7 +525,7 @@ export function useProducts() {
             isGlobalLoading = false;
         }
 
-        if (!unsubscribeRef) {
+        if (!fetchPromise) {
             const productsRef = collection(db, PRODUCTS_PATH);
             const q = query(
                 productsRef,
@@ -533,9 +533,8 @@ export function useProducts() {
                 where('is_published', '==', true)
             );
 
-            unsubscribeRef = onSnapshot(
-                q,
-                (snapshot) => {
+            fetchPromise = getDocs(q)
+                .then((snapshot) => {
                     const productList = snapshot.docs
                         .map(doc => ({ id: doc.id, ...doc.data() } as PIMProduct))
                         .map(p => transformProduct(p));
@@ -546,14 +545,13 @@ export function useProducts() {
                     isGlobalLoading = false;
                     globalError = null;
                     notify();
-                },
-                (err) => {
+                })
+                .catch((err: Error) => {
                     console.error("[useProducts] Error loading products:", err);
                     globalError = err;
                     isGlobalLoading = false;
                     notify();
-                }
-            );
+                });
         }
 
         return () => {

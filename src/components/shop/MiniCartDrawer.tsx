@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/context/useCart";
 import {
   FREE_HOME_DELIVERY_THRESHOLD,
   qualifiesForFreeHomeDelivery,

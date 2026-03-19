@@ -1,8 +1,7 @@
-import { useMemo, useState, useEffect, useRef } from "react";
+import { Suspense, lazy, useMemo, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { CircularGallery } from "@/components/ui/circular-gallery";
 import DeliverySection from "@/components/sections/DeliverySection";
-import FeaturedContent from "@/components/sections/FeaturedContent";
 import HeroLeafBadge from "@/components/ui/HeroLeafBadge";
 import { categoryCards } from "@/lib/categoryCards";
 import usePageMetadata from "@/hooks/usePageMetadata";
@@ -24,10 +23,28 @@ const heroImages = [
 
 import { Leaf } from "lucide-react";
 
+const FeaturedContent = lazy(() => import("@/components/sections/FeaturedContent"));
+
+const FeaturedContentPlaceholder = () => (
+  <div className="container mx-auto px-4">
+    <div className="text-center mb-10">
+      <h2 className="text-4xl md:text-5xl font-bold text-primary tracking-tight">Aktuellt</h2>
+    </div>
+    <div className="flex justify-center">
+      <div
+        className="rounded-2xl overflow-hidden shadow-lg w-[280px] md:w-[340px] bg-muted/20"
+        style={{ aspectRatio: "9/16" }}
+      />
+    </div>
+  </div>
+);
+
 const Home = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const parallaxContainerRef = useRef<HTMLDivElement>(null);
+  const featuredContentRef = useRef<HTMLElement>(null);
+  const [shouldLoadFeaturedContent, setShouldLoadFeaturedContent] = useState(false);
 
   // Auto-advance hero slideshow
   useEffect(() => {
@@ -98,6 +115,25 @@ const Home = () => {
       img.src = heroImages[i];
     });
   }, [currentSlide]);
+
+  useEffect(() => {
+    if (shouldLoadFeaturedContent) return;
+
+    const section = featuredContentRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setShouldLoadFeaturedContent(true);
+        observer.disconnect();
+      },
+      { rootMargin: "300px 0px" },
+    );
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [shouldLoadFeaturedContent]);
 
   const [readySlides, setReadySlides] = useState<Set<number>>(() => new Set([0]));
 
@@ -278,8 +314,14 @@ const Home = () => {
       </section>
 
       {/* Aktuellt - Video Section */}
-      <section className="bg-transparent">
-        <FeaturedContent />
+      <section ref={featuredContentRef} className="bg-transparent py-10 md:py-14 min-h-[520px] md:min-h-[620px]">
+        {shouldLoadFeaturedContent ? (
+          <Suspense fallback={<FeaturedContentPlaceholder />}>
+            <FeaturedContent />
+          </Suspense>
+        ) : (
+          <FeaturedContentPlaceholder />
+        )}
       </section>
 
       {/* Kategorier - 3D Circular Gallery */}

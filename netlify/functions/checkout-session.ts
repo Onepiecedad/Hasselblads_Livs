@@ -1,4 +1,5 @@
 import type { Context } from "@netlify/functions";
+import type { LookupOneOptions } from "node:dns";
 import https from "node:https";
 import querystring from "node:querystring";
 
@@ -10,15 +11,55 @@ import querystring from "node:querystring";
  * adds items to their cart, and returns the WordPress session cookies.
  */
 
-const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP || "199.16.172.188";
+const WORDPRESS_BACKEND_IP = process.env.WORDPRESS_BACKEND_IP;
 const WORDPRESS_HOST = process.env.WORDPRESS_HOST || "hasselbladslivs.se";
 const FIREBASE_PROJECT_ID = process.env.VITE_FIREBASE_PROJECT_ID || "hasselblad-bildstudio";
+const FIREBASE_API_KEY = process.env.VITE_FIREBASE_API_KEY;
 const WC_KEY = process.env.WOOCOMMERCE_CONSUMER_KEY;
 const WC_SECRET = process.env.WOOCOMMERCE_CONSUMER_SECRET;
 
 interface WcItem {
     id: number;
     quantity: number;
+}
+
+interface FirebaseLookupResponse {
+    error?: {
+        message?: string;
+    };
+    users?: Array<{
+        email?: string;
+    }>;
+}
+
+type WooCommerceResponseData = string | number | boolean | null | Record<string, unknown> | Array<Record<string, unknown>>;
+
+interface WooCommerceResponse {
+    statusCode?: number;
+    data: WooCommerceResponseData;
+}
+
+function createWordPressRequestOptions(
+    path: string,
+    method: "GET" | "POST" | "PUT",
+    headers: Record<string, string>
+): https.RequestOptions {
+    return {
+        hostname: WORDPRESS_HOST,
+        port: 443,
+        path,
+        method,
+        headers,
+        ...(WORDPRESS_BACKEND_IP
+            ? {
+                lookup: (
+                    hostname: string,
+                    options: LookupOneOptions,
+                    callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void
+                ) => callback(null, WORDPRESS_BACKEND_IP, options.family === 6 ? 6 : 4),
+            }
+            : {}),
+    };
 }
 
 function createBridgeLog(bridgeAttemptId: string, step: string, extra: Record<string, unknown> = {}) {
@@ -47,17 +88,22 @@ function extractBridgeCookies(cookies: string[]): string[] {
 
 // 1. Verify Firebase Token
 async function verifyFirebaseToken(token: string): Promise<string | null> {
+    if (!FIREBASE_API_KEY) {
+        console.error("Missing Firebase API key in function environment");
+        return null;
+    }
+
     try {
         const response = await fetch(
-            `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${process.env.VITE_FIREBASE_API_KEY}`,
+            `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ idToken: token }),
             }
         );
-        const data = await response.json() as any;
-        if (data.error || !data.users || data.users.length === 0) {
+        const data = await response.json() as FirebaseLookupResponse;
+        if (data.error || !data.users || data.users.length === 0 || !data.users[0]?.email) {
             console.error("Firebase auth error:", data.error);
             return null;
         }
@@ -69,22 +115,19 @@ async function verifyFirebaseToken(token: string): Promise<string | null> {
 }
 
 // 2. Make WooCommerce REST API Request
-function makeWooCommerceRequest(path: string, method = 'GET', data: any = null): Promise<any> {
+function makeWooCommerceRequest(
+    path: string,
+    method: "GET" | "PUT" = "GET",
+    data: Record<string, unknown> | null = null
+): Promise<WooCommerceResponse> {
     return new Promise((resolve, reject) => {
         const auth = Buffer.from(`${WC_KEY}:${WC_SECRET}`).toString('base64');
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: path,
-            method: method,
-            headers: {
+        const options = createWordPressRequestOptions(path, method, {
                 'Authorization': `Basic ${auth}`,
                 'Host': WORDPRESS_HOST,
                 'Content-Type': 'application/json',
                 'User-Agent': 'Netlify/CheckoutSession'
-            },
-            rejectUnauthorized: false
-        };
+            });
 
         if (data) {
             const bodyStr = JSON.stringify(data);
@@ -122,19 +165,12 @@ function loginToWordPress(username: string, password: string): Promise<string[]>
             'testcookie': '1'
         });
 
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: '/wp-login.php',
-            method: 'POST',
-            headers: {
+        const options = createWordPressRequestOptions('/wp-login.php', 'POST', {
                 'Host': WORDPRESS_HOST,
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Content-Length': Buffer.byteLength(postData).toString(),
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-            },
-            rejectUnauthorized: false
-        };
+            });
 
         const req = https.request(options, (res) => {
             const cookies = res.headers['set-cookie'] || [];
@@ -155,19 +191,16 @@ function addItemToCart(
     return new Promise((resolve) => {
         const cookieHeader = existingCookies.map(c => c.split(';')[0]).join("; ");
 
-        const options: https.RequestOptions = {
-            hostname: WORDPRESS_BACKEND_IP,
-            port: 443,
-            path: `/?add-to-cart=${item.id}&quantity=${item.quantity}`,
-            method: "GET",
-            headers: {
+        const options = createWordPressRequestOptions(
+            `/?add-to-cart=${item.id}&quantity=${item.quantity}`,
+            "GET",
+            {
                 "Host": WORDPRESS_HOST,
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
                 "Accept": "text/html",
                 ...(cookieHeader ? { "Cookie": cookieHeader } : {}),
-            },
-            rejectUnauthorized: false,
-        };
+            }
+        );
 
         const req = https.request(options, (res) => {
             const chunks: Buffer[] = [];
@@ -295,7 +328,18 @@ export default async (request: Request, _context: Context): Promise<Response> =>
             }), { status: 404 });
         }
 
-        const customerId = customerRes.data[0].id;
+        const customers = Array.isArray(customerRes.data) ? customerRes.data : [];
+        const customerId = typeof customers[0]?.id === "number" ? customers[0].id : null;
+        if (!customerId) {
+            console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
+                errorCode: "woocommerce_customer_missing_id",
+            }));
+            return new Response(JSON.stringify({
+                error: "WooCommerce customer record is missing an ID",
+                error_code: "woocommerce_customer_missing_id",
+                bridge_attempt_id: bridgeAttemptId,
+            }), { status: 502 });
+        }
 
         // 3. Reset Password to a Random Secure Value
         // Note: This does mean they can never use their WP password directly,
@@ -454,10 +498,11 @@ export default async (request: Request, _context: Context): Promise<Response> =>
             status: 200,
             headers,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Unknown error";
         console.error("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_failed", {
             errorCode: "internal_server_error",
-            message: error?.message || "Unknown error",
+            message,
         }));
         return new Response(JSON.stringify({
             error: "Internal server error",

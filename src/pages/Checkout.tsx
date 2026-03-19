@@ -1,6 +1,6 @@
 import { FormEvent, useState, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCart } from "@/context/CartContext";
+import { useCart } from "@/context/useCart";
 import { useAuth } from "@/context/AuthContext";
 import { addItemsAndRedirectToCheckout, authenticateAndCheckout } from "@/lib/woocommerce";
 import {

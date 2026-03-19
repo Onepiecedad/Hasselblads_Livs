@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
@@ -13,7 +14,6 @@ export default {
     { pattern: /grid-cols-(1|2|3|4)/ },
     { pattern: /col-span-(1|2|3|4|6|12)/ },
     { pattern: /gap-(2|3|4|6|8)/ },
-    { pattern: /badge-(new|sale|season)/ },
     { pattern: /bg-(red|green|amber|blue|emerald)-(100|200|500)/ },
     { pattern: /z-(0|10|20|30|40|50)/ },
     { pattern: /(hidden|block|flex|inline-flex)/ },
@@ -104,5 +104,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [tailwindcssAnimate],
 } satisfies Config;

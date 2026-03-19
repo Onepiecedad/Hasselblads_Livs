@@ -13,7 +13,8 @@ import QuickViewModal from "@/components/shop/QuickViewModal";
 import { getEffectiveUnitPrice, tagFilters, type Product, type ProductTag } from "@/lib/products";
 import { focusCards, getFallbackTag } from "@/lib/focusCards";
 import { useProducts } from "@/hooks/useProducts";
-import { useCart, type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS } from "@/context/CartContext";
+import { PORTION_LABELS, PORTION_MULTIPLIERS, type PortionSize } from "@/context/cartConstants";
+import { useCart } from "@/context/useCart";
 import usePageMetadata from "@/hooks/usePageMetadata";
 import { useFeaturedContent, type FeatureCardId } from "@/hooks/useFeaturedContent";
 import { toast } from "sonner";
@@ -316,7 +317,7 @@ const Webshop = () => {
         }
 
         return result;
-    }, [products, searchParams, activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, getCardProducts, isLoading]);
+    }, [products, searchParams, activeCategory, activeSubcategory, activeDetailCategory, activeTag, activeSort, getCardProducts]);
 
     const groupedProducts = useMemo(() => {
         // Only group when exactly one category is selected and there are many products
@@ -379,6 +380,8 @@ const Webshop = () => {
             price: itemPrice,
             unit: product.unit,
             image: product.image,
+            estimatedWeightG: product.estimatedWeightG,
+            weightInGrams: product.weightInGrams,
             // Resolve correct WooCommerce product ID based on portion
             woocommerce_id: (portion && product.woocommerce_ids?.[portion])
                 ? product.woocommerce_ids[portion]

@@ -7,7 +7,7 @@ import { ShoppingCart, Plus, Minus, RotateCcw } from "lucide-react";
 import { type MultiOffer, Product, getAutoOffer } from "@/lib/products";
 import { NutritionTable } from "./NutritionTable";
 import { formatPrice } from "@/lib/utils";
-import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER } from "@/context/CartContext";
+import { PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER, type PortionSize } from "@/context/cartConstants";
 
 interface ProductCardProps {
   product: Product;

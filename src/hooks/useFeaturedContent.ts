@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore/lite";
 import { db } from "@/lib/firebase";
 
 // Type definitions matching PIM data model
@@ -128,14 +128,15 @@ export function useFeaturedContent() {
 
     useEffect(() => {
         const docRef = doc(db, 'organizations/hasselblad_common/settings/homepage');
+        let isCancelled = false;
 
-        const unsubscribe = onSnapshot(
-            docRef,
-            (snapshot) => {
+        getDoc(docRef)
+            .then((snapshot) => {
+                if (isCancelled) return;
+
                 if (snapshot.exists()) {
                     const data = snapshot.data();
 
-                    // Parse feature cards, reading video from each card
                     const parseCard = (cardId: FeatureCardId): FeatureCard => {
                         const rawCard = data.featureCards?.[cardId];
                         if (!rawCard) return DEFAULT_FEATURE_CARDS[cardId];
@@ -148,7 +149,6 @@ export function useFeaturedContent() {
                             updatedAt: rawCard.updatedAt?.toDate?.() || new Date(),
                         };
 
-                        // Read video from card if present
                         if (rawCard.video && rawCard.video.url) {
                             card.video = {
                                 type: rawCard.video.type || 'url',
@@ -158,9 +158,7 @@ export function useFeaturedContent() {
                                 updatedAt: rawCard.video.updatedAt?.toDate?.() || new Date(),
                                 updatedBy: rawCard.video.updatedBy || 'system',
                             };
-                        }
-                        // Backward compat: if no card videos exist, fall back to global featuredVideo
-                        else if (data.featuredVideo?.url && data.featuredVideo.activeCardId === cardId) {
+                        } else if (data.featuredVideo?.url && data.featuredVideo.activeCardId === cardId) {
                             card.video = {
                                 type: data.featuredVideo.type || 'url',
                                 url: data.featuredVideo.url,
@@ -186,17 +184,20 @@ export function useFeaturedContent() {
                 } else {
                     setSettings(DEFAULT_SETTINGS);
                 }
+
                 setIsLoading(false);
                 setError(null);
-            },
-            (err) => {
+            })
+            .catch((err: Error) => {
+                if (isCancelled) return;
                 console.error('Error fetching homepage settings:', err);
                 setError(err);
                 setIsLoading(false);
-            }
-        );
+            });
 
-        return () => unsubscribe();
+        return () => {
+            isCancelled = true;
+        };
     }, []);
 
     // Compute: cards that have a video configured

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { type PortionSize, PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER } from "@/context/CartContext";
+import { PORTION_LABELS, PORTION_MULTIPLIERS, PORTION_ORDER, type PortionSize } from "@/context/cartConstants";
 import { type MultiOffer, getAutoOffer, calculateLineTotal, getEffectiveUnitPrice } from "@/lib/products";
 
 export type QuickViewProduct = {
@@ -74,7 +74,7 @@ const QuickViewModal = ({ product, open, onOpenChange, onAddToCart, returnFocusR
   const hasPortionChoices = !!(product?.sold_as && product.sold_as.length > 1);
   const sortedPortions = useMemo(() =>
     hasAnyPortionVariant ? [...product!.sold_as!].sort((a, b) => PORTION_ORDER.indexOf(a) - PORTION_ORDER.indexOf(b)) : product?.sold_as,
-    [product?.sold_as, hasAnyPortionVariant]);
+    [product, hasAnyPortionVariant]);
   const defaultPortion = sortedPortions?.includes('hel') ? 'hel' : (sortedPortions?.[0] ?? 'hel');
   const [selectedPortion, setSelectedPortion] = useState<PortionSize>(defaultPortion);
 
