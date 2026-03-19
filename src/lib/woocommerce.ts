@@ -146,17 +146,19 @@ async function startCheckoutGateway(
  * 3. Sätter cookies på användarens browser
  * 4. Redirectar till WooCommerce final checkout under /betalning
  */
-function calculateMultiBuyDiscount(items: CartItem[]): number {
-    let discount = 0;
+function calculateMultiBuyTarget(items: CartItem[]): number | null {
+    let targetTotal = 0;
+    let hasDiscount = false;
     for (const item of items) {
         if (item.price != null && item.lineTotal != null && item.quantity > 0) {
+            targetTotal += item.lineTotal;
             const fullPrice = item.price * item.quantity;
             if (fullPrice > item.lineTotal + 0.001) {
-                discount += fullPrice - item.lineTotal;
+                hasDiscount = true;
             }
         }
     }
-    return Math.round(discount * 100) / 100;
+    return hasDiscount ? Math.round(targetTotal * 100) / 100 : null;
 }
 
 export async function addItemsAndRedirectToCheckout(
@@ -185,17 +187,17 @@ export async function addItemsAndRedirectToCheckout(
         .map(item => `${item.woocommerce_id}:${item.quantity}`)
         .join(',');
 
-    // Calculate multiköp discount to pass to the gateway
-    const discount = calculateMultiBuyDiscount(validItems);
-    console.log(`[WooCommerce] Multiköp discount: ${discount} kr`, validItems.map(i => ({ name: i.name, price: i.price, qty: i.quantity, lineTotal: i.lineTotal })));
+    // Calculate multiköp target total to pass to the gateway
+    const multibuyTarget = calculateMultiBuyTarget(validItems);
+    console.log(`[WooCommerce] Multiköp target: ${multibuyTarget} kr`, validItems.map(i => ({ name: i.name, price: i.price, qty: i.quantity, lineTotal: i.lineTotal })));
 
     // Build gateway URL
     let gatewayUrl = `/.netlify/functions/wc-add-to-cart?items=${encodeURIComponent(itemsParam)}`;
     if (deliveryNote) {
         gatewayUrl += `&delivery_note=${encodeURIComponent(deliveryNote)}`;
     }
-    if (discount > 0) {
-        gatewayUrl += `&discount=${encodeURIComponent(discount.toFixed(2))}`;
+    if (multibuyTarget != null) {
+        gatewayUrl += `&multibuy_target=${encodeURIComponent(multibuyTarget.toFixed(2))}`;
     }
     gatewayUrl += `&bridge_attempt_id=${encodeURIComponent(bridgeAttemptId)}`;
 
@@ -231,14 +233,14 @@ export async function authenticateAndCheckout(
     // We will construct a GET request with query params for the Netlify function
     const itemsParam = validItems.map(item => `${item.woocommerce_id}:${item.quantity}`).join(',');
 
-    // Calculate multiköp discount
-    const discount = calculateMultiBuyDiscount(validItems);
+    // Calculate multiköp target total
+    const multibuyTarget = calculateMultiBuyTarget(validItems);
 
     const params = new URLSearchParams();
     params.set('items', itemsParam);
     params.set('token', token);
     if (deliveryNote) params.set('delivery_note', deliveryNote);
-    if (discount > 0) params.set('discount', discount.toFixed(2));
+    if (multibuyTarget != null) params.set('multibuy_target', multibuyTarget.toFixed(2));
     params.set('bridge_attempt_id', bridgeAttemptId);
 
     const gatewayUrl = `/.netlify/functions/checkout-session?${params.toString()}`;

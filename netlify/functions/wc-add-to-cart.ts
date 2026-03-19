@@ -114,12 +114,12 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     // Parse items from query string: items=ID:QTY,ID:QTY,...
     const itemsParam = url.searchParams.get("items") || "";
     const deliveryNote = url.searchParams.get("delivery_note") || "";
-    const discountParam = url.searchParams.get("discount") || "";
+    const multibuyTargetParam = url.searchParams.get("multibuy_target") || "";
     const bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `guest-${Date.now().toString(36)}`;
 
     console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "request_received", {
         itemsParam,
-        discountParam,
+        multibuyTargetParam,
         hasDeliveryNote: !!deliveryNote,
     }));
 
@@ -175,10 +175,10 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         }
     }
 
-    // Parse the multiköp discount — will be set as a cookie for the WordPress PHP hook
-    const discount = parseFloat(discountParam);
-    if (discount > 0) {
-        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_discount_cookie", { discount }));
+    // Parse the multiköp target total — will be set as a cookie for the WordPress PHP hook
+    const multibuyTarget = parseFloat(multibuyTargetParam);
+    if (multibuyTarget > 0) {
+        console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_target_cookie", { multibuyTarget }));
     }
 
     console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "cart_sync_complete", {
@@ -207,7 +207,6 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     // Build redirect URL to the dedicated WooCommerce final checkout route
     const redirectParams = new URLSearchParams();
     if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
-    if (discount > 0) redirectParams.set("discount", discount.toFixed(2));
     const qs = redirectParams.toString();
     const redirectUrl = `/betalning${qs ? '?' + qs : ''}`;
 
@@ -254,8 +253,8 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     if (deliveryNote) {
         headers.append("Set-Cookie", buildDeliveryNoteCookie(deliveryNote));
     }
-    if (discount > 0) {
-        headers.append("Set-Cookie", `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
+    if (multibuyTarget > 0) {
+        headers.append("Set-Cookie", `hbl_multibuy_target=${multibuyTarget.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
     }
 
     console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_redirect_ready", {

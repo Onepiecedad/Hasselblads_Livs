@@ -209,7 +209,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
     let items: WcItem[] = [];
     let deliveryNote = "";
     let token = "";
-    let discountParam = "";
+    let multibuyTargetParam = "";
     let bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || `auth-${Date.now().toString(36)}`;
 
     if (request.method === 'POST') {
@@ -217,7 +217,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
             const body = await request.json() as Record<string, unknown>;
             items = (body.items as WcItem[]) || [];
             deliveryNote = (body.deliveryNote as string) || "";
-            discountParam = String(body.discount || "");
+            multibuyTargetParam = String(body.multibuy_target || "");
             bridgeAttemptId = (body.bridgeAttemptId as string) || bridgeAttemptId;
             const authHeader = request.headers.get("Authorization");
             if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -233,7 +233,7 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         const itemsParam = url.searchParams.get("items") || "";
         deliveryNote = url.searchParams.get("delivery_note") || "";
         token = url.searchParams.get("token") || "";
-        discountParam = url.searchParams.get("discount") || "";
+        multibuyTargetParam = url.searchParams.get("multibuy_target") || "";
         bridgeAttemptId = url.searchParams.get("bridge_attempt_id") || bridgeAttemptId;
 
         if (itemsParam) {
@@ -348,16 +348,15 @@ export default async (request: Request, _context: Context): Promise<Response> =>
             }
         }
 
-        // Parse the multiköp discount — will be set as a cookie for the WordPress PHP hook
-        const discount = parseFloat(discountParam);
-        if (discount > 0) {
-            console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_discount_cookie", { discount }));
+        // Parse the multiköp target total — will be set as a cookie for the WordPress PHP hook
+        const multibuyTarget = parseFloat(multibuyTargetParam);
+        if (multibuyTarget > 0) {
+            console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "multibuy_target_cookie", { multibuyTarget }));
         }
 
         // 6. Build final redirect URL
         const redirectParams = new URLSearchParams();
         if (deliveryNote) redirectParams.set("delivery_note", deliveryNote);
-        if (discount > 0) redirectParams.set("discount", discount.toFixed(2));
         // Add cache buster to prevent serving a cached checkout page from another user
         redirectParams.set("chash", Date.now().toString());
 
@@ -433,8 +432,8 @@ export default async (request: Request, _context: Context): Promise<Response> =>
         if (deliveryNote) {
             headers.append("Set-Cookie", buildDeliveryNoteCookie(deliveryNote));
         }
-        if (discount > 0) {
-            headers.append("Set-Cookie", `hbl_multibuy_discount=${discount.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
+        if (multibuyTarget > 0) {
+            headers.append("Set-Cookie", `hbl_multibuy_target=${multibuyTarget.toFixed(2)}; Path=/; Max-Age=900; Secure; SameSite=Lax`);
         }
 
         console.log("[CheckoutBridge]", createBridgeLog(bridgeAttemptId, "bridge_redirect_ready", {

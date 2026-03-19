@@ -1,28 +1,33 @@
 <?php
 /**
- * Hasselblads Livs – Multiköps-rabatt via avgift
+ * Multiköps-rabatt via cookie (target-total approach)
  *
- * Läser cookien "hbl_multibuy_discount" som sätts av Netlify gateway
- * vid checkout-handoff. Om den innehåller ett positivt belopp (t.ex. "0.80")
- * läggs en negativ avgift ("Multiköps-rabatt") till på varukorgen.
+ * The React frontend calculates the customer's expected total
+ * (after multiköp deals) and passes it as a cookie. This snippet
+ * compares that target against WooCommerce's actual cart subtotal
+ * and applies the difference as a negative fee (discount).
  *
- * Cookien rensar sig själv efter att ordern lagts (session-cookie utan max-age,
- * eller med kort max-age satt av gatewayen).
- *
- * Lägg till via: WordPress Admin → Code Snippets plugin
+ * This avoids price-mismatch issues between PIM and WooCommerce.
  */
-
 add_action('woocommerce_cart_calculate_fees', function ($cart) {
     if (is_admin() && !defined('DOING_AJAX') && !defined('REST_REQUEST')) {
         return;
     }
 
-    $discount = isset($_COOKIE['hbl_multibuy_discount'])
-        ? floatval($_COOKIE['hbl_multibuy_discount'])
+    $target = isset($_COOKIE['hbl_multibuy_target'])
+        ? floatval($_COOKIE['hbl_multibuy_target'])
         : 0;
 
-    if ($discount > 0.001) {
-        // Negativ avgift = rabatt
+    if ($target < 0.01) {
+        return;
+    }
+
+    // Get the actual WooCommerce cart subtotal (excl. fees, incl. tax)
+    $subtotal = floatval($cart->get_subtotal()) + floatval($cart->get_subtotal_tax());
+
+    $discount = $subtotal - $target;
+
+    if ($discount > 0.01) {
         $cart->add_fee('Multiköps-rabatt', -$discount, false);
     }
 });
