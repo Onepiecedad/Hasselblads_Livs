@@ -23,6 +23,6 @@ add_action('woocommerce_cart_calculate_fees', function ($cart) {
 
     if ($discount > 0.001) {
         // Negativ avgift = rabatt
-        $cart->add_fee('Multiköps-rabatt', -$discount, true);
+        $cart->add_fee('Multiköps-rabatt', -$discount, false);
     }
 });
