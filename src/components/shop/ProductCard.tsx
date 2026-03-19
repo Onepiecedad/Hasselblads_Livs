@@ -211,14 +211,14 @@ const ProductCard = ({ product, onAddToCart, onQuickView, setQuickViewButtonRef 
 
   return (
     <div
-      className="flip-card-container perspective-1000 h-full"
+      className="flip-card-container perspective-1000"
       ref={setQuickViewButtonRef}
     >
       <div className={`flip-card-inner ${isFlipped ? 'is-flipped' : ''}`}>
 
         {/* ===== FRAMSIDA ===== */}
         <Card
-          className="flip-card-front group flex h-full flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer rounded-2xl"
+          className="flip-card-front group flex flex-col overflow-hidden border-0 bg-card/60 backdrop-blur-sm shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer rounded-2xl"
           onClick={handleCardClick}
           role="button"
           tabIndex={0}
